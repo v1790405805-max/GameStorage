@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7d627d7d42f7004bb3219b5c60a673f, type: 3}
+  m_Name: PlayerMove
+  m_EditorClassIdentifier: Assembly-CSharp::GridStyleConfig
+  cellClickedColor: {r: 0, g: 0.25, b: 0.067415714, a: 0.4}
+  lineClickedColor: {r: 0.7019608, g: 1, b: 0.90588236, a: 0.101960786}
+  outerLineClickedColor: {r: 0, g: 1, b: 0.6666667, a: 1}
+  playerCellColor: {r: 0.49019608, g: 0.69803923, b: 0.49019608, a: 0.4}
+  playerLineColor: {r: 0.5019608, g: 1, b: 0.5019608, a: 1}
+  targetCellColor: {r: 0, g: 0.703, b: 0, a: 0.4}
+  targetLineColor: {r: 0.5019608, g: 1, b: 0.5019608, a: 1}

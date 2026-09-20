@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Custom_URP_CameraSandDust
+  m_Shader: {fileID: 4800000, guid: d10c5149b8c8ce047b23c15132c7353f, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _DistortTex:
+        m_Texture: {fileID: 2800000, guid: edc1b90c74e642f49a308ea115ed907f, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: f15a89deee2631b48a8cd1c1306ca22c, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _AlphaMultiplier: 0.5
+    - _DistortStrength: 0.02
+    - _EdgeFade: 0.2
+    m_Colors:
+    - _DistortSpeed: {r: 0.01, g: 0.015, b: 0, a: 0}
+    - _SandColor: {r: 0.76, g: 0.62, b: 0.41999996, a: 1}
+    - _Speed1: {r: 0.05, g: -0.01, b: 0, a: 0}
+    - _Speed2: {r: 0.07, g: -0.02, b: 0, a: 0}
+    - _Tiling1: {r: 0.4, g: 0.4, b: 0, a: 0}
+    - _Tiling2: {r: 0.6, g: 0.6, b: 0, a: 0}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

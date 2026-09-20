@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a78281b4d3425b4b8b0e0a9fb05ed41, type: 3}
+  m_Name: "1203\u8840\u76FE"
+  m_EditorClassIdentifier: Assembly-CSharp::CardData
+  cardID: 1203
+  cardName: "\u8840\u76FE"
+  type: 2
+  cost: 0
+  effectFlags: 12
+  moveDistance: 0
+  damage: 0
+  block: 5
+  healthChange: -2
+  energyChange: 0
+  actionPointChange: 0
+  drawAmount: 0
+  discardAmount: 0
+  rangeType: 0
+  rangeDistance: 0
+  targetSelectMode: 0
+  extraEffects: []
+  gridStyle: {fileID: 11400000, guid: 853c237319753544088890199db33ed8, type: 2}
+  description: "\u6D88\u8017\u81EA\u8EAB2\u70B9\u8840\u91CF\uFF0C\u83B7\u5F975\u70B9\u62A4\u76FE"
