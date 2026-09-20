@@ -29,7 +29,7 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
+  m_CustomRenderQueue: 3000
   stringTagMap: {}
   disabledShaderPasses:
   - MOTIONVECTORS
@@ -143,7 +143,7 @@ Material:
     - _Cutoff: 0.5
     - _DebugMode: 0
     - _DeepRange: 16.19
-    - _Deplacment: 0.5
+    - _Deplacment: 0.03
     - _Depth: 0
     - _DepthDistance: 2
     - _Depth_Edge1: 0
