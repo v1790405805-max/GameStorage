@@ -68,8 +68,7 @@ public class CellManager : MonoBehaviour
         if (isLocked)
         {
             // 勾选锁定：立即全透明
-            SetCellColor(Color.clear, Application.isPlaying);
-            SetLineColor(Color.clear);
+            ApplyLockedColors();
         }
         else if (lockedChanged)
         {
@@ -80,6 +79,31 @@ public class CellManager : MonoBehaviour
                     lastUpOuter, lastDownOuter, lastLeftOuter, lastRightOuter);
             else
                 SetLineColor(lastLineColor);
+        }
+    }
+
+    /// <summary>
+    /// 勾选状态锁时，立即把面片与四条边框置为全透明。
+    /// 这里直接改渲染对象，不走 SetCellColor / SetLineColor / SetIndividualLinesColor，
+    /// 避免把"透明"写进 lastCellColor / lastLineColor / 逐边参数等缓存——
+    /// 否则取消勾选时拿到的"上次请求颜色"已经被改成透明，格子就不会重新出现。
+    /// </summary>
+    private void ApplyLockedColors()
+    {
+        if (meshRenderer == null) meshRenderer = GetComponent<MeshRenderer>();
+        if (meshRenderer != null)
+        {
+            if (Application.isPlaying)
+                meshRenderer.material.color = Color.clear;
+            else
+                meshRenderer.sharedMaterial.color = Color.clear;
+        }
+
+        for (int i = 0; i < 4; i++)
+        {
+            if (lineRenderers[i] == null) continue;
+            lineRenderers[i].startColor = Color.clear;
+            lineRenderers[i].endColor = Color.clear;
         }
     }
 
