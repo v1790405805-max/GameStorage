@@ -15,7 +15,7 @@ MonoBehaviour:
   cardID: 1101
   cardName: "\u5288\u780D"
   type: 1
-  cost: 0
+  cost: 1
   effectFlags: 2
   moveDistance: 0
   damage: 5
