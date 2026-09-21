@@ -129,6 +129,112 @@ public class GridManager : MonoBehaviour
         return $"Cell_{z + 1}_{x + 1}_L{layerNumber}";
     }
 
+    // ------------------------------------------------------------------
+    // 层号 (L) 划分：先把整张地图的格子全部测量/摆放完，再从最低的层高往上归类，
+    // 判断每个格子属于哪一层。保证「同一层号 = 同一层高」（最低的那层为 L1）。
+    // ------------------------------------------------------------------
+
+    /// <summary>本张地图实际存在的层高（相对 GridManager 逻辑平面，自下而上排序）。</summary>
+    private List<float> layerHeights = new List<float>();
+
+    /// <summary>
+    /// 全部格子测量并摆放完成后调用：收集所有格子的实际高度，从最低往上归类成"层"，
+    /// 再按所属层重新命名。这样层号不再依赖 GridManager 的摆放高度、也不要求
+    /// cellHeight 与地图实际层距完全吻合（cellHeight 只作为"还算同一层"的合并容差）。
+    /// </summary>
+    private void RebuildLayerNames()
+    {
+        if (cellManagers == null) return;
+
+        List<float> measuredHeights = new List<float>();
+        for (int x = 0; x < cellManagers.GetLength(0); x++)
+        {
+            for (int z = 0; z < cellManagers.GetLength(1); z++)
+            {
+                List<CellManager> column = cellManagers[x, z];
+                if (column == null) continue;
+
+                foreach (CellManager cellMgr in column)
+                {
+                    if (cellMgr == null) continue;
+                    measuredHeights.Add(cellMgr.transform.position.y - transform.position.y);
+                }
+            }
+        }
+
+        layerHeights = BuildLayerHeights(measuredHeights);
+
+        for (int x = 0; x < cellManagers.GetLength(0); x++)
+        {
+            for (int z = 0; z < cellManagers.GetLength(1); z++)
+            {
+                List<CellManager> column = cellManagers[x, z];
+                if (column == null) continue;
+
+                foreach (CellManager cellMgr in column)
+                {
+                    if (cellMgr == null) continue;
+
+                    float logicalHeight = cellMgr.transform.position.y - transform.position.y;
+                    int layerNumber = GetLayerNumberByMeasuredHeights(logicalHeight);
+                    string newName = $"Cell_{z + 1}_{x + 1}_L{layerNumber}";
+                    if (cellMgr.gameObject.name == newName) continue;
+
+                    cellMgr.gameObject.name = newName;
+#if UNITY_EDITOR
+                    if (!Application.isPlaying) EditorUtility.SetDirty(cellMgr.gameObject);
+#endif
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// 把测得的全部高度从小到大归类成层：与上一层代表高度的差值超过容差（层高的一半）
+    /// 就视为新的一层。返回每一层的代表高度（自下而上），最低的那层即 L1。
+    /// </summary>
+    private List<float> BuildLayerHeights(List<float> measuredHeights)
+    {
+        List<float> result = new List<float>();
+        if (measuredHeights == null || measuredHeights.Count == 0) return result;
+
+        measuredHeights.Sort();
+
+        float tolerance = Mathf.Max(0.01f, Mathf.Abs(cellHeight) * 0.5f);
+
+        result.Add(measuredHeights[0]);
+        for (int i = 1; i < measuredHeights.Count; i++)
+        {
+            if (measuredHeights[i] - result[result.Count - 1] > tolerance)
+            {
+                result.Add(measuredHeights[i]);
+            }
+        }
+
+        return result;
+    }
+
+    /// <summary>返回某高度所属的层号：与哪一层的代表高度最接近就属于哪一层，最低层为 L1。</summary>
+    private int GetLayerNumberByMeasuredHeights(float logicalHeight)
+    {
+        if (layerHeights == null || layerHeights.Count == 0) return 1;
+
+        int nearestLayerIndex = 0;
+        float nearestDelta = Mathf.Abs(logicalHeight - layerHeights[0]);
+
+        for (int i = 1; i < layerHeights.Count; i++)
+        {
+            float delta = Mathf.Abs(logicalHeight - layerHeights[i]);
+            if (delta < nearestDelta)
+            {
+                nearestDelta = delta;
+                nearestLayerIndex = i;
+            }
+        }
+
+        return nearestLayerIndex + 1;
+    }
+
     public void GenerateGridToHierarchy()
     {
         if (cellPrefab == null)
@@ -173,6 +279,9 @@ public class GridManager : MonoBehaviour
                 }
             }
         }
+
+        // 全部格子测量/摆放完成后，再按实测层高统一划分层号
+        RebuildLayerNames();
 
 #if UNITY_EDITOR
         EditorUtility.SetDirty(gameObject);
@@ -604,6 +713,9 @@ public class GridManager : MonoBehaviour
                 }
             }
         }
+
+        // 重新贴合后高度可能变化，全部处理完再按实测层高统一划分层号
+        RebuildLayerNames();
     }
 
     #endregion
