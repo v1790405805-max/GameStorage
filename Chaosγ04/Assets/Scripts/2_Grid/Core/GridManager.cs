@@ -142,6 +142,7 @@ public class GridManager : MonoBehaviour
 
         warnedAboutMiss = false;
         mapCollider = null;
+        mapColliders = null;
         if (enableTerrainFit && mapObject != null) Physics.SyncTransforms();
 
         gridRoot = new GameObject("Grid_Root");
@@ -320,13 +321,18 @@ public class GridManager : MonoBehaviour
             lineObj.layer = cellLayer;
 
             LineRenderer lr = lineObj.AddComponent<LineRenderer>();
-            lr.useWorldSpace = true;
+            // 顶点使用本地坐标：线条随格子 / Grid_Root / GridManager 的位移、旋转、缩放一起移动
+            lr.useWorldSpace = false;
             lr.loop = false;
             lr.positionCount = 2;
             lr.startWidth = lineWidth;
             lr.endWidth = lineWidth;
             lr.sharedMaterial = new Material(Shader.Find("Sprites/Default"));
-            lr.SetPositions(new Vector3[] { start, end });
+            lr.SetPositions(new Vector3[]
+            {
+                lineObj.transform.InverseTransformPoint(start),
+                lineObj.transform.InverseTransformPoint(end)
+            });
         };
 
         createSingleLine("Border_L", leftDown, leftUp);
@@ -341,25 +347,83 @@ public class GridManager : MonoBehaviour
     #region 地形贴合 (Map)
 
     private Collider mapCollider;
+    /// <summary>
+    /// 地形贴合的检测来源：Map 自身 + 其所有子物体（含未激活子物体）上的 Collider。
+    /// </summary>
+    private Collider[] mapColliders;
     private bool warnedAboutMiss;
+
+    /// <summary>
+    /// 收集并缓存 Map 自身以及其所有子物体上的 Collider。
+    /// 保持原有语义：只检测 Map 层级，不使用 LayerMask，也不会误中场景其他物体。
+    /// </summary>
+    private void CacheMapColliders()
+    {
+        if (mapColliders != null && mapColliders.Length > 0) return;
+        if (mapObject == null) return;
+
+        // 包含未激活的子物体，保证层级内所有 Collider 都被纳入检测范围
+        mapColliders = mapObject.GetComponentsInChildren<Collider>(true);
+        mapCollider = mapColliders.Length > 0 ? mapColliders[0] : null;
+        if (mapCollider == null) mapColliders = null;
+    }
+
+    /// <summary>
+    /// 对 Map 自身及其所有子物体的 Collider 做一次向下投射，取其中最高的命中点
+    /// （等价于"从上方最先碰到的表面"）。全部未命中时返回 false。
+    /// </summary>
+    private bool RaycastMapTopmost(Ray ray, float maxDistance, out RaycastHit topmostHit)
+    {
+        topmostHit = default;
+        bool hasHit = false;
+
+        if (mapColliders == null) return false;
+
+        for (int i = 0; i < mapColliders.Length; i++)
+        {
+            Collider collider = mapColliders[i];
+            if (collider == null) continue;
+            if (!collider.Raycast(ray, out RaycastHit hit, maxDistance)) continue;
+
+            if (!hasHit || hit.point.y > topmostHit.point.y)
+            {
+                topmostHit = hit;
+                hasHit = true;
+            }
+        }
+
+        return hasHit;
+    }
+
+    /// <summary>Map 层级内所有 Collider 包围盒的最高点，用于确定射线起始高度。</summary>
+    private float GetMapCollidersMaxY()
+    {
+        float maxY = float.NegativeInfinity;
+        if (mapColliders == null) return maxY;
+
+        for (int i = 0; i < mapColliders.Length; i++)
+        {
+            Collider collider = mapColliders[i];
+            if (collider == null) continue;
+            if (collider.bounds.max.y > maxY) maxY = collider.bounds.max.y;
+        }
+
+        return maxY;
+    }
 
     /// <summary>
     /// 从 Map 正上方垂直向下穿透采样：每命中一个「朝上」的表面就记录高度，
     /// 然后从命中点下方继续向下投射，直到无命中或达到 maxSurfaceLayers。
-    /// 只查询 mapObject 自身的 Collider（无需 LayerMask，也不会误中场景其他物体）。
+    /// 查询 mapObject 自身以及其所有子物体上的 Collider（无需 LayerMask，也不会误中场景其他物体）。
     /// 返回的高度列表自上而下排序；全部未命中返回空列表。
     /// </summary>
     private List<float> SampleMapHeightsAt(Vector3 worldXZ)
     {
         List<float> heights = new List<float>();
 
-        if (mapCollider == null && mapObject != null)
-        {
-            mapCollider = mapObject.GetComponent<Collider>();
-            if (mapCollider == null) mapCollider = mapObject.GetComponentInChildren<Collider>();
-        }
+        CacheMapColliders();
 
-        if (mapCollider == null)
+        if (mapColliders == null || mapColliders.Length == 0)
         {
             if (!warnedAboutMiss)
             {
@@ -369,13 +433,13 @@ public class GridManager : MonoBehaviour
             return heights;
         }
 
-        float rayStartY = mapCollider.bounds.max.y + 10f;
+        float rayStartY = GetMapCollidersMaxY() + 10f;
         float probeY = rayStartY;
 
         for (int i = 0; i < maxSurfaceLayers; i++)
         {
             Ray ray = new Ray(new Vector3(worldXZ.x, probeY, worldXZ.z), Vector3.down);
-            if (!mapCollider.Raycast(ray, out RaycastHit hit, 1000f)) break;
+            if (!RaycastMapTopmost(ray, 1000f, out RaycastHit hit)) break;
 
             // 只接受朝上的表面（法线朝上），避免在悬挑底面 / 侧壁铺设格子
             if (hit.normal.y > 0.3f)
@@ -489,6 +553,7 @@ public class GridManager : MonoBehaviour
 
         warnedAboutMiss = false;
         mapCollider = null;
+        mapColliders = null;
         if (enableTerrainFit && mapObject != null) Physics.SyncTransforms();
 
         for (int x = 0; x < cellManagers.GetLength(0); x++)

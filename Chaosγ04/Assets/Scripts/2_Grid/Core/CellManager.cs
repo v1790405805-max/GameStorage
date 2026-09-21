@@ -92,6 +92,36 @@ public class CellManager : MonoBehaviour
         lineRenderers[1] = transform.Find("Border_R")?.GetComponent<LineRenderer>();
         lineRenderers[2] = transform.Find("Border_U")?.GetComponent<LineRenderer>();
         lineRenderers[3] = transform.Find("Border_D")?.GetComponent<LineRenderer>();
+        ConvertBordersToLocalSpace();
+    }
+
+    /// <summary>
+    /// 兼容旧数据：把边框线从「世界坐标顶点」(useWorldSpace = true) 就地转换为本地坐标，
+    /// 转换后线条会随父物体（格子 / Grid_Root / GridManager）一起位移、旋转、缩放。
+    /// 已经是本地坐标的线条会被跳过；顶点的世界位置不变，视觉上无变化。
+    /// </summary>
+    public void ConvertBordersToLocalSpace()
+    {
+        for (int i = 0; i < lineRenderers.Length; i++)
+        {
+            LineRenderer lr = lineRenderers[i];
+            if (lr == null || !lr.useWorldSpace) continue;
+
+            int count = lr.positionCount;
+            if (count <= 0) continue;
+
+            Vector3[] worldPoints = new Vector3[count];
+            lr.GetPositions(worldPoints);
+
+            Vector3[] localPoints = new Vector3[count];
+            for (int p = 0; p < count; p++)
+            {
+                localPoints[p] = lr.transform.InverseTransformPoint(worldPoints[p]);
+            }
+
+            lr.useWorldSpace = false;
+            lr.SetPositions(localPoints);
+        }
     }
 
     #region 玩家/怪物 进入离开检测
