@@ -10,7 +10,7 @@ public class PlayerSkillAnimation : CardAnimationCore
         Animator animator = GetPlayerAnimator();
         if (animator == null) return false;
 
-        animator.SetTrigger(SkillHash);
+        PlayOneShotTrigger(animator, SkillHash);
         return true;
     }
 }

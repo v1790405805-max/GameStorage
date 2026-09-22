@@ -40,4 +40,10 @@ public abstract class CardAnimationCore : ScriptableObject
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         return playerObj != null ? playerObj.GetComponentInChildren<Animator>() : null;
     }
+
+    protected static void PlayOneShotTrigger(Animator animator, int triggerHash)
+    {
+        animator.ResetTrigger(triggerHash);
+        animator.SetTrigger(triggerHash);
+    }
 }

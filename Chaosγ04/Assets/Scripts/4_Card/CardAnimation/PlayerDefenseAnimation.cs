@@ -10,7 +10,7 @@ public class PlayerDefenseAnimation : CardAnimationCore
         Animator animator = GetPlayerAnimator();
         if (animator == null) return false;
 
-        animator.SetTrigger(DefenseHash);
+        PlayOneShotTrigger(animator, DefenseHash);
         return true;
     }
 }
