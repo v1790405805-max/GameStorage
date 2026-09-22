@@ -127,7 +127,9 @@ public class CardDataEditor : Editor
         EditorGUILayout.PropertyField(targetSelectMode, new GUIContent("Target Select Mode",
             "AllCells = 整个范围生效，无需精确落点\n" +
             "AnyCell  = 范围内任选一格落点\n" +
-            "EdgeOnly = 只能选边沿格作为落点"));
+            "EdgeOnly = 只能选边沿格作为落点\n" +
+            "Aoe            = 范围内任意格释放，覆盖整片范围\n" +
+            "AQuarterCircle = 按悬停格选择上下左右主方向；对角格可同时属于两个方向，但悬停对角格时默认按垂直方向判定"));
 
         EditorGUILayout.Space(8f);
 

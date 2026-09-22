@@ -41,7 +41,6 @@ MonoBehaviour:
       PublicKeyToken=null
   vfxEffects:
   - effectScript: {fileID: 11500000, guid: 63653cd68eb54eb2b6350d6050332bdb, type: 3}
-    effectTypeName: StabVFX, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
-      PublicKeyToken=null
+    effectTypeName: StabVFX, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   gridStyle: {fileID: 11400000, guid: 88afb53f10edd8244949d4b08ce8e10e, type: 2}
   description: "\u82E5\u524D\u65B9\u7B2C3\u683C\u6CA1\u6709\u654C\u4EBA\uFF0C\u4F4D\u79FB\u5230\u6B64\u683C\uFF0C\u5BF9\u6CBF\u9014\u654C\u4EBA\u9020\u621010\u70B9\u4F24\u5BB3"

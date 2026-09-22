@@ -2,6 +2,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+public enum GridHoverInteractionMode
+{
+    Normal,
+    CardTargeting
+}
+
 /// <summary>
 /// 统一管理 Grid 格子悬停高亮的控制器。
 /// </summary>
@@ -33,6 +39,10 @@ public class GridHoverController : MonoBehaviour
     private bool isPointType = false; // 标识是否为 Point 模式
     private bool isAoeMode = false;   // 标识是否为 AOE 模式（悬停范围内任意格 → 整片范围联动 Target 高亮）
     private bool aoeRangeHighlightActive = false; // AOE 整片 Target 高亮当前是否激活
+    private bool isQuarterCircleMode = false;  // 标识是否为四分之一圆模式（悬停格所在主方向联动 Target 高亮）
+    private bool quarterCircleRangeHighlightActive = false;
+    private HashSet<CellManager> activeQuarterCircleTargetSet = new HashSet<CellManager>();
+    private GridHoverInteractionMode interactionMode = GridHoverInteractionMode.Normal;
 
     // ------------------------------------------------------------------
     // 内部悬停状态
@@ -81,7 +91,16 @@ public class GridHoverController : MonoBehaviour
     /// 实体合法目标格集合（悬停显示 Target 色的格子），必须是 rangeSet 的子集。
     /// 范围内但不在此集合的格子悬停时显示 Error 色；传 null 默认全部合法。
     /// </param>
-    public void SetContext(HashSet<CellManager> rangeSet, CellManager center, GridStyleData style, bool isPoint = false, HashSet<CellManager> validTargets = null, bool aoeMode = false, HashSet<CellManager> validEntityTargets = null)
+    public void SetContext(
+        HashSet<CellManager> rangeSet,
+        CellManager center,
+        GridStyleData style,
+        bool isPoint = false,
+        HashSet<CellManager> validTargets = null,
+        bool aoeMode = false,
+        HashSet<CellManager> validEntityTargets = null,
+        bool quarterCircleMode = false,
+        GridHoverInteractionMode hoverMode = GridHoverInteractionMode.Normal)
     {
         ClearHoverHighlight();
 
@@ -93,6 +112,10 @@ public class GridHoverController : MonoBehaviour
         isPointType = isPoint;
         isAoeMode = aoeMode;
         aoeRangeHighlightActive = false; // 新上下文从无高亮状态开始
+        isQuarterCircleMode = quarterCircleMode;
+        quarterCircleRangeHighlightActive = false;
+        activeQuarterCircleTargetSet.Clear();
+        interactionMode = hoverMode;
         hasContext = true;
     }
 
@@ -116,6 +139,10 @@ public class GridHoverController : MonoBehaviour
         isPointType = false;
         isAoeMode = false;
         aoeRangeHighlightActive = false;
+        isQuarterCircleMode = false;
+        quarterCircleRangeHighlightActive = false;
+        activeQuarterCircleTargetSet.Clear();
+        interactionMode = GridHoverInteractionMode.Normal;
         hasContext = false;
     }
 
@@ -154,12 +181,12 @@ public class GridHoverController : MonoBehaviour
         // 坐标或实际命中格子都没变化则不处理（同一列跨层切换时 hitCell 不同，会触发更新）
         if (newHover == currentHoverGrid && hitCell == currentHoverCell) return;
 
-        // AOE 模式：整片范围联动高亮，悬停迁移单独处理（内部自行还原/高亮）
-        if (isAoeMode)
+        // 卡牌使用大类：AnyCell、EdgeOnly、Aoe、AQuarterCircle 统一走此分支。
+        if (hasContext && interactionMode == GridHoverInteractionMode.CardTargeting)
         {
             CellManager oldHoverCell = currentHoverCell;
             currentHoverCell = hitCell;
-            HandleAoeHoverTransition(newHover, oldHoverCell);
+            HandleCardTargetingHoverTransition(newHover, oldHoverCell);
             currentHoverGrid = newHover;
             return;
         }
@@ -340,14 +367,215 @@ public class GridHoverController : MonoBehaviour
     }
 
     /// <summary>
+    /// 卡牌使用阶段的统一悬停分发。
+    /// 普通目标模式只维持范围原色，AOE/AQuarterCircle 才追加联动高亮。
+    /// </summary>
+    private void HandleCardTargetingHoverTransition(Vector2Int newHover, CellManager oldHoverCell)
+    {
+        if (isQuarterCircleMode)
+        {
+            HandleQuarterCircleHoverTransition(newHover, oldHoverCell);
+            return;
+        }
+
+        if (isAoeMode)
+        {
+            HandleAoeHoverTransition(newHover, oldHoverCell);
+            return;
+        }
+
+        // AnyCell / EdgeOnly：不显示单格释放目标悬停效果，只恢复实际格外观。
+        if (currentHoverGrid.x >= 0 && oldHoverCell != null)
+            RestoreCardTargetingCell(oldHoverCell);
+
+        if (newHover.x >= 0 && currentHoverCell != null)
+            HighlightCardTargetingCell(currentHoverCell);
+    }
+
+    private void HighlightCardTargetingCell(CellManager cell)
+    {
+        if (cell == null || activeConfig == null) return;
+
+        if (!activeRangeSet.Contains(cell))
+        {
+            RestoreCardTargetingCell(cell);
+            return;
+        }
+
+        if (!isPointType && cell == centerCell)
+            return;
+
+        if (validTargetSet.Contains(cell))
+        {
+            if (validEntityTargetSet.Contains(cell))
+            {
+                cell.SetCellColor(activeConfig.targetCellColor, isRuntime: true);
+                cell.SetLineColor(activeConfig.targetLineColor);
+            }
+            else
+            {
+                cell.SetCellColor(visualManager.errorCellColor, isRuntime: true);
+                cell.SetLineColor(visualManager.errorLineColor);
+            }
+            return;
+        }
+
+        RestoreCardTargetingCell(cell);
+    }
+
+    private void RestoreCardTargetingCell(CellManager cell)
+    {
+        if (cell == null || activeConfig == null) return;
+
+        if (activeRangeSet.Contains(cell))
+        {
+            if (isPointType && cell == centerCell)
+            {
+                cell.SetCellColor(activeConfig.playerCellColor, isRuntime: true);
+                cell.SetLineColor(activeConfig.playerLineColor);
+                return;
+            }
+
+            if (!isPointType && cell == centerCell)
+                return;
+
+            cell.SetCellColor(activeConfig.cellClickedColor, isRuntime: true);
+            var (cellX, cellZ) = gridManager.GetCellGridPosition(cell);
+            RestoreCellBorderForCell(cell, cellX, cellZ);
+            return;
+        }
+
+        cell.SetCellColor(gridManager.cellNormalColor, isRuntime: true);
+        cell.SetLineColor(gridManager.lineNormalColor);
+    }
+
+    /// <summary>
+    /// 四分之一圆模式：悬停格确定主方向后，仅联动高亮该方向的格子。
+    /// </summary>
+    private void HandleQuarterCircleHoverTransition(Vector2Int newHover, CellManager oldHoverCell)
+    {
+        bool newInRange = newHover.x >= 0 && RangeContainsColumn(newHover.x, newHover.y);
+
+        if (!newInRange)
+        {
+            RestoreQuarterCircleTargets();
+
+            if (currentHoverGrid.x >= 0 && oldHoverCell != null && !activeRangeSet.Contains(oldHoverCell))
+                RestoreCellDefault(currentHoverGrid);
+
+            if (newHover.x >= 0)
+                RestoreCellDefault(newHover);
+            return;
+        }
+
+        // 中心格不产生方向，保持玩家格样式。
+        if (centerCell == null || IsCenterGrid(newHover))
+        {
+            RestoreQuarterCircleTargets();
+            return;
+        }
+
+        var (originX, originZ) = gridManager.GetCellGridPosition(centerCell);
+        HashSet<CellManager> nextQuarterCircleTargets = RangeSystem.GetQuarterCircleTargetCells(
+            activeRangeSet,
+            new Vector2Int(originX, originZ),
+            newHover,
+            gridManager);
+
+        if (nextQuarterCircleTargets.Count == 0)
+        {
+            RestoreQuarterCircleTargets();
+            return;
+        }
+
+        if (quarterCircleRangeHighlightActive && nextQuarterCircleTargets.SetEquals(activeQuarterCircleTargetSet))
+            return;
+
+        RestoreQuarterCircleTargets();
+        activeQuarterCircleTargetSet = nextQuarterCircleTargets;
+        HighlightQuarterCircleTargets();
+        quarterCircleRangeHighlightActive = true;
+    }
+
+    private void HighlightQuarterCircleTargets()
+    {
+        if (activeConfig == null) return;
+
+        foreach (CellManager cell in activeQuarterCircleTargetSet)
+        {
+            if (cell == null) continue;
+
+            var (cellX, cellZ) = gridManager.GetCellGridPosition(cell);
+            if (IsCenterGrid(new Vector2Int(cellX, cellZ)))
+            {
+                ApplyPlayerCellStyle(cell);
+                continue;
+            }
+
+            if (validEntityTargetSet.Contains(cell))
+            {
+                cell.SetCellColor(activeConfig.targetCellColor, isRuntime: true);
+                cell.SetLineColor(activeConfig.targetLineColor);
+            }
+            else
+            {
+                cell.SetCellColor(visualManager.errorCellColor, isRuntime: true);
+                cell.SetLineColor(visualManager.errorLineColor);
+            }
+        }
+    }
+
+    private void RestoreQuarterCircleTargets()
+    {
+        if (!quarterCircleRangeHighlightActive || activeConfig == null)
+            return;
+
+        foreach (CellManager cell in activeQuarterCircleTargetSet)
+        {
+            if (cell == null) continue;
+
+            var (cellX, cellZ) = gridManager.GetCellGridPosition(cell);
+            if (IsCenterGrid(new Vector2Int(cellX, cellZ)))
+            {
+                ApplyPlayerCellStyle(cell);
+                continue;
+            }
+
+            cell.SetCellColor(activeConfig.cellClickedColor, isRuntime: true);
+            RestoreCellBorderForCell(cell, cellX, cellZ);
+        }
+
+        activeQuarterCircleTargetSet.Clear();
+        quarterCircleRangeHighlightActive = false;
+    }
+
+    private void RestoreCellBorderForCell(CellManager cell, int x, int z)
+    {
+        if (activeConfig == null || cell == null) return;
+
+        bool upOuter = !RangeContainsColumn(x, z - 1);
+        bool downOuter = !RangeContainsColumn(x, z + 1);
+        bool leftOuter = !RangeContainsColumn(x - 1, z);
+        bool rightOuter = !RangeContainsColumn(x + 1, z);
+
+        cell.SetIndividualLinesColor(
+            defaultColor: activeConfig.lineClickedColor,
+            outerColor: activeConfig.outerLineClickedColor,
+            upOuter: upOuter,
+            downOuter: downOuter,
+            leftOuter: leftOuter,
+            rightOuter: rightOuter);
+    }
+
+    /// <summary>
     /// AOE 模式的悬停迁移：悬停格进入/离开范围时，整片范围联动切换 Target 高亮。
     /// 关键：鼠标跨格时会经过格子间的无碰撞体缝隙（射线无命中），
     /// 此时必须保持当前高亮状态不变，否则整片范围会反复翻转造成闪烁。
     /// </summary>
     private void HandleAoeHoverTransition(Vector2Int newHover, CellManager oldHoverCell)
     {
-        bool newInRange = currentHoverCell != null && activeRangeSet.Contains(currentHoverCell);
-        bool oldInRange = oldHoverCell != null && activeRangeSet.Contains(oldHoverCell);
+        bool newInRange = newHover.x >= 0 && RangeContainsColumn(newHover.x, newHover.y);
+        bool oldInRange = currentHoverGrid.x >= 0 && RangeContainsColumn(currentHoverGrid.x, currentHoverGrid.y);
 
         // 无命中（格子缝隙/棋盘外）：保持当前高亮状态，只还原范围外旧格的悬停色
         if (newHover.x < 0)
@@ -378,7 +606,7 @@ public class GridHoverController : MonoBehaviour
         }
         if (currentHoverGrid.x >= 0 && !oldInRange)
             RestoreCellDefault(currentHoverGrid);
-        HighlightCellDefault(newHover);
+        RestoreCellDefault(newHover);
     }
 
     /// <summary>AOE：范围内全部格子联动高亮——实体合法格显示 Target 色，非法格显示 Error 色（玩家格保持 Player 样式）。</summary>
@@ -389,7 +617,12 @@ public class GridHoverController : MonoBehaviour
         foreach (CellManager cell in activeRangeSet)
         {
             if (cell == null) continue;
-            if (!isPointType && cell == centerCell) continue;
+            var (cellX, cellZ) = gridManager.GetCellGridPosition(cell);
+            if (!isPointType && IsCenterGrid(new Vector2Int(cellX, cellZ)))
+            {
+                ApplyPlayerCellStyle(cell);
+                continue;
+            }
 
             if (validEntityTargetSet.Contains(cell))
             {
@@ -414,9 +647,14 @@ public class GridHoverController : MonoBehaviour
             if (cell == null) continue;
 
             // 非 Point 模式下玩家格不属于范围高亮，保持 Player 样式不参与还原
-            if (!isPointType && cell == centerCell) continue;
+            var (cx, cz) = gridManager.GetCellGridPosition(cell);
+            if (!isPointType && IsCenterGrid(new Vector2Int(cx, cz)))
+            {
+                ApplyPlayerCellStyle(cell);
+                continue;
+            }
 
-            if (isPointType && cell == centerCell)
+            if (isPointType && IsCenterGrid(new Vector2Int(cx, cz)))
             {
                 // Point 类型下玩家格还原为 Player 样式，与单格还原逻辑一致
                 cell.SetCellColor(activeConfig.playerCellColor, isRuntime: true);
@@ -425,16 +663,40 @@ public class GridHoverController : MonoBehaviour
             }
 
             cell.SetCellColor(activeConfig.cellClickedColor, isRuntime: true);
-            var (cx, cz) = gridManager.GetCellGridPosition(cell);
-            RestoreCellBorder(new Vector2Int(cx, cz));
+            RestoreCellBorderForCell(cell, cx, cz);
         }
+    }
+
+    private bool IsCenterGrid(Vector2Int grid)
+    {
+        if (centerCell == null) return false;
+
+        var (centerX, centerZ) = gridManager.GetCellGridPosition(centerCell);
+        return grid.x == centerX && grid.y == centerZ;
+    }
+
+    private void ApplyPlayerCellStyle(CellManager cell)
+    {
+        if (cell == null || activeConfig == null) return;
+
+        cell.SetCellColor(activeConfig.playerCellColor, isRuntime: true);
+        cell.SetLineColor(activeConfig.playerLineColor);
     }
 
     private void ClearHoverHighlight()
     {
         if (currentHoverGrid.x >= 0)
         {
-            if (isAoeMode)
+            if (isQuarterCircleMode)
+            {
+                if (quarterCircleRangeHighlightActive)
+                    RestoreQuarterCircleTargets();
+                else if (hasContext && currentHoverCell != null && activeRangeSet.Contains(currentHoverCell))
+                    RestoreCell(currentHoverGrid);
+                else
+                    RestoreCellDefault(currentHoverGrid);
+            }
+            else if (isAoeMode)
             {
                 // AOE：整片高亮激活则联动还原，否则按常态还原悬停格
                 if (aoeRangeHighlightActive)
@@ -447,7 +709,10 @@ public class GridHoverController : MonoBehaviour
             }
             else if (hasContext)
             {
-                RestoreCell(currentHoverGrid);
+                if (interactionMode == GridHoverInteractionMode.CardTargeting && currentHoverCell != null)
+                    RestoreCardTargetingCell(currentHoverCell);
+                else
+                    RestoreCell(currentHoverGrid);
             }
             else
             {

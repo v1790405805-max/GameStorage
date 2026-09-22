@@ -231,7 +231,11 @@ public class CardManager : MonoBehaviour
     /// <summary>
     /// 出牌逻辑与复合效果结算
     /// </summary>
-    public void PlayCard(CardData card, GameObject cardUIObj, Vector2Int targetGrid)
+    public void PlayCard(
+        CardData card,
+        GameObject cardUIObj,
+        Vector2Int targetGrid,
+        IReadOnlyCollection<Vector2Int> castTargetGrids = null)
     {
         if (CombatStatsManager.Instance != null && CombatStatsManager.Instance.ConsumeEnergy(card.cost))
         {
@@ -255,17 +259,21 @@ public class CardManager : MonoBehaviour
             // 2. 攻击效果
             if (card.effectFlags.HasFlag(CardEffectType.Attack))
             {
+                HashSet<Vector2Int> attackTargetGrids =
+                    castTargetGrids != null && castTargetGrids.Count > 0
+                        ? new HashSet<Vector2Int>(castTargetGrids)
+                        : new HashSet<Vector2Int> { targetGrid };
+
                 GridManager gridMgr = FindFirstObjectByType<GridManager>();
                 if (gridMgr != null && MonsterIdentitySystem.Instance != null)
                 {
                     foreach (var monster in MonsterIdentitySystem.Instance.GetAllMonsters())
                     {
                         var (mx, mz) = gridMgr.GetGridPosition(monster.transform.position);
-                        if (mx == targetGrid.x && mz == targetGrid.y)
+                        if (attackTargetGrids.Contains(new Vector2Int(mx, mz)))
                         {
                             MonsterStats stats = monster.GetComponent<MonsterStats>();
                             if (stats != null) stats.TakeDamage(card.damage);
-                            break;
                         }
                     }
                 }

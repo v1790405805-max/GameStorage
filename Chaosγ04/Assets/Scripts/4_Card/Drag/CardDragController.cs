@@ -85,10 +85,13 @@ public class CardDragController : MonoBehaviour
                 targetGrids, playerCell, gridManager, data.rangeType, data.rangeDistance);
         }
 
+        bool isQuarterCircleMode = data.targetSelectMode == TargetSelectMode.AQuarterCircle;
+        bool allowEmptyAttackTarget =
+            data.targetSelectMode == TargetSelectMode.Aoe || isQuarterCircleMode;
         HashSet<CellManager> validEntityTargets = new HashSet<CellManager>();
         foreach (var cell in targetGrids)
         {
-            if (IsValidTargetCell(cell, data))
+            if (IsValidTargetCell(cell, data, allowEmptyAttackTarget))
                 validEntityTargets.Add(cell);
         }
 
@@ -103,7 +106,8 @@ public class CardDragController : MonoBehaviour
             if (GridHoverController.Instance != null)
                 GridHoverController.Instance.SetContext(
                     CurrentHighlightedGrids, playerCell, data.gridStyle, isPointType, validTargetGrids,
-                    data.targetSelectMode == TargetSelectMode.Aoe, validEntityTargets);
+                    data.targetSelectMode == TargetSelectMode.Aoe, validEntityTargets,
+                    isQuarterCircleMode, hoverMode: GridHoverInteractionMode.CardTargeting);
         }
         else
         {
@@ -148,6 +152,10 @@ public class CardDragController : MonoBehaviour
             ? new Vector2Int(gridManager.GetCellGridPosition(releaseCell).x, gridManager.GetCellGridPosition(releaseCell).z)
             : new Vector2Int(-1, -1);
         bool isValidDrop = false;
+        HashSet<Vector2Int> castTargetGrids = null;
+        bool allowEmptyAttackTarget =
+            data.targetSelectMode == TargetSelectMode.Aoe
+            || data.targetSelectMode == TargetSelectMode.AQuarterCircle;
 
         switch (data.targetSelectMode)
         {
@@ -167,7 +175,15 @@ public class CardDragController : MonoBehaviour
                 break;
 
             case TargetSelectMode.Aoe:
+                castTargetGrids = GetCurrentHighlightedTargetGrids();
                 isValidDrop = releaseCell != null && CurrentHighlightedGrids.Contains(releaseCell);
+                break;
+
+            case TargetSelectMode.AQuarterCircle:
+                castTargetGrids = GetQuarterCircleTargetGrids(releaseGrid);
+                isValidDrop = releaseCell != null
+                    && CurrentHighlightedGrids.Contains(releaseCell)
+                    && castTargetGrids.Contains(releaseGrid);
                 break;
         }
 
@@ -179,7 +195,7 @@ public class CardDragController : MonoBehaviour
             return;
         }
 
-        if (!IsValidTargetCell(releaseCell, data))
+        if (!IsValidTargetCell(releaseCell, data, allowEmptyAttackTarget))
         {
             Debug.Log($"[CardDragController] 落点格子 [{releaseGrid}] 不满足卡牌 [{data.cardName}] 的目标实体要求，取消出牌。");
             OnCardDragEnd();
@@ -191,7 +207,7 @@ public class CardDragController : MonoBehaviour
         OnCardDragEnd();
 
         if (CardManager.Instance != null)
-            CardManager.Instance.PlayCard(data, cardUI.gameObject, releaseGrid);
+            CardManager.Instance.PlayCard(data, cardUI.gameObject, releaseGrid, castTargetGrids);
         else
         {
             Debug.LogWarning("[CardDragController] CardManager 实例未找到。");
@@ -217,7 +233,7 @@ public class CardDragController : MonoBehaviour
         return null;
     }
 
-    private bool IsValidTargetCell(CellManager cell, CardData data)
+    private bool IsValidTargetCell(CellManager cell, CardData data, bool allowEmptyAttackTarget = false)
     {
         if (cell == null) return false;
         if (cell.IsLocked) return false;
@@ -229,7 +245,7 @@ public class CardDragController : MonoBehaviour
             return !cell.IsPlayerInside && !cell.HasMonsterInside;
 
         if (hasAttack)
-            return cell.HasMonsterInside;
+            return allowEmptyAttackTarget || cell.HasMonsterInside;
 
         return cell.IsPlayerInside;
     }
@@ -341,6 +357,44 @@ public class CardDragController : MonoBehaviour
         if (gridManager == null || centerCell == null) return rangeCells;
 
         return RangeSystem.CalculateReachableCells(centerCell, distance, gridManager, type, blockByMonster: false);
+    }
+
+    private HashSet<Vector2Int> GetQuarterCircleTargetGrids(Vector2Int hoverGrid)
+    {
+        HashSet<Vector2Int> result = new HashSet<Vector2Int>();
+        if (gridManager == null || hoverGrid.x < 0 || hoverGrid.y < 0) return result;
+
+        HashSet<CellManager> quarterCircleCells = RangeSystem.GetQuarterCircleTargetCells(
+            CurrentHighlightedGrids,
+            playerGridPos,
+            hoverGrid,
+            gridManager);
+
+        foreach (CellManager cell in quarterCircleCells)
+        {
+            if (cell == null) continue;
+
+            var (cellX, cellZ) = gridManager.GetCellGridPosition(cell);
+            result.Add(new Vector2Int(cellX, cellZ));
+        }
+
+        return result;
+    }
+
+    private HashSet<Vector2Int> GetCurrentHighlightedTargetGrids()
+    {
+        HashSet<Vector2Int> result = new HashSet<Vector2Int>();
+        if (gridManager == null) return result;
+
+        foreach (CellManager cell in CurrentHighlightedGrids)
+        {
+            if (cell == null) continue;
+
+            var (cellX, cellZ) = gridManager.GetCellGridPosition(cell);
+            result.Add(new Vector2Int(cellX, cellZ));
+        }
+
+        return result;
     }
 
     public void ClearRangeHighlight()

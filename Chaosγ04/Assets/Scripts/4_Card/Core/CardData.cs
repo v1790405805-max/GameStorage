@@ -46,6 +46,13 @@ public enum TargetSelectMode
     /// 适用：范围轰炸、群体增益/治疗等覆盖整片区域的卡牌。
     /// </summary>
     Aoe,
+
+    /// <summary>
+    /// 四分之一圆：以玩家为中心，根据悬停格划分为上、下、左、右四个主方向。
+    /// 悬停范围内任意格时，只联动高亮该主方向的格子，方向内所有格子都会成为施法目标。
+    /// 对角边界格允许同时属于相邻两个方向；悬停对角格时默认按垂直方向判定。
+    /// </summary>
+    AQuarterCircle,
 }
 
 /// <summary>
@@ -131,7 +138,8 @@ public class CardData : ScriptableObject
              "AllCells = 整个范围全部生效，无需落点\n" +
              "AnyCell  = 范围内任选一格\n" +
              "EdgeOnly = 只能选最外沿格子\n" +
-             "AOE      = 范围内任意格释放，效果覆盖整个范围")]
+             "AOE      = 范围内任意格释放，效果覆盖整个范围\n" +
+             "AQuarterCircle = 根据悬停格选择上下左右主方向；对角格可属于相邻两方向，但悬停对角格时默认按垂直方向判定")]
     public TargetSelectMode targetSelectMode = TargetSelectMode.AnyCell;
 
     [Tooltip("额外效果（非数值类），按需拖拽效果脚本（.cs）挂载，可挂多个")]

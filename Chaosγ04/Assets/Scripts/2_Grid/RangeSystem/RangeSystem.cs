@@ -52,6 +52,101 @@ public static class RangeSystem
     }
 
     /// <summary>
+    /// 返回悬停格对应的单一主方向。
+    /// 对角格默认优先判定为垂直方向，不会同时激活两个方向。
+    /// </summary>
+    public static Vector2Int GetQuarterCircleDirection(Vector2Int origin, Vector2Int target)
+    {
+        int dx = target.x - origin.x;
+        int dy = target.y - origin.y;
+        if (dx == 0 && dy == 0) return Vector2Int.zero;
+
+        int absDx = Mathf.Abs(dx);
+        int absDy = Mathf.Abs(dy);
+
+        if (absDy >= absDx)
+            return dy > 0 ? Vector2Int.up : Vector2Int.down;
+
+        return dx > 0 ? Vector2Int.right : Vector2Int.left;
+    }
+
+    /// <summary>
+    /// 判断目标格是否位于指定的主方向四分之一圆内。
+    /// 对角边界格同时属于相邻两个方向，因此不同方向的范围允许重叠。
+    /// </summary>
+    public static bool IsInsideQuarterCircle(Vector2Int origin, Vector2Int target, Vector2Int direction)
+    {
+        int dx = target.x - origin.x;
+        int dy = target.y - origin.y;
+        if (dx == 0 && dy == 0) return false;
+
+        int absDx = Mathf.Abs(dx);
+        int absDy = Mathf.Abs(dy);
+
+        if (direction == Vector2Int.right)
+            return dx > 0 && absDx >= absDy;
+        if (direction == Vector2Int.up)
+            return dy > 0 && absDy >= absDx;
+        if (direction == Vector2Int.left)
+            return dx < 0 && absDx >= absDy;
+        if (direction == Vector2Int.down)
+            return dy < 0 && absDy >= absDx;
+
+        return false;
+    }
+
+    /// <summary>
+    /// 从给定范围中筛选出悬停格所对应的四分之一圆目标。
+    /// </summary>
+    public static HashSet<Vector2Int> GetQuarterCircleTargetGrids(
+        HashSet<Vector2Int> rangeSet,
+        Vector2Int origin,
+        Vector2Int hoverGrid)
+    {
+        HashSet<Vector2Int> result = new HashSet<Vector2Int>();
+        if (rangeSet == null || rangeSet.Count == 0) return result;
+
+        Vector2Int direction = GetQuarterCircleDirection(origin, hoverGrid);
+        if (direction == Vector2Int.zero) return result;
+
+        foreach (Vector2Int grid in rangeSet)
+        {
+            if (IsInsideQuarterCircle(origin, grid, direction))
+                result.Add(grid);
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// 格子级四分之一圆筛选：保留范围内的层信息，主方向内所有层的格子都会成为目标。
+    /// 对角边界格会同时出现在相邻两个方向的目标集合中。
+    /// </summary>
+    public static HashSet<CellManager> GetQuarterCircleTargetCells(
+        HashSet<CellManager> rangeSet,
+        Vector2Int origin,
+        Vector2Int hoverGrid,
+        GridManager gridManager)
+    {
+        HashSet<CellManager> result = new HashSet<CellManager>();
+        if (rangeSet == null || rangeSet.Count == 0 || gridManager == null) return result;
+
+        Vector2Int direction = GetQuarterCircleDirection(origin, hoverGrid);
+        if (direction == Vector2Int.zero) return result;
+
+        foreach (CellManager cell in rangeSet)
+        {
+            if (cell == null) continue;
+
+            var (cellX, cellZ) = gridManager.GetCellGridPosition(cell);
+            if (IsInsideQuarterCircle(origin, new Vector2Int(cellX, cellZ), direction))
+                result.Add(cell);
+        }
+
+        return result;
+    }
+
+    /// <summary>
     /// 判断两个格子是否允许在范围/寻路中互相连接。
     /// 规则：只相隔一层（层差 ≤ 1）可以连接，如 L2 可连 L1 / L3；层差 ≥ 2 无法连接，如 L1 无法连 L3。
     /// </summary>
