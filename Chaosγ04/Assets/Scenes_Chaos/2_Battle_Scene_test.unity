@@ -141051,6 +141051,7 @@ GameObject:
   - component: {fileID: 1860863963}
   - component: {fileID: 1860863965}
   - component: {fileID: 1860863966}
+  - component: {fileID: 1860863967}
   m_Layer: 0
   m_Name: Adventurer
   m_TagString: Player
@@ -141255,6 +141256,19 @@ MonoBehaviour:
   gridManager: {fileID: 1996419300}
   playerMoveController: {fileID: 1860863964}
   damageReduction: 0.8
+--- !u!114 &1860863967
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1860863961}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d39f4a239fa4265a42ff13ebf652064, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ActionPointCount
+  usedActionPointCount: 0
 --- !u!1 &1865314806 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -3270559696613859888, guid: b4a733dba4ed3bd40aac32be2418e61d, type: 3}

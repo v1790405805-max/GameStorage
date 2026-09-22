@@ -22,6 +22,7 @@ public class SLManager : MonoBehaviour, ITurnStateListener
     [SerializeField] private int snapshotBlock;
     [SerializeField] private int snapshotEnergy;
     [SerializeField] private int snapshotActionPoint;
+    [SerializeField] private int snapshotUsedActionPointCount;
 
     // 玩家朝向（Animator 参数）快照
     [SerializeField] private float snapshotHorizontal;
@@ -123,6 +124,7 @@ public class SLManager : MonoBehaviour, ITurnStateListener
         snapshotBlock = stats.currentBlock;
         snapshotEnergy = stats.currentEnergy;
         snapshotActionPoint = stats.currentActionPoint;
+        snapshotUsedActionPointCount = stats.UsedActionPointCount;
         snapshotHorizontal = stats.Horizontal;
         snapshotVertical = stats.Vertical;
     }
@@ -205,6 +207,7 @@ public class SLManager : MonoBehaviour, ITurnStateListener
         data.block = snapshotBlock;
         data.energy = snapshotEnergy;
         data.actionPoint = snapshotActionPoint;
+        data.usedActionPointCount = snapshotUsedActionPointCount;
         data.hand = CloneCardList(snapshotHand);
         data.drawPile = CloneCardList(snapshotDrawPile);
         data.discardPile = CloneCardList(snapshotDiscardPile);
@@ -238,6 +241,7 @@ public class SLManager : MonoBehaviour, ITurnStateListener
         snapshotBlock = data.block;
         snapshotEnergy = data.energy;
         snapshotActionPoint = data.actionPoint;
+        snapshotUsedActionPointCount = data.usedActionPointCount;
         snapshotHand = CloneCardList(data.hand);
         snapshotDrawPile = CloneCardList(data.drawPile);
         snapshotDiscardPile = CloneCardList(data.discardPile);
@@ -338,6 +342,7 @@ public class SLManager : MonoBehaviour, ITurnStateListener
         stats.currentBlock = snapshotBlock;
         stats.currentEnergy = snapshotEnergy;
         stats.currentActionPoint = snapshotActionPoint;
+        stats.RestoreUsedActionPointCount(snapshotUsedActionPointCount);
         stats.Horizontal = snapshotHorizontal;
         stats.Vertical = snapshotVertical;
         stats.RestorePlayerFacing();
@@ -429,6 +434,7 @@ public class SLManager : MonoBehaviour, ITurnStateListener
     {
         hasSnapshot = false;
         snapshotRoundCount = 0;
+        snapshotUsedActionPointCount = 0;
         snapshotHorizontal = 0f;
         snapshotVertical = 0f;
         snapshotHand.Clear();

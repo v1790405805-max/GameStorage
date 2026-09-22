@@ -24,6 +24,7 @@ public class TurnStartSnapshotData
     public int block;
     public int energy;
     public int actionPoint;
+    public int usedActionPointCount;
     public List<CardData> hand = new List<CardData>();
     public List<CardData> drawPile = new List<CardData>();
     public List<CardData> discardPile = new List<CardData>();
@@ -78,6 +79,10 @@ public class CombatStatsManager : MonoBehaviour
     public int maxActionPoint = 5;
     public int currentActionPoint;
 
+    [Header("--- 本回合行动力统计 ---")]
+    [SerializeField] private int usedActionPointCount;
+    public int UsedActionPointCount => usedActionPointCount;
+
     [Header("玩家朝向（Animator 参数，Tag=Player）")]
     public float Horizontal;
     public float Vertical;
@@ -96,6 +101,7 @@ public class CombatStatsManager : MonoBehaviour
     public float savedVertical;
 
     public event Action OnStatsChanged;
+    public event Action<int> OnActionPointCountChanged;
 
     private void Awake()
     {
@@ -138,6 +144,7 @@ public class CombatStatsManager : MonoBehaviour
         Vertical = 0f;
         hasSavedGame = false;
         savedTurnStartSnapshot = null;
+        ResetUsedActionPointCount();
         TriggerStatsChanged();
         Debug.Log("[CombatStatsManager] 战斗属性已初始化（全新战斗）。");
     }
@@ -231,6 +238,7 @@ public class CombatStatsManager : MonoBehaviour
         if (HasEnoughActionPoint(amount))
         {
             currentActionPoint -= amount;
+            AddUsedActionPoint(amount);
             TriggerStatsChanged();
             return true;
         }
@@ -239,12 +247,19 @@ public class CombatStatsManager : MonoBehaviour
 
     public void ModifyActionPoint(int amount, bool allowExceedMax = false)
     {
+        int previousActionPoint = currentActionPoint;
         currentActionPoint += amount;
         if (!allowExceedMax)
         {
             currentActionPoint = Mathf.Min(currentActionPoint, maxActionPoint);
         }
         currentActionPoint = Mathf.Max(0, currentActionPoint);
+
+        if (amount < 0)
+        {
+            AddUsedActionPoint(previousActionPoint - currentActionPoint);
+        }
+
         TriggerStatsChanged();
     }
 
@@ -337,7 +352,30 @@ public class CombatStatsManager : MonoBehaviour
         currentEnergy = maxEnergy;
         currentActionPoint = maxActionPoint;
         currentBlock = 0;
+        ResetUsedActionPointCount();
         TriggerStatsChanged();
+    }
+
+    public void RestoreUsedActionPointCount(int count)
+    {
+        usedActionPointCount = Mathf.Max(0, count);
+        OnActionPointCountChanged?.Invoke(usedActionPointCount);
+    }
+
+    private void AddUsedActionPoint(int amount)
+    {
+        if (amount <= 0) return;
+
+        usedActionPointCount += amount;
+        OnActionPointCountChanged?.Invoke(usedActionPointCount);
+    }
+
+    private void ResetUsedActionPointCount()
+    {
+        if (usedActionPointCount == 0) return;
+
+        usedActionPointCount = 0;
+        OnActionPointCountChanged?.Invoke(usedActionPointCount);
     }
 
     public void TriggerStatsChanged() => OnStatsChanged?.Invoke();

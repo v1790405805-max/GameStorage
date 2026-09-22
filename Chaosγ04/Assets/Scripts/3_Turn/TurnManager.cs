@@ -219,10 +219,7 @@ public class TurnManager : MonoBehaviour
 
         if (CombatStatsManager.Instance != null)
         {
-            CombatStatsManager.Instance.currentEnergy = CombatStatsManager.Instance.maxEnergy;
-            CombatStatsManager.Instance.currentActionPoint = CombatStatsManager.Instance.maxActionPoint;
-            CombatStatsManager.Instance.currentBlock = 0;
-            CombatStatsManager.Instance.TriggerStatsChanged();
+            CombatStatsManager.Instance.ResetForNewTurn();
         }
 
         if (CardManager.Instance != null)
