@@ -15,6 +15,8 @@ public class CardDataEditor : Editor
     private SerializedProperty cost;
     private SerializedProperty effectFlags;
     private SerializedProperty extraEffects;
+    private SerializedProperty animationEffects;
+    private SerializedProperty vfxEffects;
 
     // 效果数值
     private SerializedProperty moveDistance;
@@ -45,6 +47,8 @@ public class CardDataEditor : Editor
         cost = serializedObject.FindProperty("cost");
         effectFlags = serializedObject.FindProperty("effectFlags");
         extraEffects = serializedObject.FindProperty("extraEffects");
+        animationEffects = serializedObject.FindProperty("animationEffects");
+        vfxEffects = serializedObject.FindProperty("vfxEffects");
 
         moveDistance = serializedObject.FindProperty("moveDistance");
         damage = serializedObject.FindProperty("damage");
@@ -127,52 +131,27 @@ public class CardDataEditor : Editor
 
         EditorGUILayout.Space(8f);
 
-        // ── 4.5 额外效果（效果脚本挂载）──────────────────────────
-        EditorGUILayout.LabelField("额外效果（效果脚本）", EditorStyles.boldLabel);
-        EditorGUILayout.HelpBox("从 Project 窗口直接拖拽效果脚本（.cs）到下方槽位，可挂多个，按顺序触发。", MessageType.Info);
+        // ── 4.5 卡牌效果与表现引用 ──────────────────────────────
+        DrawEffectList(
+            extraEffects,
+            typeof(CardEffectCore),
+            "额外效果（效果脚本）",
+            "从 Project 窗口直接拖拽 CardEffectCore 子类脚本（.cs）到下方槽位，可挂多个，按顺序触发。",
+            "+ 添加效果");
 
-        for (int i = 0; i < extraEffects.arraySize; i++)
-        {
-            SerializedProperty element = extraEffects.GetArrayElementAtIndex(i);
-            SerializedProperty scriptProp = element.FindPropertyRelative("effectScript");
-            SerializedProperty typeNameProp = element.FindPropertyRelative("effectTypeName");
+        DrawEffectList(
+            animationEffects,
+            typeof(CardAnimationCore),
+            "卡牌动画效果（动画脚本）",
+            "从 Project 窗口直接拖拽 CardAnimationCore 子类脚本（.cs）到下方槽位，可挂多个，按顺序播放。",
+            "+ 添加动画效果");
 
-            // 防御：字段缺失时给出明确提示，而不是让 Inspector 渲染崩溃
-            if (scriptProp == null || typeNameProp == null)
-            {
-                EditorGUILayout.HelpBox("额外效果字段缺失（检查 CardData.cs 中 ExtraCardEffect 定义）。", MessageType.Error);
-                break;
-            }
-
-            EditorGUILayout.BeginHorizontal();
-            MonoScript current = scriptProp.objectReferenceValue as MonoScript;
-            MonoScript next = (MonoScript)EditorGUILayout.ObjectField($"效果 {i + 1}", current, typeof(MonoScript), false);
-            if (next != current)
-            {
-                // 只允许挂载 CardEffect 子类脚本，并同步类型全名（Unity 6 运行时无 MonoScript，运行时靠类型名实例化）
-                if (next != null)
-                {
-                    System.Type cls = next.GetClass();
-                    if (cls == null || !typeof(CardEffect).IsAssignableFrom(cls))
-                    {
-                        Debug.LogWarning($"[CardDataEditor] 脚本 [{next.name}] 不是 CardEffect 的子类，无法挂载。");
-                        next = null;
-                    }
-                }
-                scriptProp.objectReferenceValue = next;
-                typeNameProp.stringValue = next != null ? next.GetClass().AssemblyQualifiedName : null;
-            }
-            if (GUILayout.Button("×", GUILayout.Width(24)))
-            {
-                extraEffects.DeleteArrayElementAtIndex(i);
-            }
-            EditorGUILayout.EndHorizontal();
-        }
-
-        if (GUILayout.Button("+ 添加效果"))
-        {
-            extraEffects.InsertArrayElementAtIndex(extraEffects.arraySize);
-        }
+        DrawEffectList(
+            vfxEffects,
+            typeof(CardVFXCore),
+            "卡牌特效（特效脚本）",
+            "从 Project 窗口直接拖拽 CardVFXCore 子类脚本（.cs）到下方槽位，可挂多个，按顺序播放。",
+            "+ 添加特效");
 
         EditorGUILayout.Space(8f);
 
@@ -194,5 +173,62 @@ public class CardDataEditor : Editor
         description.stringValue = EditorGUILayout.TextArea(description.stringValue, GUILayout.Height(60));
 
         serializedObject.ApplyModifiedProperties();
+    }
+
+    private void DrawEffectList(
+        SerializedProperty effectList,
+        System.Type requiredBaseType,
+        string title,
+        string helpText,
+        string addButtonText)
+    {
+        EditorGUILayout.LabelField(title, EditorStyles.boldLabel);
+        EditorGUILayout.HelpBox(helpText, MessageType.Info);
+
+        for (int i = 0; i < effectList.arraySize; i++)
+        {
+            SerializedProperty element = effectList.GetArrayElementAtIndex(i);
+            SerializedProperty scriptProp = element.FindPropertyRelative("effectScript");
+            SerializedProperty typeNameProp = element.FindPropertyRelative("effectTypeName");
+
+            if (scriptProp == null || typeNameProp == null)
+            {
+                EditorGUILayout.HelpBox($"{title} 字段缺失（检查 CardData.cs 中的引用结构定义）。", MessageType.Error);
+                break;
+            }
+
+            EditorGUILayout.BeginHorizontal();
+            MonoScript current = scriptProp.objectReferenceValue as MonoScript;
+            MonoScript next = (MonoScript)EditorGUILayout.ObjectField($"效果 {i + 1}", current, typeof(MonoScript), false);
+            if (next != current)
+            {
+                if (next != null)
+                {
+                    System.Type cls = next.GetClass();
+                    if (cls == null || cls.IsAbstract || !requiredBaseType.IsAssignableFrom(cls))
+                    {
+                        Debug.LogWarning($"[CardDataEditor] 脚本 [{next.name}] 不是 {requiredBaseType.Name} 的子类，无法挂载到 {title}。");
+                        next = null;
+                    }
+                }
+
+                scriptProp.objectReferenceValue = next;
+                typeNameProp.stringValue = next != null ? next.GetClass().AssemblyQualifiedName : null;
+            }
+
+            if (GUILayout.Button("×", GUILayout.Width(24)))
+            {
+                effectList.DeleteArrayElementAtIndex(i);
+            }
+
+            EditorGUILayout.EndHorizontal();
+        }
+
+        if (GUILayout.Button(addButtonText))
+        {
+            effectList.InsertArrayElementAtIndex(effectList.arraySize);
+        }
+
+        EditorGUILayout.Space(8f);
     }
 }

@@ -29,5 +29,13 @@ MonoBehaviour:
   rangeDistance: 1
   targetSelectMode: 1
   extraEffects: []
+  animationEffects:
+  - effectScript: {fileID: 11500000, guid: 9bcaff3e235941c0a561299ba5120919, type: 3}
+    effectTypeName: PlayerAttackAnimation, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+  vfxEffects:
+  - effectScript: {fileID: 11500000, guid: 63653cd68eb54eb2b6350d6050332bdb, type: 3}
+    effectTypeName: StabVFX, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
   gridStyle: {fileID: 11400000, guid: 88afb53f10edd8244949d4b08ce8e10e, type: 2}
   description: "\u9020\u621015\u70B9\u4F24\u5BB3\uFF0C\u672C\u56DE\u5408\u6BCF\u6D88\u80175\u884C\u52A8\u529B\uFF0CCost\u51CF1\u3002"

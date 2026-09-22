@@ -32,5 +32,7 @@ MonoBehaviour:
   - effectScript: {fileID: 11500000, guid: d06c2e8e69778cc4f9e9fe25ec97a55e, type: 3}
     effectTypeName: TeleportEffect, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
+  animationEffects: []
+  vfxEffects: []
   gridStyle: {fileID: 11400000, guid: c7730a9b49b1f8244b410ce1e2e6542b, type: 2}
   description: "\u521D\u59CB2\u683C\uFF0C\u5728\u8303\u56F4\u5185\u53EF\u4EE5\u9009\u62E9\u843D\u70B9\uFF0C\u53EF\u4EE5\u7FFB\u8D8A2\u683C\u9AD8\u7684\u77EE\u5899"

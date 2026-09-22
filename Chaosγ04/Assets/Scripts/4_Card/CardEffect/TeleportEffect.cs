@@ -6,7 +6,7 @@ using UnityEngine;
 /// 负责执行「卡牌打出后，将玩家直接传送到目标落点格」的瞬移逻辑。
 /// 只有当 CardData 的 extraEffects 明确挂载了本脚本时才会实例化执行。
 /// </summary>
-public class TeleportEffect : CardEffect
+public class TeleportEffect : CardEffectCore
 {
     /// <summary>
     /// 效果基类入口：卡牌打出时经 CardData.extraEffects 动态实例化触发

@@ -29,5 +29,10 @@ MonoBehaviour:
   rangeDistance: 0
   targetSelectMode: 0
   extraEffects: []
+  animationEffects:
+  - effectScript: {fileID: 11500000, guid: 394146f29626473080ae7e8dca18da7c, type: 3}
+    effectTypeName: PlayerSkillAnimation, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+  vfxEffects: []
   gridStyle: {fileID: 11400000, guid: 853c237319753544088890199db33ed8, type: 2}
   description: "\u56DE\u590D2\u70B9\u884C\u52A8\u529B\uFF0C\u62BD2\u5F20\u5361"

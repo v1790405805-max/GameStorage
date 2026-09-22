@@ -9,7 +9,7 @@ using UnityEngine;
 /// 且格子为空（无怪物、未锁定），则将玩家瞬移到该格。
 /// 通过 CardData.extraEffects 挂载本脚本触发，机制与 TeleportEffect 相同。
 /// </summary>
-public class LungeEffect : CardEffect
+public class LungeEffect : CardEffectCore
 {
     /// <summary>
     /// 效果基类入口：卡牌打出时经 CardData.extraEffects 动态实例化触发。

@@ -32,5 +32,13 @@ MonoBehaviour:
   - effectScript: {fileID: 11500000, guid: 893aea49840dd7845a5b3eead64c9566, type: 3}
     effectTypeName: LungeEffect, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
+  animationEffects:
+  - effectScript: {fileID: 11500000, guid: 9bcaff3e235941c0a561299ba5120919, type: 3}
+    effectTypeName: PlayerAttackAnimation, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+  vfxEffects:
+  - effectScript: {fileID: 11500000, guid: 63653cd68eb54eb2b6350d6050332bdb, type: 3}
+    effectTypeName: StabVFX, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
   gridStyle: {fileID: 11400000, guid: 88afb53f10edd8244949d4b08ce8e10e, type: 2}
   description: "\u5BF91\u683C\u8303\u56F4\u5185\u7684\u654C\u4EBA\u653B\u51FB\uFF0C\u9020\u62104\u70B9\u4F24\u5BB3\uFF0C\u62BD2\u5F20\u5361\u3002\u82E5\u654C\u65B9\u5355\u4F4D\u80CC\u540E\u6709\u843D\u70B9\uFF0C\u5219\u653B\u51FB\u540E\u4F1A\u4F4D\u79FB\u81F3\u654C\u65B9\u8EAB\u540E\u3002"

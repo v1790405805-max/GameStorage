@@ -8,7 +8,7 @@ using UnityEngine;
 /// 「从目标落点格到玩家出牌前所在格之间连成的直线」上的所有怪物均受到伤害。
 /// 通过 CardData.extraEffects 挂载本脚本触发，机制与 TeleportEffect 相同。
 /// </summary>
-public class LineAttackEffect : CardEffect
+public class LineAttackEffect : CardEffectCore
 {
     /// <summary>
     /// 效果基类入口：卡牌打出时经 CardData.extraEffects 动态实例化触发。

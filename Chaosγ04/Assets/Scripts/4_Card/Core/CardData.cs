@@ -66,7 +66,7 @@ public enum CardEffectType
 }
 
 /// <summary>
-/// 额外效果挂载槽：直接拖拽效果脚本（CardEffect 子类的 .cs）挂载，非数值类效果经此触发。
+/// 额外效果挂载槽：直接拖拽效果脚本（CardEffectCore 子类的 .cs）挂载，非数值类效果经此触发。
 /// 注意：Unity 6 中 MonoScript 仅编辑器可用，运行时通过 effectTypeName 解析类型实例化，
 /// 该字段由 CardDataEditor 在拖入脚本时自动写入。
 /// </summary>
@@ -74,6 +74,20 @@ public enum CardEffectType
 public struct ExtraCardEffect
 {
     [Tooltip("从 Project 窗口直接拖拽效果脚本（.cs）到此槽位，如 TeleportEffect")]
+    public UnityEngine.Object effectScript;
+
+    [HideInInspector]
+    public string effectTypeName;   // 拖入脚本时由编辑器自动写入类型全名（运行时实例化用）
+}
+
+/// <summary>
+/// 卡牌表现效果挂载槽：动画与特效脚本共用相同的引用结构。
+/// 实际类型由 CardDataEditor 校验，运行时通过 effectTypeName 实例化。
+/// </summary>
+[Serializable]
+public struct CardPresentationEffectReference
+{
+    [Tooltip("从 Project 窗口直接拖拽动画或特效脚本（.cs）到此槽位")]
     public UnityEngine.Object effectScript;
 
     [HideInInspector]
@@ -123,6 +137,14 @@ public class CardData : ScriptableObject
     [Tooltip("额外效果（非数值类），按需拖拽效果脚本（.cs）挂载，可挂多个")]
     public List<ExtraCardEffect> extraEffects = new List<ExtraCardEffect>();
 
+    [Header("卡牌动画效果")]
+    [Tooltip("按顺序拖拽 CardAnimationCore 子类脚本（.cs）挂载此卡牌的动画表现")]
+    public List<CardPresentationEffectReference> animationEffects = new List<CardPresentationEffectReference>();
+
+    [Header("卡牌特效")]
+    [Tooltip("按顺序拖拽 CardVFXCore 子类脚本（.cs）挂载此卡牌的特效表现")]
+    public List<CardPresentationEffectReference> vfxEffects = new List<CardPresentationEffectReference>();
+
 
     [Tooltip("拖拽此卡牌时使用的 Grid 高亮样式资产（GridStyleData）。\n" +
              "留空则不显示范围高亮。")]
@@ -145,6 +167,8 @@ public class CardData : ScriptableObject
         clone.cost              = cost;
         clone.effectFlags       = effectFlags;
         clone.extraEffects      = extraEffects == null ? null : new List<ExtraCardEffect>(extraEffects);
+        clone.animationEffects  = animationEffects == null ? null : new List<CardPresentationEffectReference>(animationEffects);
+        clone.vfxEffects        = vfxEffects == null ? null : new List<CardPresentationEffectReference>(vfxEffects);
         clone.moveDistance      = moveDistance;
         clone.damage            = damage;
         clone.block             = block;

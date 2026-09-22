@@ -238,13 +238,9 @@ public class CardManager : MonoBehaviour
             playStartGrid = GetPlayerGridPosition();
             bool hasExtraEffects = card.extraEffects != null && card.extraEffects.Count > 0;
 
-            // 获取玩家的 Animator 动画机
-            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-            Animator anim = null;
-            if (playerObj != null)
-            {
-                anim = playerObj.GetComponentInChildren<Animator>();
-            }
+            // 卡牌表现由动画和特效两个大类分别管理。
+            CardAnimationCore.PlayAll(card, targetGrid);
+            CardVFXCore.PlayAll(card, targetGrid);
 
             // 1. 基础移动效果
             if (card.effectFlags.HasFlag(CardEffectType.Movement) && !hasExtraEffects)
@@ -259,11 +255,6 @@ public class CardManager : MonoBehaviour
             // 2. 攻击效果
             if (card.effectFlags.HasFlag(CardEffectType.Attack))
             {
-                // ==========================================
-                // 【标准做法】：直接 SetTrigger，干净利落
-                // ==========================================
-                if (anim != null) anim.SetTrigger("Attack");
-
                 GridManager gridMgr = FindFirstObjectByType<GridManager>();
                 if (gridMgr != null && MonsterIdentitySystem.Instance != null)
                 {
@@ -283,19 +274,6 @@ public class CardManager : MonoBehaviour
             // 3. 防御/护甲效果
             if (card.effectFlags.HasFlag(CardEffectType.Defense) && card.block != 0)
             {
-                // 既然没有防御动画，我们把原本触发动画的代码删掉（或注释掉）
-                // if (anim != null) anim.SetTrigger("Defense");
-
-                // 【新增】：直接让代码去主角身上找特效发射器，强行播放护盾特效！
-                if (playerObj != null)
-                {
-                    GenericVFXSpawner vfxSpawner = playerObj.GetComponent<GenericVFXSpawner>();
-                    if (vfxSpawner != null)
-                    {
-                        vfxSpawner.PlayVFX("Shield"); // 强行呼叫暗号 "Shield"
-                    }
-                }
-
                 CombatStatsManager.Instance.AddBlock(card.block);
             }
 
@@ -304,7 +282,6 @@ public class CardManager : MonoBehaviour
             {
                 if (card.healthChange > 0)
                 {
-                    if (anim != null) anim.SetTrigger("Skill");
                     CombatStatsManager.Instance.Heal(card.healthChange);
                 }
                 else
@@ -316,11 +293,6 @@ public class CardManager : MonoBehaviour
             // 5. 能量变化
             if (card.effectFlags.HasFlag(CardEffectType.Energy) && card.energyChange != 0)
             {
-                if (card.energyChange > 0 && !card.effectFlags.HasFlag(CardEffectType.Attack) && anim != null)
-                {
-                    anim.SetTrigger("Skill");
-                }
-
                 CombatStatsManager.Instance.ModifyEnergy(card.energyChange, allowExceedMax: true);
             }
 
@@ -349,9 +321,9 @@ public class CardManager : MonoBehaviour
                 {
                     if (string.IsNullOrEmpty(extra.effectTypeName)) continue;
                     System.Type effectType = System.Type.GetType(extra.effectTypeName);
-                    if (effectType == null || !typeof(CardEffect).IsAssignableFrom(effectType)) continue;
+                    if (effectType == null || !typeof(CardEffectCore).IsAssignableFrom(effectType)) continue;
 
-                    CardEffect instance = ScriptableObject.CreateInstance(effectType) as CardEffect;
+                    CardEffectCore instance = ScriptableObject.CreateInstance(effectType) as CardEffectCore;
                     if (instance == null) continue;
 
                     bool success = instance.Execute(card, targetGrid);

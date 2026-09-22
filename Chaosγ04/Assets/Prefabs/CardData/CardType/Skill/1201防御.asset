@@ -29,5 +29,13 @@ MonoBehaviour:
   rangeDistance: 0
   targetSelectMode: 0
   extraEffects: []
+  animationEffects:
+  - effectScript: {fileID: 11500000, guid: ff8658360f6e420eaddeb782a19a96a9, type: 3}
+    effectTypeName: PlayerDefenseAnimation, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+  vfxEffects:
+  - effectScript: {fileID: 11500000, guid: 97f6561ec09c4aeaa47bbb0f3c33f105, type: 3}
+    effectTypeName: ShieldVFX, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
   gridStyle: {fileID: 11400000, guid: 853c237319753544088890199db33ed8, type: 2}
   description: "\u83B7\u5F975\u70B9\u683C\u6321"
