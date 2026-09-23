@@ -47,6 +47,9 @@ public class CardManager : MonoBehaviour
 
     public event Action<int, int> OnPileCountChanged;
 
+    private int cardsPlayedThisTurn;
+    public bool HasPlayedCardThisTurn => cardsPlayedThisTurn > 0;
+
     private void Awake()
     {
         Instance = Instance == null ? this : Instance;
@@ -180,6 +183,8 @@ public class CardManager : MonoBehaviour
 
     public void StartTurn()
     {
+        cardsPlayedThisTurn = 0;
+
         if (hand.Count > 0) DiscardHand();
 
         foreach (CardData specialCard in specialCards)
@@ -241,6 +246,7 @@ public class CardManager : MonoBehaviour
 
         if (CombatStatsManager.Instance != null && CombatStatsManager.Instance.ConsumeEnergy(effectiveCost))
         {
+            cardsPlayedThisTurn++;
             playStartGrid = GetPlayerGridPosition();
             bool hasExtraEffects = card.extraEffects != null && card.extraEffects.Count > 0;
 

@@ -74,15 +74,16 @@ public class CardDragController : MonoBehaviour
 
         UpdatePlayerGridPosition();
 
+        int effectiveRangeDistance = data.GetEffectiveRangeDistance();
         HashSet<CellManager> targetGrids = (data.rangeType == RangeType.Point)
             ? new HashSet<CellManager> { playerCell }
-            : CalculateCardRangeGrids(playerCell, data.rangeDistance, data.rangeType);
+            : CalculateCardRangeGrids(playerCell, effectiveRangeDistance, data.rangeType);
 
         HashSet<CellManager> validTargetGrids = targetGrids;
         if (data.targetSelectMode == TargetSelectMode.EdgeOnly)
         {
             validTargetGrids = RangeSystem.GetEdgeCells(
-                targetGrids, playerCell, gridManager, data.rangeType, data.rangeDistance);
+                targetGrids, playerCell, gridManager, data.rangeType, effectiveRangeDistance);
         }
 
         bool isQuarterCircleMode = data.targetSelectMode == TargetSelectMode.AQuarterCircle;
@@ -164,12 +165,13 @@ public class CardDragController : MonoBehaviour
                 break;
 
             case TargetSelectMode.EdgeOnly:
+                int effectiveRangeDistance = data.GetEffectiveRangeDistance();
                 HashSet<CellManager> edgeCells = RangeSystem.GetEdgeCells(
                     CurrentHighlightedGrids,
                     playerCell,
                     gridManager,
                     data.rangeType,
-                    data.rangeDistance
+                    effectiveRangeDistance
                 );
                 isValidDrop = releaseCell != null && edgeCells.Contains(releaseCell);
                 break;

@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3a78281b4d3425b4b8b0e0a9fb05ed41, type: 3}
-  m_Name: "4002\u5148\u53D1\u5236\u4EBA-UN"
+  m_Name: "4003\u6D41\u661F"
   m_EditorClassIdentifier: Assembly-CSharp::CardData
-  cardID: 4002
-  cardName: "\u5148\u53D1\u5236\u4EBA"
+  cardID: 4003
+  cardName: "\u6D41\u661F"
   type: 0
   cost: 1
   effectFlags: 1
-  moveDistance: 2
+  moveDistance: 5
   damage: 0
   block: 0
   healthChange: 0
@@ -26,8 +26,8 @@ MonoBehaviour:
   drawAmount: 0
   discardAmount: 0
   rangeType: 1
-  rangeDistance: 2
-  targetSelectMode: 1
+  rangeDistance: 5
+  targetSelectMode: 0
   extraEffects:
   - effectScript: {fileID: 11500000, guid: d06c2e8e69778cc4f9e9fe25ec97a55e, type: 3}
     effectTypeName: TeleportEffect, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
@@ -35,4 +35,4 @@ MonoBehaviour:
   animationEffects: []
   vfxEffects: []
   gridStyle: {fileID: 11400000, guid: c7730a9b49b1f8244b410ce1e2e6542b, type: 2}
-  description: "\u5411\u6307\u5B9A\u65B9\u5411\u76842\u683C\u5185\u8FDB\u884C\u4F4D\u79FB\uFF0C\u5982\u679C\u8FD9\u5F20\u724C\u4E3A\u672C\u56DE\u5408\u6253\u51FA\u7684\u7B2C1\u5F20\u724C\uFF0C\u5219\u4F4D\u79FB\u8DDD\u79BB+2"
+  description: "\u4EE5\u81EA\u8EAB\u4E3A\u4E2D\u5FC3\uFF0C\u79FB\u52A8\u52305\u683C\u5341\u5B57\u8303\u56F4\u5185\u7684\u4EFB\u610F\u4F4D\u7F6E"

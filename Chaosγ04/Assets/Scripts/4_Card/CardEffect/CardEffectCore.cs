@@ -16,6 +16,14 @@ public abstract class CardEffectCore : ScriptableObject
     }
 
     /// <summary>
+    /// 卡牌打出前的位移距离修正值。默认不修改。
+    /// </summary>
+    public virtual int GetMoveDistanceModifier(CardData card)
+    {
+        return 0;
+    }
+
+    /// <summary>
     /// 执行效果。
     /// </summary>
     /// <param name="card">触发本次结算的卡牌数据（运行时克隆实例）</param>

@@ -194,6 +194,45 @@ public class CardData : ScriptableObject
         return Mathf.Max(0, effectiveCost);
     }
 
+    public int GetEffectiveMoveDistance()
+    {
+        return Mathf.Max(0, moveDistance + GetTotalMoveDistanceModifier());
+    }
+
+    public int GetEffectiveRangeDistance()
+    {
+        return Mathf.Max(0, rangeDistance + GetTotalMoveDistanceModifier());
+    }
+
+    private int GetTotalMoveDistanceModifier()
+    {
+        int modifier = 0;
+
+        if (extraEffects == null)
+        {
+            return modifier;
+        }
+
+        foreach (ExtraCardEffect extra in extraEffects)
+        {
+            if (string.IsNullOrEmpty(extra.effectTypeName)) continue;
+
+            Type effectType = Type.GetType(extra.effectTypeName);
+            if (effectType == null || !typeof(CardEffectCore).IsAssignableFrom(effectType))
+            {
+                continue;
+            }
+
+            CardEffectCore instance = CreateInstance(effectType) as CardEffectCore;
+            if (instance == null) continue;
+
+            modifier += instance.GetMoveDistanceModifier(this);
+            Destroy(instance);
+        }
+
+        return modifier;
+    }
+
     /// <summary>
     /// 克隆卡牌数据，防止运行时修改影响原始资产。
     /// </summary>
