@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a78281b4d3425b4b8b0e0a9fb05ed41, type: 3}
+  m_Name: "2002\u661F\u5C18\u5E87\u62A4"
+  m_EditorClassIdentifier: Assembly-CSharp::CardData
+  cardID: 2002
+  cardName: "\u661F\u5C18\u5E87\u62A4"
+  type: 2
+  cost: 1
+  effectFlags: 36
+  moveDistance: 0
+  damage: 0
+  block: 5
+  healthChange: 0
+  energyChange: 0
+  actionPointChange: 1
+  drawAmount: 0
+  discardAmount: 0
+  rangeType: 0
+  rangeDistance: 0
+  targetSelectMode: 0
+  extraEffects: []
+  animationEffects:
+  - effectScript: {fileID: 11500000, guid: ff8658360f6e420eaddeb782a19a96a9, type: 3}
+    effectTypeName: PlayerDefenseAnimation, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+  vfxEffects:
+  - effectScript: {fileID: 11500000, guid: 97f6561ec09c4aeaa47bbb0f3c33f105, type: 3}
+    effectTypeName: ShieldVFX, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+  gridStyle: {fileID: 11400000, guid: 853c237319753544088890199db33ed8, type: 2}
+  description: "\u83B7\u5F975\u70B9\u683C\u6321\uFF0C\u56DE\u590D1\u70B9\u884C\u52A8\u529B"

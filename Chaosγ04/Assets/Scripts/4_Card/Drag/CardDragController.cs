@@ -137,7 +137,7 @@ public class CardDragController : MonoBehaviour
         CardData data = cardUI.CurrentCardData;
 
         bool canAfford = CombatStatsManager.Instance != null
-            && CombatStatsManager.Instance.currentEnergy >= data.cost;
+            && CombatStatsManager.Instance.currentEnergy >= data.GetEffectiveCost();
 
         if (!canAfford)
         {

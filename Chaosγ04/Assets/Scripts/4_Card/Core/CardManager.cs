@@ -237,7 +237,9 @@ public class CardManager : MonoBehaviour
         Vector2Int targetGrid,
         IReadOnlyCollection<Vector2Int> castTargetGrids = null)
     {
-        if (CombatStatsManager.Instance != null && CombatStatsManager.Instance.ConsumeEnergy(card.cost))
+        int effectiveCost = card.GetEffectiveCost();
+
+        if (CombatStatsManager.Instance != null && CombatStatsManager.Instance.ConsumeEnergy(effectiveCost))
         {
             playStartGrid = GetPlayerGridPosition();
             bool hasExtraEffects = card.extraEffects != null && card.extraEffects.Count > 0;

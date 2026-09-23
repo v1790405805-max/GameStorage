@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
@@ -85,12 +85,19 @@ public class CardUI : MonoBehaviour,
         {
             highlightBorderImage.gameObject.SetActive(false);
         }
+
+        if (CombatStatsManager.Instance != null)
+        {
+            CombatStatsManager.Instance.OnActionPointCountChanged += HandleActionPointCountChanged;
+        }
+
+        RefreshCostDisplay();
     }
 
     public void Setup(CardData data)
     {
         currentCardData = data;
-        if (costText != null) costText.text = data.cost.ToString();
+        RefreshCostDisplay();
         if (nameText != null) nameText.text = data.cardName;
         if (descText != null) descText.text = data.description;
     }
@@ -247,11 +254,28 @@ public class CardUI : MonoBehaviour,
             }
             else
             {
-                bool canAfford = CombatStatsManager.Instance.currentEnergy >= currentCardData.cost;
+                bool canAfford =
+                    CombatStatsManager.Instance.currentEnergy >= currentCardData.GetEffectiveCost();
                 highlightBorderImage.color = canAfford ? affordableColor : unaffordableColor;
             }
             highlightBorderImage.gameObject.SetActive(true);
         }
+    }
+
+    private void HandleActionPointCountChanged(int usedActionPointCount)
+    {
+        RefreshCostDisplay();
+
+        if (highlightBorderImage != null && highlightBorderImage.gameObject.activeSelf)
+        {
+            UpdateHighlightState(true);
+        }
+    }
+
+    private void RefreshCostDisplay()
+    {
+        if (costText == null || currentCardData == null) return;
+        costText.text = currentCardData.GetEffectiveCost().ToString();
     }
 
     private void OnDestroy()
@@ -260,6 +284,12 @@ public class CardUI : MonoBehaviour,
         {
             currentlySelectedCard = null;
         }
+
+        if (CombatStatsManager.Instance != null)
+        {
+            CombatStatsManager.Instance.OnActionPointCountChanged -= HandleActionPointCountChanged;
+        }
+
         transform.DOKill();
     }
 }

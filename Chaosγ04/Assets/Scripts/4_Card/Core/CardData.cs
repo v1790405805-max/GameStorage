@@ -163,6 +163,38 @@ public class CardData : ScriptableObject
     public string description;
 
     /// <summary>
+    /// 获取应用所有 CardEffectCore 费用修正后的实际出牌费用。
+    /// </summary>
+    public int GetEffectiveCost()
+    {
+        int effectiveCost = cost;
+
+        if (extraEffects == null)
+        {
+            return Mathf.Max(0, effectiveCost);
+        }
+
+        foreach (ExtraCardEffect extra in extraEffects)
+        {
+            if (string.IsNullOrEmpty(extra.effectTypeName)) continue;
+
+            Type effectType = Type.GetType(extra.effectTypeName);
+            if (effectType == null || !typeof(CardEffectCore).IsAssignableFrom(effectType))
+            {
+                continue;
+            }
+
+            CardEffectCore instance = CreateInstance(effectType) as CardEffectCore;
+            if (instance == null) continue;
+
+            effectiveCost += instance.GetCostModifier(this);
+            Destroy(instance);
+        }
+
+        return Mathf.Max(0, effectiveCost);
+    }
+
+    /// <summary>
     /// 克隆卡牌数据，防止运行时修改影响原始资产。
     /// </summary>
     public CardData Clone()

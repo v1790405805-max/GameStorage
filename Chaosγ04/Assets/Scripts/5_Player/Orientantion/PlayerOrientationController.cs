@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -34,6 +35,11 @@ public class PlayerOrientationController : MonoBehaviour
     [Min(0.1f)]
     [SerializeField] private float longPressDuration = 0.5f;
 
+    [Header("方向按钮隐藏")]
+    [Tooltip("点击方向按钮后，按钮保持显示并停止响应的时间（秒）")]
+    [Min(0f)]
+    [SerializeField] private float hideButtonDelay = 1f;
+
     [Header("点击射线检测")]
     [Tooltip("点击射线 LayerMask，默认自动使用 GridManager.cellLayer（格子层）")]
     [SerializeField] private LayerMask clickLayerMask = 0;
@@ -41,6 +47,7 @@ public class PlayerOrientationController : MonoBehaviour
     private bool buttonsVisible = false;
     private float pressStartTime = -1f;
     private bool longPressTriggered = false;
+    private bool directionButtonInputLocked = false;
 
     private PointerEventData cachedPointerEventData;
     private readonly List<RaycastResult> uiRaycastResults = new List<RaycastResult>();
@@ -82,19 +89,34 @@ public class PlayerOrientationController : MonoBehaviour
     {
         // Front: Horizontal = 1, Vertical = 1
         if (buttonFront != null)
-            buttonFront.onClick.AddListener(() => SetDirectionParameters(1f, 1f));
+            buttonFront.onClick.AddListener(() => HandleDirectionButtonClicked(1f, 1f));
 
         // Right: Horizontal = 1, Vertical = -1
         if (buttonRight != null)
-            buttonRight.onClick.AddListener(() => SetDirectionParameters(1f, -1f));
+            buttonRight.onClick.AddListener(() => HandleDirectionButtonClicked(1f, -1f));
 
         // Back: Horizontal = -1, Vertical = -1
         if (buttonBack != null)
-            buttonBack.onClick.AddListener(() => SetDirectionParameters(-1f, -1f));
+            buttonBack.onClick.AddListener(() => HandleDirectionButtonClicked(-1f, -1f));
 
         // Left: Horizontal = -1, Vertical = 1
         if (buttonLeft != null)
-            buttonLeft.onClick.AddListener(() => SetDirectionParameters(-1f, 1f));
+            buttonLeft.onClick.AddListener(() => HandleDirectionButtonClicked(-1f, 1f));
+    }
+
+    private void HandleDirectionButtonClicked(float horizontal, float vertical)
+    {
+        if (directionButtonInputLocked) return;
+
+        directionButtonInputLocked = true;
+        SetDirectionParameters(horizontal, vertical);
+        StartCoroutine(HideButtonsAfterDelay());
+    }
+
+    private IEnumerator HideButtonsAfterDelay()
+    {
+        yield return new WaitForSeconds(hideButtonDelay);
+        HideButtons();
     }
 
     private void SetDirectionParameters(float horizontal, float vertical)
@@ -269,6 +291,7 @@ public class PlayerOrientationController : MonoBehaviour
         bool wasVisible = buttonsVisible;
         SetButtonsActive(false);
         buttonsVisible = false;
+        directionButtonInputLocked = false;
 
         // 确实从显示状态退出时才还原格子样式（避免非玩家回合每帧调用导致无谓重置）
         if (wasVisible && visualManager != null)

@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a78281b4d3425b4b8b0e0a9fb05ed41, type: 3}
+  m_Name: "4003\u6D41\u661F-UN"
+  m_EditorClassIdentifier: Assembly-CSharp::CardData
+  cardID: 4003
+  cardName: "\u6D41\u661F"
+  type: 0
+  cost: 1
+  effectFlags: 1
+  moveDistance: 2
+  damage: 0
+  block: 0
+  healthChange: 0
+  energyChange: 0
+  actionPointChange: 0
+  drawAmount: 0
+  discardAmount: 0
+  rangeType: 1
+  rangeDistance: 2
+  targetSelectMode: 0
+  extraEffects:
+  - effectScript: {fileID: 11500000, guid: d06c2e8e69778cc4f9e9fe25ec97a55e, type: 3}
+    effectTypeName: TeleportEffect, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+  animationEffects: []
+  vfxEffects: []
+  gridStyle: {fileID: 11400000, guid: c7730a9b49b1f8244b410ce1e2e6542b, type: 2}
+  description: "\u4EE5\u81EA\u8EAB\u4E3A\u4E2D\u5FC3\uFF0C\u65E0\u89C6\u8DDD\u79BB\u79FB\u52A8\u5230\u5341\u5B57\u8303\u56F4\u5185\u7684\u4EFB\u610F\u4F4D\u7F6E"

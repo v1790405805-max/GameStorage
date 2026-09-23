@@ -22,13 +22,21 @@ public class PlayerStatsUI : MonoBehaviour
     public Slider actionPointSlider;     // 拖入 ActionPoint 节点下的 Canvas
     public TextMeshProUGUI actionPointText;// 拖入 ActionPoint Value
 
+    [Header("--- 本回合行动力消耗 (Action Point Count) ---")]
+    public Slider actionPointCountSlider; // 拖入 ActionPointCount Canvas
+    public TextMeshProUGUI actionPointCountText; // 拖入 ActionPointCount Value
+    [Tooltip("本回合行动力消耗条的视觉满值，用于控制 Slider 的填充比例。")]
+    public int maxActionPointCountVisual = 50;
+
     private void Start()
     {
         // 订阅 PlayerStatsManager 的属性变化事件
         if (CombatStatsManager.Instance != null)
         {
             CombatStatsManager.Instance.OnStatsChanged += UpdateStatsUI;
+            CombatStatsManager.Instance.OnActionPointCountChanged += UpdateActionPointCountUI;
             UpdateStatsUI(); // 初始化时刷新一次
+            UpdateActionPointCountUI(CombatStatsManager.Instance.UsedActionPointCount);
         }
     }
 
@@ -38,6 +46,7 @@ public class PlayerStatsUI : MonoBehaviour
         if (CombatStatsManager.Instance != null)
         {
             CombatStatsManager.Instance.OnStatsChanged -= UpdateStatsUI;
+            CombatStatsManager.Instance.OnActionPointCountChanged -= UpdateActionPointCountUI;
         }
     }
 
@@ -91,6 +100,19 @@ public class PlayerStatsUI : MonoBehaviour
         if (actionPointText != null)
         {
             actionPointText.text = $"{stats.currentActionPoint} / {stats.maxActionPoint}";
+        }
+    }
+
+    private void UpdateActionPointCountUI(int usedActionPointCount)
+    {
+        if (actionPointCountSlider != null && maxActionPointCountVisual > 0)
+        {
+            actionPointCountSlider.value = Mathf.Clamp01((float)usedActionPointCount / maxActionPointCountVisual);
+        }
+
+        if (actionPointCountText != null)
+        {
+            actionPointCountText.text = usedActionPointCount.ToString();
         }
     }
 }

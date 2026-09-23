@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a78281b4d3425b4b8b0e0a9fb05ed41, type: 3}
+  m_Name: "1005\u661F\u5760-UN"
+  m_EditorClassIdentifier: Assembly-CSharp::CardData
+  cardID: 1005
+  cardName: "\u661F\u5760"
+  type: 1
+  cost: 1
+  effectFlags: 2
+  moveDistance: 0
+  damage: 9
+  block: 0
+  healthChange: 0
+  energyChange: 0
+  actionPointChange: 0
+  drawAmount: 0
+  discardAmount: 0
+  rangeType: 1
+  rangeDistance: 1
+  targetSelectMode: 1
+  extraEffects: []
+  animationEffects:
+  - effectScript: {fileID: 11500000, guid: 9bcaff3e235941c0a561299ba5120919, type: 3}
+    effectTypeName: PlayerAttackAnimation, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+  vfxEffects:
+  - effectScript: {fileID: 11500000, guid: 63653cd68eb54eb2b6350d6050332bdb, type: 3}
+    effectTypeName: StabVFX, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  gridStyle: {fileID: 11400000, guid: 88afb53f10edd8244949d4b08ce8e10e, type: 2}
+  description: "\u5BF91\u683C\u8303\u56F4\u5185\u7684\u654C\u4EBA\u653B\u51FB\uFF0C\u9020\u62109\u70B9\u4F24\u5BB3\uFF0C\u5E76\u628A\u654C\u4EBA\u63A8\u540E\u4E00\u683C\uFF0C\u82E5\u5728\u77EE\u5899\u4E0A\u5411\u4E0B\u53D1\u8D77\u51B2\u51FB\uFF0C\u4E0B\u5899\u5E76\u56DE\u590D\u4E00\u70B9\u8D39\u7528"
