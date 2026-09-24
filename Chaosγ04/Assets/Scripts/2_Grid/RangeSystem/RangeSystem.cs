@@ -168,7 +168,8 @@ public static class RangeSystem
         int maxRange,
         GridManager gridManager,
         RangeType type = RangeType.Diamond,
-        bool blockByMonster = true)
+        bool blockByMonster = true,
+        bool useAbilityTraversal = false)
     {
         HashSet<CellManager> reachable = new HashSet<CellManager>();
         if (gridManager == null || startCell == null) return reachable;
@@ -188,6 +189,7 @@ public static class RangeSystem
         Queue<(CellManager cell, int step)> queue = new Queue<(CellManager, int)>();
         queue.Enqueue((startCell, 0));
         reachable.Add(startCell);
+        HashSet<CellManager> traversed = new HashSet<CellManager> { startCell };
 
         Vector2Int[] directions = { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
 
@@ -210,9 +212,24 @@ public static class RangeSystem
                 {
                     if (neighbor == null) continue;
                     if (neighbor.IsLocked) continue; // 状态锁：不可移动上去、不在范围判定内
-                    if (reachable.Contains(neighbor)) continue;
-                    if (blockByMonster && neighbor.HasMonsterInside) continue;
                     if (!CanConnectAcrossLayers(gridManager, current, neighbor)) continue;
+                    if (!traversed.Add(neighbor)) continue;
+
+                    // 穿过敌人：敌人格可以继续扩展路径，但不会成为可停留的落点。
+                    if (blockByMonster && neighbor.HasMonsterInside)
+                    {
+                        if (useAbilityTraversal && AbilityCore.CanTraverseCell(neighbor))
+                        {
+                            if (AbilityCore.CanLandOnCell(neighbor))
+                            {
+                                reachable.Add(neighbor);
+                            }
+
+                            queue.Enqueue((neighbor, step + 1));
+                        }
+
+                        continue;
+                    }
 
                     reachable.Add(neighbor);
                     queue.Enqueue((neighbor, step + 1));

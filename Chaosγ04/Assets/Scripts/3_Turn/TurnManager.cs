@@ -20,21 +20,21 @@ public class TurnManager : MonoBehaviour
 {
     public static TurnManager Instance { get; private set; }
 
-    [Header("»ØºÏ×´Ì¬ÅäÖÃ")]
+    [Header("å›åˆçŠ¶æ€é…ç½®")]
     [SerializeField] private TurnState currentTurn = TurnState.Player;
     public TurnState CurrentTurn => currentTurn;
 
-    [Header("»ØºÏ¼ÆÊıÆ÷")]
-    [Tooltip("µ±Ç°ÊÇµÚ¼¸¸ö»ØºÏ")]
+    [Header("å›åˆè®¡æ•°å™¨")]
+    [Tooltip("å½“å‰æ˜¯ç¬¬å‡ ä¸ªå›åˆ")]
     public int currentRoundCount = 0;
 
-    [Tooltip("ÓÃÀ´ÏÔÊ¾»ØºÏÊıµÄ UI ÎÄ±¾")]
+    [Tooltip("ç”¨æ¥æ˜¾ç¤ºå›åˆæ•°çš„ UI æ–‡æœ¬")]
     public TextMeshProUGUI turnCounterText;
 
-    [Header("ÎÒ·½ĞĞÎªÂß¼­½Å±¾£¨Íæ¼Ò»ØºÏ¿ªÆô£¬µĞ·½»ØºÏ¹Ø±Õ£©")]
+    [Header("æˆ‘æ–¹è¡Œä¸ºé€»è¾‘è„šæœ¬ï¼ˆç©å®¶å›åˆå¼€å¯ï¼Œæ•Œæ–¹å›åˆå…³é—­ï¼‰")]
     [SerializeField] private List<MonoBehaviour> playerBehaviours = new List<MonoBehaviour>();
 
-    [Header("µĞ·½ĞĞÎª¹ÜÀíÆ÷ÁĞ±í£¨°´Ë³ĞòÖ´ĞĞĞĞ¶¯£©")]
+    [Header("æ•Œæ–¹è¡Œä¸ºç®¡ç†å™¨åˆ—è¡¨ï¼ˆæŒ‰é¡ºåºæ‰§è¡Œè¡ŒåŠ¨ï¼‰")]
     [SerializeField] private List<MonsterActionManager> enemyBehaviours = new List<MonsterActionManager>();
 
     private Coroutine enemyTurnCoroutine;
@@ -55,7 +55,7 @@ public class TurnManager : MonoBehaviour
 
         if (CombatStatsManager.Instance != null && CombatStatsManager.Instance.hasSavedGame)
         {
-            Debug.Log("========== ¼ì²âµ½Õ½¶·´æµµ£¬ÕıÔÚ×¼±¸»Ö¸´ÓÎÏ· ==========");
+            Debug.Log("========== æ£€æµ‹åˆ°æˆ˜æ–—å­˜æ¡£ï¼Œæ­£åœ¨å‡†å¤‡æ¢å¤æ¸¸æˆ ==========");
             StartCoroutine(RestoreGameFromSaveRoutine());
         }
         else
@@ -84,7 +84,7 @@ public class TurnManager : MonoBehaviour
         if (playerObj != null)
         {
             playerObj.transform.root.position = saveObj.savedPlayerPosition;
-            Debug.Log($"[TurnManager] ÒÑ»Ö¸´Íæ¼ÒÎ»ÖÃÖÁ: {saveObj.savedPlayerPosition}");
+            Debug.Log($"[TurnManager] å·²æ¢å¤ç©å®¶ä½ç½®è‡³: {saveObj.savedPlayerPosition}");
         }
 
         saveObj.Horizontal = saveObj.savedHorizontal;
@@ -147,7 +147,7 @@ public class TurnManager : MonoBehaviour
             SLManager.Instance.ImportSnapshotData(saveObj.savedTurnStartSnapshot);
         }
 
-        Debug.Log("========== Õ½¶·´æµµ¾«×¼»Ö¸´Íê±Ï ==========");
+        Debug.Log("========== æˆ˜æ–—å­˜æ¡£ç²¾å‡†æ¢å¤å®Œæ¯• ==========");
     }
 
     public void OnEndRoundButtonPressed()
@@ -158,7 +158,7 @@ public class TurnManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("µ±Ç°´¦ÓÚ·ÇÍæ¼Ò»ØºÏ»òÕıÔÚ½áËãÖĞ£¬ÇëÎğÁ¬µã£¡");
+            Debug.LogWarning("å½“å‰å¤„äºéç©å®¶å›åˆæˆ–æ­£åœ¨ç»“ç®—ä¸­ï¼Œè¯·å‹¿è¿ç‚¹ï¼");
         }
     }
 
@@ -200,12 +200,12 @@ public class TurnManager : MonoBehaviour
         currentRoundCount++;
         UpdateTurnCounterUI();
 
-        Debug.Log($"========== µÚ {currentRoundCount} »ØºÏ / Íæ¼Ò»ØºÏ¿ªÊ¼ ==========");
+        Debug.Log($"========== ç¬¬ {currentRoundCount} å›åˆ / ç©å®¶å›åˆå¼€å§‹ ==========");
 
         SetGroupState(playerBehaviours, true);
 
         // ==========================================
-        // ¡¾ĞÂÔö¡¿£ºÍæ¼Ò»ØºÏ¿ªÊ¼£¬Ë¢ĞÂÈ«³¡¹ÖÎïµÄ¹¥»÷ÒâÍ¼
+        // ã€æ–°å¢ã€‘ï¼šç©å®¶å›åˆå¼€å§‹ï¼Œåˆ·æ–°å…¨åœºæ€ªç‰©çš„æ”»å‡»æ„å›¾
         // ==========================================
         MonsterInfoUI[] allMonsterUIs = FindObjectsByType<MonsterInfoUI>(FindObjectsSortMode.None);
         foreach (var monsterUI in allMonsterUIs)
@@ -222,6 +222,8 @@ public class TurnManager : MonoBehaviour
             CombatStatsManager.Instance.ResetForNewTurn();
         }
 
+        AbilityCore.NotifyPlayerTurnStarted();
+
         if (CardManager.Instance != null)
         {
             CardManager.Instance.StartTurn();
@@ -230,12 +232,13 @@ public class TurnManager : MonoBehaviour
 
     private void StartEnemyTurn()
     {
-        Debug.Log($"========== µÚ {currentRoundCount} »ØºÏ / Íæ¼Ò»ØºÏ½áÊø / µĞ·½»ØºÏ¿ªÊ¼ ==========");
+        Debug.Log($"========== ç¬¬ {currentRoundCount} å›åˆ / ç©å®¶å›åˆç»“æŸ / æ•Œæ–¹å›åˆå¼€å§‹ ==========");
 
         SetGroupState(playerBehaviours, false);
+        AbilityCore.NotifyEnemyTurnStarted();
 
         // ==========================================
-        // ¡¾ĞÂÔö¡¿£º¹ÖÎï¿ªÊ¼ĞĞ¶¯£¬Òş²ØÒâÍ¼Í¼±ê
+        // ã€æ–°å¢ã€‘ï¼šæ€ªç‰©å¼€å§‹è¡ŒåŠ¨ï¼Œéšè—æ„å›¾å›¾æ ‡
         // ==========================================
         MonsterInfoUI[] allMonsterUIs = FindObjectsByType<MonsterInfoUI>(FindObjectsSortMode.None);
         foreach (var monsterUI in allMonsterUIs)
@@ -323,14 +326,14 @@ public class TurnManager : MonoBehaviour
     {
         currentRoundCount = savedRound;
         UpdateTurnCounterUI();
-        Debug.Log($"[TurnManager] ÒÑ´Ó´æµµ»Ö¸´»ØºÏÊı£ºµÚ {currentRoundCount} »ØºÏ");
+        Debug.Log($"[TurnManager] å·²ä»å­˜æ¡£æ¢å¤å›åˆæ•°ï¼šç¬¬ {currentRoundCount} å›åˆ");
     }
 
     private void UpdateTurnCounterUI()
     {
         if (turnCounterText != null)
         {
-            turnCounterText.text = $"»ØºÏ {currentRoundCount}";
+            turnCounterText.text = $"å›åˆ {currentRoundCount}";
         }
     }
 }

@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3a78281b4d3425b4b8b0e0a9fb05ed41, type: 3}
-  m_Name: "3001\u661F\u5C18\u5171\u9E23-UN"
+  m_Name: "3003\u661F\u5C18\u5B9E\u4F53"
   m_EditorClassIdentifier: Assembly-CSharp::CardData
-  cardID: 3001
-  cardName: "\u661F\u5C18\u5171\u9E23"
-  type: 2
+  cardID: 3003
+  cardName: "\u661F\u5C18\u5B9E\u4F53"
+  type: 3
   cost: 1
   effectFlags: 0
   moveDistance: 0
@@ -28,11 +28,14 @@ MonoBehaviour:
   rangeType: 0
   rangeDistance: 0
   targetSelectMode: 0
-  extraEffects: []
+  extraEffects:
+  - effectScript: {fileID: 11500000, guid: 7699ce69cc334e5c89959c82794ab141, type: 3}
+    effectTypeName: PassThroughAbility, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
   animationEffects:
   - effectScript: {fileID: 11500000, guid: 394146f29626473080ae7e8dca18da7c, type: 3}
     effectTypeName: PlayerSkillAnimation, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
   vfxEffects: []
   gridStyle: {fileID: 11400000, guid: 853c237319753544088890199db33ed8, type: 2}
-  description: "\u6BCF\u6D88\u80173\u70B9\u80FD\u91CF\u70B9\u53EF\u8F6C\u5316\u51FA1\u70B9\u884C\u52A8\u70B9\uFF0C\u6BCF\u6D88\u80175\u70B9\u884C\u52A8\u70B9\u53EF\u8F6C\u5316\u51FA1\u70B9\u80FD\u91CF\u70B9"
+  description: "\u4E0D\u518D\u4EA7\u751F\u78B0\u649E\u4F53\u79EF\uFF0C\u53EF\u4EE5\u76F4\u63A5\u7A7F\u8FC7\u654C\u4EBA\u8FDB\u884C\u79FB\u52A8"

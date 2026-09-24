@@ -8,7 +8,7 @@ public enum CardType
     Special,    // 特殊卡
     Attack,     // 攻击
     Skill,      // 技能
-    Power,      // 能力
+    Ability,    // 能力
     Movement    // 位移
 }
 
@@ -107,10 +107,15 @@ public struct CardPresentationEffectReference
 [CreateAssetMenu(fileName = "New Card Data", menuName = "Card Basic/Card Data")]
 public class CardData : ScriptableObject
 {
+    public const int VariableCostValue = -1;
+
     public string   cardID;
     public string   cardName;
     public CardType type;
-    public int      cost;           // 卡牌费用
+    [Tooltip("固定费用输入整数；变量费用输入 X（序列化值为 -1）")]
+    public int      cost;           // 卡牌费用，-1 表示 X
+
+    public bool IsVariableCost => cost == VariableCostValue;
 
     public CardEffectType effectFlags;
 
@@ -167,6 +172,12 @@ public class CardData : ScriptableObject
     /// </summary>
     public int GetEffectiveCost()
     {
+        // X 费用按 Cost=1 判断是否可打出，重复次数在 CardManager 中结算。
+        if (IsVariableCost)
+        {
+            return 1;
+        }
+
         int effectiveCost = cost;
 
         if (extraEffects == null)
@@ -192,6 +203,11 @@ public class CardData : ScriptableObject
         }
 
         return Mathf.Max(0, effectiveCost);
+    }
+
+    public string GetCostDisplayText()
+    {
+        return IsVariableCost ? "X" : GetEffectiveCost().ToString();
     }
 
     public int GetEffectiveMoveDistance()

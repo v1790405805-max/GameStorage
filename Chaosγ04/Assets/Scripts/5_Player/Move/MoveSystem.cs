@@ -41,6 +41,12 @@ public static class MoveSystem
         HashSet<CellManager> allowedCells, GridManager gridManager)
     {
         if (gridManager == null || start == null || end == null) return null;
+        if (end.HasMonsterInside ||
+            (end.IsPlayerInside && end != start) ||
+            !AbilityCore.CanLandOnCell(end))
+        {
+            return null;
+        }
 
         List<PathCellNode> openList = new List<PathCellNode>();
         HashSet<CellManager> closedList = new HashSet<CellManager>();
@@ -91,10 +97,19 @@ public static class MoveSystem
                     if (neighborCell == null) continue;
                     if (closedList.Contains(neighborCell)) continue;
                     if (neighborCell.IsLocked) continue; // 状态锁：不可走上/穿过
-                    if (allowedCells != null && !allowedCells.Contains(neighborCell)) continue;
-                    if (neighborCell.HasMonsterInside) continue;
                     // 跨层连接规则：只相隔一层可连
                     if (!RangeSystem.CanConnectAcrossLayers(gridManager, currentNode.cell, neighborCell)) continue;
+
+                    bool hasMonster = neighborCell.HasMonsterInside;
+                    if (hasMonster && !AbilityCore.CanTraverseCell(neighborCell)) continue;
+
+                    bool canLand = AbilityCore.CanLandOnCell(neighborCell);
+                    if (neighborCell == end && !canLand) continue;
+
+                    bool isAllowedLandingCell =
+                        canLand && (allowedCells == null || allowedCells.Contains(neighborCell));
+                    bool isPassThroughCell = !canLand && hasMonster;
+                    if (!isAllowedLandingCell && !isPassThroughCell) continue;
 
                     int newCost = currentNode.gCost + 1;
                     PathCellNode neighborNode = openList.Find(n => n.cell == neighborCell);

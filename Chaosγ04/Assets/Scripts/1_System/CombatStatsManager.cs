@@ -102,6 +102,8 @@ public class CombatStatsManager : MonoBehaviour
 
     public event Action OnStatsChanged;
     public event Action<int> OnActionPointCountChanged;
+    public event Action<int> OnEnergySpent;
+    public event Action<int> OnActionPointSpent;
 
     private void Awake()
     {
@@ -189,6 +191,10 @@ public class CombatStatsManager : MonoBehaviour
         if (currentEnergy >= amount)
         {
             currentEnergy -= amount;
+            if (amount > 0)
+            {
+                OnEnergySpent?.Invoke(amount);
+            }
             TriggerStatsChanged();
             return true;
         }
@@ -219,12 +225,20 @@ public class CombatStatsManager : MonoBehaviour
 
     public void ModifyEnergy(int amount, bool allowExceedMax = false)
     {
+        int previousEnergy = currentEnergy;
         currentEnergy += amount;
         if (!allowExceedMax)
         {
             currentEnergy = Mathf.Min(currentEnergy, maxEnergy);
         }
         currentEnergy = Mathf.Max(0, currentEnergy);
+
+        int spentAmount = previousEnergy - currentEnergy;
+        if (spentAmount > 0)
+        {
+            OnEnergySpent?.Invoke(spentAmount);
+        }
+
         TriggerStatsChanged();
     }
 
@@ -239,6 +253,10 @@ public class CombatStatsManager : MonoBehaviour
         {
             currentActionPoint -= amount;
             AddUsedActionPoint(amount);
+            if (amount > 0)
+            {
+                OnActionPointSpent?.Invoke(amount);
+            }
             TriggerStatsChanged();
             return true;
         }
@@ -257,7 +275,12 @@ public class CombatStatsManager : MonoBehaviour
 
         if (amount < 0)
         {
-            AddUsedActionPoint(previousActionPoint - currentActionPoint);
+            int spentAmount = previousActionPoint - currentActionPoint;
+            AddUsedActionPoint(spentAmount);
+            if (spentAmount > 0)
+            {
+                OnActionPointSpent?.Invoke(spentAmount);
+            }
         }
 
         TriggerStatsChanged();

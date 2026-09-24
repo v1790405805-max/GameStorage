@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3a78281b4d3425b4b8b0e0a9fb05ed41, type: 3}
-  m_Name: "1006\u661F\u9556-UN"
+  m_Name: "1006\u661F\u9556"
   m_EditorClassIdentifier: Assembly-CSharp::CardData
   cardID: 1006
   cardName: "\u661F\u9556"
   type: 1
-  cost: 0
+  cost: -1
   effectFlags: 2
   moveDistance: 0
-  damage: 2
+  damage: 4
   block: 0
   healthChange: 0
   energyChange: 0
@@ -37,4 +37,4 @@ MonoBehaviour:
   - effectScript: {fileID: 11500000, guid: 63653cd68eb54eb2b6350d6050332bdb, type: 3}
     effectTypeName: StabVFX, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   gridStyle: {fileID: 11400000, guid: 88afb53f10edd8244949d4b08ce8e10e, type: 2}
-  description: "\u9009\u5B9A3\u683C\u8303\u56F4\u5185\u7684\u654C\u4EBA\u8FDB\u884C\u653B\u51FB\uFF0C\u9020\u62102\u70B9\u4F24\u5BB3X\u6B21"
+  description: "\u9009\u5B9A3\u683C\u8303\u56F4\u5185\u7684\u654C\u4EBA\u8FDB\u884C\u653B\u51FB\uFF0C\u9020\u62104\u70B9\u4F24\u5BB3X\u6B21"

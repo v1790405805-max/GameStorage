@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3a78281b4d3425b4b8b0e0a9fb05ed41, type: 3}
-  m_Name: "3002\u5927\u6B65\u6D41\u661F-UN"
+  m_Name: "3001\u661F\u5C18\u5171\u9E23"
   m_EditorClassIdentifier: Assembly-CSharp::CardData
-  cardID: 3002
-  cardName: "\u5927\u6B65\u6D41\u661F"
-  type: 2
+  cardID: 3001
+  cardName: "\u661F\u5C18\u5171\u9E23"
+  type: 3
   cost: 1
   effectFlags: 0
   moveDistance: 0
@@ -28,11 +28,14 @@ MonoBehaviour:
   rangeType: 0
   rangeDistance: 0
   targetSelectMode: 0
-  extraEffects: []
+  extraEffects:
+  - effectScript: {fileID: 11500000, guid: c291c5eed72f43c289a0169e0f87c190, type: 3}
+    effectTypeName: EnergyActionPointConversionAbility, Assembly-CSharp, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
   animationEffects:
   - effectScript: {fileID: 11500000, guid: 394146f29626473080ae7e8dca18da7c, type: 3}
     effectTypeName: PlayerSkillAnimation, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
   vfxEffects: []
   gridStyle: {fileID: 11400000, guid: 853c237319753544088890199db33ed8, type: 2}
-  description: "\u6BCF\u6D88\u80173\u884C\u52A8\u70B9\uFF0C\u62BD1\u5F20\u5361"
+  description: "\u6BCF\u6D88\u80173\u70B9\u80FD\u91CF\u70B9\u53EF\u8F6C\u5316\u51FA1\u70B9\u884C\u52A8\u70B9\uFF0C\u6BCF\u6D88\u80175\u70B9\u884C\u52A8\u70B9\u53EF\u8F6C\u5316\u51FA1\u70B9\u80FD\u91CF\u70B9"

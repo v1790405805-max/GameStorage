@@ -53,7 +53,18 @@ public class CardManager : MonoBehaviour
     private void Awake()
     {
         Instance = Instance == null ? this : Instance;
+        AbilityCore.BeginCombat();
         InitializeDeck();
+    }
+
+    private void OnDestroy()
+    {
+        AbilityCore.EndCombat();
+
+        if (Instance == this)
+        {
+            Instance = null;
+        }
     }
 
     private void InitializeDeck()
@@ -242,135 +253,173 @@ public class CardManager : MonoBehaviour
         Vector2Int targetGrid,
         IReadOnlyCollection<Vector2Int> castTargetGrids = null)
     {
-        int effectiveCost = card.GetEffectiveCost();
+        if (card == null) return;
 
-        if (CombatStatsManager.Instance != null && CombatStatsManager.Instance.ConsumeEnergy(effectiveCost))
+        CombatStatsManager combatStats = CombatStatsManager.Instance;
+        if (combatStats == null) return;
+
+        bool isVariableCost = card.IsVariableCost;
+        int repeatCount = isVariableCost ? combatStats.currentEnergy : 1;
+        if (repeatCount <= 0) return;
+
+        if (!isVariableCost && !combatStats.ConsumeEnergy(card.GetEffectiveCost()))
         {
-            cardsPlayedThisTurn++;
+            return;
+        }
+
+        cardsPlayedThisTurn++;
+        bool hasExtraEffects = card.extraEffects != null && card.extraEffects.Count > 0;
+        bool cardHasAbility = AbilityCore.HasAbilityEffect(card);
+
+        // 卡牌表现由动画和特效两个大类分别管理，只播放一次。
+        CardAnimationCore.PlayAll(card, targetGrid);
+        CardVFXCore.PlayAll(card, targetGrid);
+        AbilityCore.NotifyCardPlayed(card, targetGrid);
+
+        for (int repetition = 0; repetition < repeatCount; repetition++)
+        {
+            if (isVariableCost && !combatStats.ConsumeEnergy(1))
+            {
+                break;
+            }
+
             playStartGrid = GetPlayerGridPosition();
-            bool hasExtraEffects = card.extraEffects != null && card.extraEffects.Count > 0;
+            ResolveCardEffects(card, targetGrid, castTargetGrids, hasExtraEffects);
+        }
 
-            // 卡牌表现由动画和特效两个大类分别管理。
-            CardAnimationCore.PlayAll(card, targetGrid);
-            CardVFXCore.PlayAll(card, targetGrid);
+        // 从手牌数据中移除
+        hand.Remove(card);
 
-            // 1. 基础移动效果
-            if (card.effectFlags.HasFlag(CardEffectType.Movement) && !hasExtraEffects)
+        if (cardHasAbility)
+        {
+            exhaustPile.Add(card);
+        }
+        else if (card.type == CardType.Special)
+        {
+            Debug.Log($"{card.cardName} 是 Special 卡牌，用完即销毁。");
+        }
+        else if (card.type == CardType.Ability)
+        {
+            exhaustPile.Add(card);
+        }
+        else
+        {
+            discardPile.Add(card);
+        }
+
+        Destroy(cardUIObj);
+        combatStats.TriggerStatsChanged();
+        NotifyUIUpdate();
+    }
+
+    private void ResolveCardEffects(
+        CardData card,
+        Vector2Int targetGrid,
+        IReadOnlyCollection<Vector2Int> castTargetGrids,
+        bool hasExtraEffects)
+    {
+        CombatStatsManager combatStats = CombatStatsManager.Instance;
+
+        // 1. 基础移动效果
+        if (card.effectFlags.HasFlag(CardEffectType.Movement) && !hasExtraEffects)
+        {
+            PlayerMoveController moveController = FindFirstObjectByType<PlayerMoveController>();
+            if (moveController != null)
             {
-                PlayerMoveController moveController = FindFirstObjectByType<PlayerMoveController>();
-                if (moveController != null)
-                {
-                    moveController.MoveToTargetGridByCard(targetGrid);
-                }
+                moveController.MoveToTargetGridByCard(targetGrid);
             }
+        }
 
-            // 2. 攻击效果
-            if (card.effectFlags.HasFlag(CardEffectType.Attack))
+        // 2. 攻击效果
+        if (card.effectFlags.HasFlag(CardEffectType.Attack))
+        {
+            HashSet<Vector2Int> attackTargetGrids =
+                castTargetGrids != null && castTargetGrids.Count > 0
+                    ? new HashSet<Vector2Int>(castTargetGrids)
+                    : new HashSet<Vector2Int> { targetGrid };
+
+            GridManager gridMgr = FindFirstObjectByType<GridManager>();
+            if (gridMgr != null && MonsterIdentitySystem.Instance != null)
             {
-                HashSet<Vector2Int> attackTargetGrids =
-                    castTargetGrids != null && castTargetGrids.Count > 0
-                        ? new HashSet<Vector2Int>(castTargetGrids)
-                        : new HashSet<Vector2Int> { targetGrid };
-
-                GridManager gridMgr = FindFirstObjectByType<GridManager>();
-                if (gridMgr != null && MonsterIdentitySystem.Instance != null)
+                foreach (var monster in MonsterIdentitySystem.Instance.GetAllMonsters())
                 {
-                    foreach (var monster in MonsterIdentitySystem.Instance.GetAllMonsters())
+                    var (mx, mz) = gridMgr.GetGridPosition(monster.transform.position);
+                    if (attackTargetGrids.Contains(new Vector2Int(mx, mz)))
                     {
-                        var (mx, mz) = gridMgr.GetGridPosition(monster.transform.position);
-                        if (attackTargetGrids.Contains(new Vector2Int(mx, mz)))
-                        {
-                            MonsterStats stats = monster.GetComponent<MonsterStats>();
-                            if (stats != null) stats.TakeDamage(card.damage);
-                        }
+                        MonsterStats stats = monster.GetComponent<MonsterStats>();
+                        if (stats != null) stats.TakeDamage(card.damage);
                     }
                 }
             }
+        }
 
-            // 3. 防御/护甲效果
-            if (card.effectFlags.HasFlag(CardEffectType.Defense) && card.block != 0)
+        // 3. 防御/护甲效果
+        if (card.effectFlags.HasFlag(CardEffectType.Defense) && card.block != 0)
+        {
+            combatStats.AddBlock(card.block);
+        }
+
+        // 4. 生命值变化 (例如：回血技能)
+        if (card.effectFlags.HasFlag(CardEffectType.Health) && card.healthChange != 0)
+        {
+            if (card.healthChange > 0)
             {
-                CombatStatsManager.Instance.AddBlock(card.block);
-            }
-
-            // 4. 生命值变化 (例如：回血技能)
-            if (card.effectFlags.HasFlag(CardEffectType.Health) && card.healthChange != 0)
-            {
-                if (card.healthChange > 0)
-                {
-                    CombatStatsManager.Instance.Heal(card.healthChange);
-                }
-                else
-                {
-                    CombatStatsManager.Instance.TakeSelfDamage(-card.healthChange);
-                }
-            }
-
-            // 5. 能量变化
-            if (card.effectFlags.HasFlag(CardEffectType.Energy) && card.energyChange != 0)
-            {
-                CombatStatsManager.Instance.ModifyEnergy(card.energyChange, allowExceedMax: true);
-            }
-
-            // 6. 行动力变化
-            if (card.effectFlags.HasFlag(CardEffectType.ActionPoint) && card.actionPointChange != 0)
-            {
-                CombatStatsManager.Instance.ModifyActionPoint(card.actionPointChange, allowExceedMax: true);
-            }
-
-            // 7. 抽牌效果
-            if (card.effectFlags.HasFlag(CardEffectType.DrawCard) && card.drawAmount > 0)
-            {
-                DrawCards(card.drawAmount);
-            }
-
-            // 8. 弃牌效果
-            if (card.effectFlags.HasFlag(CardEffectType.DiscardCard) && card.discardAmount > 0)
-            {
-                Debug.Log($"[卡牌效果] 需要手动或随机弃牌 {card.discardAmount} 张");
-            }
-
-            // 9. 额外效果
-            if (hasExtraEffects)
-            {
-                foreach (var extra in card.extraEffects)
-                {
-                    if (string.IsNullOrEmpty(extra.effectTypeName)) continue;
-                    System.Type effectType = System.Type.GetType(extra.effectTypeName);
-                    if (effectType == null || !typeof(CardEffectCore).IsAssignableFrom(effectType)) continue;
-
-                    CardEffectCore instance = ScriptableObject.CreateInstance(effectType) as CardEffectCore;
-                    if (instance == null) continue;
-
-                    bool success = instance.Execute(card, targetGrid);
-                    Destroy(instance);
-
-                    if (!success)
-                    {
-                        Debug.LogWarning($"[CardManager] 卡牌 [{card.cardName}] 的额外效果 [{extra.effectTypeName}] 执行失败。");
-                    }
-                }
-            }
-
-            // 从手牌数据中移除
-            hand.Remove(card);
-
-            if (card.type == CardType.Special)
-            {
-                Debug.Log($"{card.cardName} 是 Special 卡牌，用完即销毁。");
-            }
-            else if (card.type == CardType.Power)
-            {
-                exhaustPile.Add(card);
+                combatStats.Heal(card.healthChange);
             }
             else
             {
-                discardPile.Add(card);
+                combatStats.TakeSelfDamage(-card.healthChange);
             }
+        }
 
-            Destroy(cardUIObj);
-            if (CombatStatsManager.Instance != null) CombatStatsManager.Instance.TriggerStatsChanged();
-            NotifyUIUpdate();
+        // 5. 能量变化
+        if (card.effectFlags.HasFlag(CardEffectType.Energy) && card.energyChange != 0)
+        {
+            combatStats.ModifyEnergy(card.energyChange, allowExceedMax: true);
+        }
+
+        // 6. 行动力变化
+        if (card.effectFlags.HasFlag(CardEffectType.ActionPoint) && card.actionPointChange != 0)
+        {
+            combatStats.ModifyActionPoint(card.actionPointChange, allowExceedMax: true);
+        }
+
+        // 7. 抽牌效果
+        if (card.effectFlags.HasFlag(CardEffectType.DrawCard) && card.drawAmount > 0)
+        {
+            DrawCards(card.drawAmount);
+        }
+
+        // 8. 弃牌效果
+        if (card.effectFlags.HasFlag(CardEffectType.DiscardCard) && card.discardAmount > 0)
+        {
+            Debug.Log($"[卡牌效果] 需要手动或随机弃牌 {card.discardAmount} 张");
+        }
+
+        // 9. 额外效果
+        if (!hasExtraEffects)
+        {
+            return;
+        }
+
+        foreach (var extra in card.extraEffects)
+        {
+            if (string.IsNullOrEmpty(extra.effectTypeName)) continue;
+            if (AbilityCore.TryActivate(card, extra)) continue;
+
+            System.Type effectType = System.Type.GetType(extra.effectTypeName);
+            if (effectType == null || !typeof(CardEffectCore).IsAssignableFrom(effectType)) continue;
+
+            CardEffectCore instance = ScriptableObject.CreateInstance(effectType) as CardEffectCore;
+            if (instance == null) continue;
+
+            bool success = instance.Execute(card, targetGrid);
+            Destroy(instance);
+
+            if (!success)
+            {
+                Debug.LogWarning($"[CardManager] 卡牌 [{card.cardName}] 的额外效果 [{extra.effectTypeName}] 执行失败。");
+            }
         }
     }
 
@@ -420,8 +469,34 @@ public class CardManager : MonoBehaviour
         OnPileCountChanged?.Invoke(drawPile.Count, discardPile.Count);
     }
 
-    public void RestoreDeckFromSave(List<CardData> savedHand, List<CardData> savedDraw, List<CardData> savedDiscard, List<CardData> savedExhaust)
+    public void RestoreDeckFromSave(
+        List<CardData> savedHand,
+        List<CardData> savedDraw,
+        List<CardData> savedDiscard,
+        List<CardData> savedExhaust)
     {
+        RestoreCardPiles(savedHand, savedDraw, savedDiscard, savedExhaust, null);
+    }
+
+    public void RestoreDeckFromSnapshot(
+        List<CardData> savedHand,
+        List<CardData> savedDraw,
+        List<CardData> savedDiscard,
+        List<CardData> savedExhaust,
+        List<CardData> savedSpecial)
+    {
+        RestoreCardPiles(savedHand, savedDraw, savedDiscard, savedExhaust, savedSpecial);
+    }
+
+    private void RestoreCardPiles(
+        List<CardData> savedHand,
+        List<CardData> savedDraw,
+        List<CardData> savedDiscard,
+        List<CardData> savedExhaust,
+        List<CardData> savedSpecial)
+    {
+        AbilityCore.EndCombat();
+
         hand.Clear();
         drawPile.Clear();
         discardPile.Clear();
@@ -432,15 +507,40 @@ public class CardManager : MonoBehaviour
             foreach (Transform child in handUIContainer) Destroy(child.gameObject);
         }
 
-        foreach (var c in savedDraw) drawPile.Add(c.Clone());
-        foreach (var c in savedDiscard) discardPile.Add(c.Clone());
-        foreach (var c in savedExhaust) exhaustPile.Add(c.Clone());
-
-        foreach (var c in savedHand)
+        if (savedDraw != null)
         {
-            CardData cloned = c.Clone();
-            hand.Add(cloned);
-            InstantiateCardUI(cloned);
+            foreach (CardData card in savedDraw) drawPile.Add(card.Clone());
+        }
+
+        if (savedDiscard != null)
+        {
+            foreach (CardData card in savedDiscard) discardPile.Add(card.Clone());
+        }
+
+        if (savedExhaust != null)
+        {
+            foreach (CardData card in savedExhaust)
+            {
+                CardData clonedCard = card.Clone();
+                exhaustPile.Add(clonedCard);
+                AbilityCore.ActivateFromCard(clonedCard);
+            }
+        }
+
+        if (savedSpecial != null)
+        {
+            specialCards.Clear();
+            foreach (CardData card in savedSpecial) specialCards.Add(card.Clone());
+        }
+
+        if (savedHand != null)
+        {
+            foreach (CardData card in savedHand)
+            {
+                CardData cloned = card.Clone();
+                hand.Add(cloned);
+                InstantiateCardUI(cloned);
+            }
         }
 
         NotifyUIUpdate();

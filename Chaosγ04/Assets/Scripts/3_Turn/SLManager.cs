@@ -353,38 +353,12 @@ public class SLManager : MonoBehaviour, ITurnStateListener
     {
         var cards = CardManager.Instance;
         if (cards == null) return;
-        cards.hand = CloneCardList(snapshotHand);
-        cards.drawPile = CloneCardList(snapshotDrawPile);
-        cards.discardPile = CloneCardList(snapshotDiscardPile);
-        cards.exhaustPile = CloneCardList(snapshotExhaustPile);
-        cards.specialCards = CloneCardList(snapshotSpecialCards);
-
-        RefreshHandUI(cards);
-
-        var notifyMethod = typeof(CardManager).GetMethod("NotifyUIUpdate",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public);
-        if (notifyMethod != null)
-        {
-            notifyMethod.Invoke(cards, null);
-        }
-    }
-
-    private void RefreshHandUI(CardManager cards)
-    {
-        if (cards.handUIContainer == null || cards.cardPrefab == null) return;
-        foreach (Transform child in cards.handUIContainer)
-        {
-            Destroy(child.gameObject);
-        }
-        foreach (CardData card in cards.hand)
-        {
-            GameObject cardObj = Instantiate(cards.cardPrefab, cards.handUIContainer);
-            CardUI cardUI = cardObj.GetComponent<CardUI>();
-            if (cardUI != null)
-            {
-                cardUI.Setup(card);
-            }
-        }
+        cards.RestoreDeckFromSnapshot(
+            snapshotHand,
+            snapshotDrawPile,
+            snapshotDiscardPile,
+            snapshotExhaustPile,
+            snapshotSpecialCards);
     }
 
     private void RestorePositions()

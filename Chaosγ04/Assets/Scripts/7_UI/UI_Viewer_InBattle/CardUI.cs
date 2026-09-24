@@ -275,7 +275,7 @@ public class CardUI : MonoBehaviour,
     private void RefreshCostDisplay()
     {
         if (costText == null || currentCardData == null) return;
-        costText.text = currentCardData.GetEffectiveCost().ToString();
+        costText.text = currentCardData.GetCostDisplayText();
     }
 
     private void OnDestroy()

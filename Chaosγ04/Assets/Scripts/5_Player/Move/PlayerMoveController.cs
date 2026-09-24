@@ -342,7 +342,10 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         currentClickedGrid = new Vector2Int(x, z);
         currentClickedCell = clickedCell;
         reachableGridSet = RangeSystem.CalculateReachableCells(
-            clickedCell, CurrentActionPoint, visualManager.GridManager);
+            clickedCell,
+            CurrentActionPoint,
+            visualManager.GridManager,
+            useAbilityTraversal: true);
 
         if (GridHoverController.Instance != null)
             GridHoverController.Instance.SetContext(

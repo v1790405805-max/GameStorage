@@ -77,7 +77,7 @@ public class CardDataEditor : Editor
         EditorGUILayout.PropertyField(cardID, new GUIContent("Card ID"));
         EditorGUILayout.PropertyField(cardName, new GUIContent("Card Name"));
         EditorGUILayout.PropertyField(type, new GUIContent("Type"));
-        EditorGUILayout.PropertyField(cost, new GUIContent("Cost"));
+        DrawCostField();
 
         EditorGUILayout.Space(8f);
 
@@ -175,6 +175,27 @@ public class CardDataEditor : Editor
         description.stringValue = EditorGUILayout.TextArea(description.stringValue, GUILayout.Height(60));
 
         serializedObject.ApplyModifiedProperties();
+    }
+
+    private void DrawCostField()
+    {
+        string currentText = cost.intValue == CardData.VariableCostValue
+            ? "X"
+            : cost.intValue.ToString();
+
+        string input = EditorGUILayout.TextField("Cost", currentText);
+        if (string.Equals(input, "X", System.StringComparison.OrdinalIgnoreCase))
+        {
+            cost.intValue = CardData.VariableCostValue;
+        }
+        else if (int.TryParse(input, out int fixedCost))
+        {
+            cost.intValue = Mathf.Max(0, fixedCost);
+        }
+        else
+        {
+            EditorGUILayout.HelpBox("Cost 只能输入非负整数或 X。", MessageType.Warning);
+        }
     }
 
     private void DrawEffectList(
