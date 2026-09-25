@@ -76,6 +76,13 @@ public class MonsterMoveAction : MonsterActionBase
     {
         EnsureGridManager();
 
+        if (TargetLossEffect.MonstersLosePlayerTargetThisRound)
+        {
+            SetWalkAnimationState(false);
+            CompleteAction();
+            return;
+        }
+
         if (gridManager == null || selfIdentity == null)
         {
             Debug.LogError($"[{name}] 缺少 GridManager 或自身未挂载 MonsterIdentityManager，无法执行移动！");

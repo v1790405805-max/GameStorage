@@ -1,8 +1,8 @@
 using UnityEngine;
 
 /// <summary>
-/// Passive card effect: if this is the first card played this turn,
-/// increase the card's movement distance by 1.
+/// If this is the first card played this turn, increase its movement
+/// distance and range distance by 1.
 /// </summary>
 public class FirstTimeMovementEffect : CardEffectCore
 {

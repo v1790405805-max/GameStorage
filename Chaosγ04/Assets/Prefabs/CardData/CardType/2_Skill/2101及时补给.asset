@@ -22,7 +22,7 @@ MonoBehaviour:
   block: 0
   healthChange: 0
   energyChange: 2
-  actionPointChange: 6
+  actionPointChange: 2
   drawAmount: 2
   discardAmount: 0
   rangeType: 0

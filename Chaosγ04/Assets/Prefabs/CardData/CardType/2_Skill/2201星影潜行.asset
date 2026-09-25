@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a78281b4d3425b4b8b0e0a9fb05ed41, type: 3}
+  m_Name: "2201\u661F\u5F71\u6F5C\u884C"
+  m_EditorClassIdentifier: Assembly-CSharp::CardData
+  cardID: 2201
+  cardName: "\u661F\u5F71\u6F5C\u884C"
+  type: 2
+  cost: 1
+  effectFlags: 0
+  moveDistance: 0
+  damage: 0
+  block: 0
+  healthChange: 0
+  energyChange: 1
+  actionPointChange: -3
+  drawAmount: 1
+  discardAmount: 1
+  rangeType: 0
+  rangeDistance: 0
+  targetSelectMode: 0
+  extraEffects:
+  - effectScript: {fileID: 11500000, guid: 8eacea2ade864f2c88d79e9c7157b5a8, type: 3}
+    effectTypeName: MovementRangeEnlargeEffect, Assembly-CSharp, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  - effectScript: {fileID: 11500000, guid: ae1a9b725b8b4e3a83e4b0a158a6cc29, type: 3}
+    effectTypeName: TargetLossEffect, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+  animationEffects: []
+  vfxEffects: []
+  gridStyle: {fileID: 11400000, guid: 853c237319753544088890199db33ed8, type: 2}
+  description: "\u6240\u6709\u654C\u4EBA\u672C\u56DE\u5408\u4E0D\u518D\u56E0\u4E3A\u9760\u8FD1\u4E3B\u89D2\u800C\u79FB\u52A8\uFF0C\u672C\u56DE\u5408\u6240\u6709\u6D89\u53CA\u79FB\u52A8\u7684\u5361\u724C\u83B7\u5F97\u6548\u679C\uFF1A\u79FB\u52A8\u8DDD\u79BB+1"
