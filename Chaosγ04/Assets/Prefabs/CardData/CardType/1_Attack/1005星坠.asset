@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3a78281b4d3425b4b8b0e0a9fb05ed41, type: 3}
-  m_Name: "1005\u661F\u5760-UN"
+  m_Name: "1005\u661F\u5760"
   m_EditorClassIdentifier: Assembly-CSharp::CardData
   cardID: 1005
   cardName: "\u661F\u5760"
@@ -28,7 +28,10 @@ MonoBehaviour:
   rangeType: 1
   rangeDistance: 1
   targetSelectMode: 1
-  extraEffects: []
+  extraEffects:
+  - effectScript: {fileID: 11500000, guid: 1d4e4d2d1ad240289c430a3513979ac8, type: 3}
+    effectTypeName: PushEffect, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
   animationEffects:
   - effectScript: {fileID: 11500000, guid: 9bcaff3e235941c0a561299ba5120919, type: 3}
     effectTypeName: PlayerAttackAnimation, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
