@@ -254,12 +254,29 @@ public class CardUI : MonoBehaviour,
             }
             else
             {
-                bool canAfford =
-                    CombatStatsManager.Instance.currentEnergy >= currentCardData.GetEffectiveCost();
-                highlightBorderImage.color = canAfford ? affordableColor : unaffordableColor;
+                highlightBorderImage.color = CanUseCurrentCard() ? affordableColor : unaffordableColor;
             }
             highlightBorderImage.gameObject.SetActive(true);
         }
+    }
+
+    private bool CanUseCurrentCard()
+    {
+        if (currentCardData == null || CombatStatsManager.Instance == null)
+        {
+            return false;
+        }
+
+        if (CombatStatsManager.Instance.currentEnergy < currentCardData.GetEffectiveCost())
+        {
+            return false;
+        }
+
+        PlayerMoveController moveController = FindFirstObjectByType<PlayerMoveController>();
+        Vector2Int targetGrid = moveController != null
+            ? moveController.PlayerGridPos
+            : new Vector2Int(-1, -1);
+        return CardEffectCore.CanPlayAll(currentCardData, targetGrid);
     }
 
     private void HandleActionPointCountChanged(int usedActionPointCount)

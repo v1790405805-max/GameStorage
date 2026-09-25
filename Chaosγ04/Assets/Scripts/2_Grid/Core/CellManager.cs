@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System;
 using UnityEngine;
 
 #if UNITY_EDITOR
@@ -9,6 +10,9 @@ using UnityEditor;
 [ExecuteInEditMode]
 public class CellManager : MonoBehaviour
 {
+    public static event Action<CellManager> PlayerEntered;
+    public static event Action<CellManager, MonsterIdentityManager> MonsterEntered;
+
     [Header("状态锁")]
     [Tooltip("启用后该格子对玩家与怪物全部失效：无法移动上去、不在范围判定内、无法选中、悬停无效果，" +
              "格子上色与边框上色均为全透明。注意：仅代表逻辑失效，格子本身并未被禁用（组件与 GameObject 保持 active）。")]
@@ -153,7 +157,11 @@ public class CellManager : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            isPlayerInside = true;
+            if (!isPlayerInside)
+            {
+                isPlayerInside = true;
+                PlayerEntered?.Invoke(this);
+            }
             return;
         }
 
@@ -162,7 +170,10 @@ public class CellManager : MonoBehaviour
         MonsterIdentityManager monster = other.GetComponentInParent<MonsterIdentityManager>();
         if (monster != null)
         {
-            monstersInside.Add(monster); // 引用存储，即使多个同类型怪物也互不干扰
+            if (monstersInside.Add(monster))
+            {
+                MonsterEntered?.Invoke(this, monster);
+            }
         }
     }
 
