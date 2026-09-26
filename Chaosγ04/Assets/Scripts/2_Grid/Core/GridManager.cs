@@ -43,6 +43,10 @@ public class GridManager : MonoBehaviour
     public Color lineNormalColor = new Color(1f, 1f, 1f, 0.1f);     // 默认线框颜色 (10%透明度白色)
     public float lineWidth = 0.05f;                                  // 线条宽度
 
+    [Header("格子 [Cell] 的锁定颜色设置")]
+    public Color CellLockedColor = new Color(0.35f, 0.35f, 0.35f, 0.7f); // 锁定格子颜色
+    public Color LineLockedColor = new Color(1f, 0.75f, 0.2f, 1f);       // 锁定线框颜色
+
     [HideInInspector]
     public int cellLayer = 0; // 取消 Header 标记，由 Custom Editor 统一接管渲染位置
 

@@ -15,11 +15,11 @@ public class CellManager : MonoBehaviour
 
     [Header("状态锁")]
     [Tooltip("启用后该格子对玩家与怪物全部失效：无法移动上去、不在范围判定内、无法选中、悬停无效果，" +
-             "格子上色与边框上色均为全透明。注意：仅代表逻辑失效，格子本身并未被禁用（组件与 GameObject 保持 active）。")]
+             "格子上色与边框上色改为 GridManager 中配置的锁定颜色。注意：仅代表逻辑失效，格子本身并未被禁用（组件与 GameObject 保持 active）。")]
     [SerializeField] private bool isLocked = false;
 
     /// <summary>
-    /// 状态锁：true 表示该格子逻辑失效（禁入、范围外、不可选中、透明）。
+    /// 状态锁：true 表示该格子逻辑失效（禁入、范围外、不可选中、显示锁定颜色）。
     /// 注意：仅逻辑失效，不代表格子被禁用（组件/对象保持 active）。
     /// </summary>
     public bool IsLocked => isLocked;
@@ -34,6 +34,7 @@ public class CellManager : MonoBehaviour
     private bool lastUpOuter, lastDownOuter, lastLeftOuter, lastRightOuter;
     private bool hasIndividualLines = false; // 最近一次边框请求是否为逐边模式
     [HideInInspector][SerializeField] private bool wasLocked = false; // 上一次锁状态（供 OnValidate 检测变化）
+    [HideInInspector][SerializeField] private Material cellMaterialInstance; // 锁定 Cell 的独立材质实例
 
     [Header("调试 UI 设置")]
     public Color gizmosTextColor = Color.white;     // 调试文本颜色
@@ -56,6 +57,8 @@ public class CellManager : MonoBehaviour
     {
         meshRenderer = GetComponent<MeshRenderer>();
         CacheLineRenderers();
+
+        if (isLocked) ApplyLockedColors();
     }
 
     private void OnDisable()
@@ -71,12 +74,12 @@ public class CellManager : MonoBehaviour
 
         if (isLocked)
         {
-            // 勾选锁定：立即全透明
+            // 勾选锁定：立即应用 GridManager 中配置的锁定颜色
             ApplyLockedColors();
         }
         else if (lockedChanged)
         {
-            // 取消锁定：恢复锁定前最近一次请求的外观（可逆，不残留透明色）
+            // 取消锁定：恢复锁定前最近一次请求的外观（可逆）
             SetCellColor(lastCellColor, Application.isPlaying);
             if (hasIndividualLines)
                 SetIndividualLinesColor(lastIndividualDefaultColor, lastIndividualOuterColor,
@@ -87,28 +90,74 @@ public class CellManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 勾选状态锁时，立即把面片与四条边框置为全透明。
+    /// 勾选状态锁时，立即把面片与四条边框置为 GridManager 中配置的锁定颜色。
     /// 这里直接改渲染对象，不走 SetCellColor / SetLineColor / SetIndividualLinesColor，
-    /// 避免把"透明"写进 lastCellColor / lastLineColor / 逐边参数等缓存——
-    /// 否则取消勾选时拿到的"上次请求颜色"已经被改成透明，格子就不会重新出现。
+    /// 避免把"锁定颜色"写进 lastCellColor / lastLineColor / 逐边参数等缓存——
+    /// 否则取消勾选时拿到的"上次请求颜色"已经被改成锁定颜色，无法恢复原外观。
     /// </summary>
     private void ApplyLockedColors()
     {
+        GetGridLockedColors(out Color lockedCellColor, out Color lockedLineColor);
+
         if (meshRenderer == null) meshRenderer = GetComponent<MeshRenderer>();
-        if (meshRenderer != null)
-        {
-            if (Application.isPlaying)
-                meshRenderer.material.color = Color.clear;
-            else
-                meshRenderer.sharedMaterial.color = Color.clear;
-        }
+        ApplyCellColor(lockedCellColor, Application.isPlaying, forceInstance: true);
 
         for (int i = 0; i < 4; i++)
         {
             if (lineRenderers[i] == null) continue;
-            lineRenderers[i].startColor = Color.clear;
-            lineRenderers[i].endColor = Color.clear;
+            lineRenderers[i].startColor = lockedLineColor;
+            lineRenderers[i].endColor = lockedLineColor;
         }
+    }
+
+    /// <summary>
+    /// 从所属 GridManager 读取锁定颜色；未找到时回退为透明，兼容独立测试的 Cell。
+    /// </summary>
+    private void GetGridLockedColors(out Color lockedCellColor, out Color lockedLineColor)
+    {
+        GridManager gridManager = GetComponentInParent<GridManager>();
+        if (gridManager == null)
+        {
+            lockedCellColor = Color.clear;
+            lockedLineColor = Color.clear;
+            return;
+        }
+
+        lockedCellColor = gridManager.CellLockedColor;
+        lockedLineColor = gridManager.LineLockedColor;
+    }
+
+    /// <summary>
+    /// 设置面片颜色。编辑模式下需要独立材质时显式创建材质实例，避免修改共享材质影响其他 Cell。
+    /// </summary>
+    private void ApplyCellColor(Color color, bool isRuntime, bool forceInstance)
+    {
+        if (meshRenderer == null) meshRenderer = GetComponent<MeshRenderer>();
+        if (meshRenderer == null) return;
+
+        if (isRuntime)
+        {
+            meshRenderer.material.color = color;
+            return;
+        }
+
+        if (!forceInstance)
+        {
+            if (meshRenderer.sharedMaterial != null)
+                meshRenderer.sharedMaterial.color = color;
+            return;
+        }
+
+        if (cellMaterialInstance == null || meshRenderer.sharedMaterial != cellMaterialInstance)
+        {
+            Material sourceMaterial = meshRenderer.sharedMaterial;
+            if (sourceMaterial == null) return;
+
+            cellMaterialInstance = new Material(sourceMaterial);
+            meshRenderer.sharedMaterial = cellMaterialInstance;
+        }
+
+        cellMaterialInstance.color = color;
     }
 
     /// <summary>
@@ -221,17 +270,14 @@ public class CellManager : MonoBehaviour
         // 缓存最近一次请求的颜色（锁定时也记录请求值，供解锁恢复）
         lastCellColor = color;
 
-        // 状态锁：无论外部请求什么颜色，一律强制全透明（基础上色/范围高亮/悬停全部失效）
-        if (isLocked) color = Color.clear;
-
-        if (meshRenderer == null) meshRenderer = GetComponent<MeshRenderer>();
-        if (meshRenderer != null)
+        // 状态锁：外部请求不覆盖锁定外观
+        if (isLocked)
         {
-            if (isRuntime)
-                meshRenderer.material.color = color;
-            else
-                meshRenderer.sharedMaterial.color = color;
+            GetGridLockedColors(out Color lockedCellColor, out _);
+            color = lockedCellColor;
         }
+
+        ApplyCellColor(color, isRuntime, forceInstance: isLocked);
     }
 
     /// <summary>
@@ -243,7 +289,11 @@ public class CellManager : MonoBehaviour
         lastLineColor = color;
         hasIndividualLines = false; // 最近一次为统一边框模式
 
-        if (isLocked) color = Color.clear; // 状态锁：边框强制全透明
+        if (isLocked)
+        {
+            GetGridLockedColors(out _, out Color lockedLineColor);
+            color = lockedLineColor;
+        }
         for (int i = 0; i < 4; i++)
         {
             if (lineRenderers[i] != null)
@@ -268,7 +318,12 @@ public class CellManager : MonoBehaviour
         lastLeftOuter = leftOuter; lastRightOuter = rightOuter;
         hasIndividualLines = true; // 最近一次为逐边模式
 
-        if (isLocked) { defaultColor = Color.clear; outerColor = Color.clear; } // 状态锁：4 条边强制全透明
+        if (isLocked)
+        {
+            GetGridLockedColors(out _, out Color lockedLineColor);
+            defaultColor = lockedLineColor;
+            outerColor = lockedLineColor;
+        }
         // 0: 左
         if (lineRenderers[0] != null)
         {
