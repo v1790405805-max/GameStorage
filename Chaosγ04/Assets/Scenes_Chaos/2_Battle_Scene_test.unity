@@ -30801,7 +30801,7 @@ MonoBehaviour:
   monsterAnimator: {fileID: 1240471032}
   attackBoolName: Attack
   attackDuration: 0.6666667
-  attackDamage: 5
+  attackDamage: 15
 --- !u!114 &348390858
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -67721,7 +67721,7 @@ MonoBehaviour:
   monsterAnimator: {fileID: 2034091257}
   attackBoolName: Attack
   attackDuration: 0.6666667
-  attackDamage: 5
+  attackDamage: 15
 --- !u!114 &811627179
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -151727,7 +151727,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerOrientationDamageController
   gridManager: {fileID: 1996419300}
   playerMoveController: {fileID: 1860863964}
-  damageReduction: 0.8
+  damageReduction: 0.2
 --- !u!1 &1865314806 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -3270559696613859888, guid: b4a733dba4ed3bd40aac32be2418e61d, type: 3}

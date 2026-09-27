@@ -341,8 +341,15 @@ public class CardManager : MonoBehaviour
             GridManager gridMgr = FindFirstObjectByType<GridManager>();
             if (gridMgr != null && MonsterIdentitySystem.Instance != null)
             {
-                foreach (var monster in MonsterIdentitySystem.Instance.GetAllMonsters())
+                // 伤害击杀怪物时，MonsterIdentityManager.OnDisable 会从全局 HashSet 注销。
+                // 先复制快照，避免枚举期间集合被修改。
+                List<MonsterIdentityManager> monsters =
+                    new List<MonsterIdentityManager>(MonsterIdentitySystem.Instance.GetAllMonsters());
+
+                foreach (MonsterIdentityManager monster in monsters)
                 {
+                    if (monster == null) continue;
+
                     var (mx, mz) = gridMgr.GetGridPosition(monster.transform.position);
                     if (attackTargetGrids.Contains(new Vector2Int(mx, mz)))
                     {
