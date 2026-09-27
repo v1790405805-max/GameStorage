@@ -15,7 +15,7 @@ MonoBehaviour:
   cellClickedColor: {r: 0, g: 0.25, b: 0.067415714, a: 0.4}
   lineClickedColor: {r: 0.7019608, g: 1, b: 0.90588236, a: 0.101960786}
   outerLineClickedColor: {r: 0, g: 1, b: 0.6666667, a: 1}
-  playerCellColor: {r: 0.49019608, g: 0.69803923, b: 0.49019608, a: 0.4}
-  playerLineColor: {r: 0.5019608, g: 1, b: 0.5019608, a: 1}
+  characterCellColor: {r: 0.49019608, g: 0.69803923, b: 0.49019608, a: 0.4}
+  characterLineColor: {r: 0.5019608, g: 1, b: 0.5019608, a: 1}
   targetCellColor: {r: 0, g: 0.703, b: 0, a: 0.4}
   targetLineColor: {r: 0.5019608, g: 1, b: 0.5019608, a: 1}

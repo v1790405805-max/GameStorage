@@ -116,24 +116,24 @@ public class GridVisualManager : MonoBehaviour
         {
             if (cell == null) continue;
 
-            bool isPlayer = (cell == playerCell);
+            bool isCharacter = (cell == playerCell);
 
             if (isPointType)
             {
-                // Point 类型处理：非玩家格不进入颜色高亮范畴
-                if (!isPlayer) continue;
+                // Point 类型处理：非角色格不进入颜色高亮范畴。
+                if (!isCharacter) continue;
 
-                // 玩家格仅应用玩家格正常样式，避开 cellClickedColor/lineClickedColor
-                cell.SetCellColor(style.playerCellColor, Application.isPlaying);
-                cell.SetLineColor(style.playerLineColor);
+                // 角色格仅应用角色格正常样式，避开 cellClickedColor/lineClickedColor。
+                cell.SetCellColor(style.characterCellColor, Application.isPlaying);
+                cell.SetLineColor(style.characterLineColor);
             }
             else
             {
                 // 普通卡牌逻辑
                 cell.SetCellColor(
-                    isPlayer ? style.playerCellColor : style.cellClickedColor,
+                    isCharacter ? style.characterCellColor : style.cellClickedColor,
                     Application.isPlaying);
-                UpdateSingleCellBorderColor(cell, rangeSet, style, isPlayer);
+                UpdateSingleCellBorderColor(cell, rangeSet, style, isCharacter);
             }
         }
     }
@@ -197,7 +197,22 @@ public class GridVisualManager : MonoBehaviour
     /// 样式资产由调用方持有（PlayerMoveController 的“玩家移动样式”、PlayerOrientationController 的“玩家朝向样式”）。
     /// </summary>
     public void SetReachablePatternColors(HashSet<CellManager> reachableSet,
-        CellManager clickedCell, GridStyleData style, bool isRuntime)
+        CellManager characterCell, GridStyleData style, bool isRuntime)
+    {
+        HashSet<CellManager> characterCells = null;
+        if (characterCell != null)
+        {
+            characterCells = new HashSet<CellManager> { characterCell };
+        }
+
+        SetReachablePatternColors(reachableSet, characterCells, style, isRuntime);
+    }
+
+    /// <summary>
+    /// 以指定样式渲染可到达范围，并支持多个角色所在格使用专属颜色。
+    /// </summary>
+    public void SetReachablePatternColors(HashSet<CellManager> reachableSet,
+        IReadOnlyCollection<CellManager> characterCells, GridStyleData style, bool isRuntime)
     {
         if (gridManager == null || reachableSet == null || style == null) return;
 
@@ -207,11 +222,11 @@ public class GridVisualManager : MonoBehaviour
         {
             if (cell == null) continue;
 
-            bool isPlayer = (cell == clickedCell);
+            bool isCharacter = ContainsCell(characterCells, cell);
             cell.SetCellColor(
-                isPlayer ? style.playerCellColor : style.cellClickedColor,
+                isCharacter ? style.characterCellColor : style.cellClickedColor,
                 isRuntime);
-            UpdateSingleCellBorderColor(cell, reachableSet, style, isPlayer);
+            UpdateSingleCellBorderColor(cell, reachableSet, style, isCharacter);
         }
     }
 
@@ -249,7 +264,7 @@ public class GridVisualManager : MonoBehaviour
     /// 格子级版本：根据格子坐标判断四方向邻居列是否在范围内。
     /// </summary>
     private void UpdateSingleCellBorderColor(CellManager cell,
-        HashSet<CellManager> reachableSet, GridStyleData style, bool isPlayer)
+        HashSet<CellManager> reachableSet, GridStyleData style, bool isCharacter)
     {
         if (style == null || cell == null) return;
 
@@ -260,7 +275,7 @@ public class GridVisualManager : MonoBehaviour
         bool leftOuter = !SetContainsColumn(reachableSet, x - 1, z);
         bool rightOuter = !SetContainsColumn(reachableSet, x + 1, z);
 
-        Color innerColor = isPlayer ? style.playerLineColor : style.lineClickedColor;
+        Color innerColor = isCharacter ? style.characterLineColor : style.lineClickedColor;
         cell.SetIndividualLinesColor(
             defaultColor: innerColor,
             outerColor: style.outerLineClickedColor,
@@ -269,6 +284,19 @@ public class GridVisualManager : MonoBehaviour
             leftOuter: leftOuter,
             rightOuter: rightOuter
         );
+    }
+
+    private static bool ContainsCell(
+        IReadOnlyCollection<CellManager> cells, CellManager target)
+    {
+        if (cells == null || target == null) return false;
+
+        foreach (CellManager cell in cells)
+        {
+            if (cell == target) return true;
+        }
+
+        return false;
     }
 
     /// <summary>格子集合中是否存在位于指定列 (x, z) 的格子（任意层）。</summary>

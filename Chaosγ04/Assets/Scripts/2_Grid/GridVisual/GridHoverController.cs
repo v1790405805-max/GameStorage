@@ -33,8 +33,10 @@ public class GridHoverController : MonoBehaviour
     /// 未显式指定时默认等于 activeRangeSet（全部合法，移动模式等场景不受影响）。
     /// </summary>
     private HashSet<CellManager> validEntityTargetSet = new HashSet<CellManager>();
+    private readonly HashSet<CellManager> characterCellSet = new HashSet<CellManager>();
     private CellManager centerCell;
     private GridStyleData activeConfig;
+    private object contextOwner;
     private bool hasContext = false;
     private bool isPointType = false; // 标识是否为 Point 模式
     private bool isAoeMode = false;   // 标识是否为 AOE 模式（悬停范围内任意格 → 整片范围联动 Target 高亮）
@@ -100,7 +102,9 @@ public class GridHoverController : MonoBehaviour
         bool aoeMode = false,
         HashSet<CellManager> validEntityTargets = null,
         bool quarterCircleMode = false,
-        GridHoverInteractionMode hoverMode = GridHoverInteractionMode.Normal)
+        GridHoverInteractionMode hoverMode = GridHoverInteractionMode.Normal,
+        HashSet<CellManager> characterCells = null,
+        object owner = null)
     {
         ClearHoverHighlight();
 
@@ -109,6 +113,16 @@ public class GridHoverController : MonoBehaviour
         validEntityTargetSet = validEntityTargets ?? activeRangeSet;
         centerCell = center;
         activeConfig = style;
+        contextOwner = owner;
+        characterCellSet.Clear();
+        if (characterCells != null)
+        {
+            characterCellSet.UnionWith(characterCells);
+        }
+        if (center != null)
+        {
+            characterCellSet.Add(center);
+        }
         isPointType = isPoint;
         isAoeMode = aoeMode;
         aoeRangeHighlightActive = false; // 新上下文从无高亮状态开始
@@ -128,14 +142,21 @@ public class GridHoverController : MonoBehaviour
     /// <summary>
     /// 清除上下文，悬停逻辑停止响应，当前悬停格自动还原颜色。
     /// </summary>
-    public void ClearContext()
+    public void ClearContext(object owner = null)
     {
+        if (owner != null && contextOwner != owner)
+        {
+            return;
+        }
+
         ClearHoverHighlight();
         activeRangeSet = new HashSet<CellManager>();
         validTargetSet = new HashSet<CellManager>();
         validEntityTargetSet = new HashSet<CellManager>();
         centerCell = null;
         activeConfig = null;
+        contextOwner = null;
+        characterCellSet.Clear();
         isPointType = false;
         isAoeMode = false;
         aoeRangeHighlightActive = false;
@@ -261,8 +282,8 @@ public class GridHoverController : MonoBehaviour
         if (cell == null) return;
         if (cell.IsLocked) return; // 状态锁：悬停无效果（保持锁定颜色）
 
-        // 非 Point 模式时，玩家/中心格不响应悬停；Point 模式下允许响应中心格悬停
-        if (!isPointType && cell == centerCell) return;
+        // 非 Point 模式时，角色所在格不响应悬停；Point 模式下允许响应角色格悬停。
+        if (!isPointType && IsCharacterCell(cell)) return;
 
         bool isValidTarget = validTargetSet.Contains(cell);
         bool isInsideRange = activeRangeSet.Contains(cell);
@@ -303,17 +324,17 @@ public class GridHoverController : MonoBehaviour
         CellManager cell = ResolveHoverCell(grid);
         if (cell == null) return;
 
-        if (!isPointType && cell == centerCell) return;
+        if (!isPointType && IsCharacterCell(cell)) return;
 
         bool isInsideRange = activeRangeSet.Contains(cell);
 
         if (isInsideRange && activeConfig != null)
         {
-            if (isPointType && cell == centerCell)
+            if (isPointType && IsCharacterCell(cell))
             {
-                // Point 类型下，玩家格离开悬停后还原为 Player 样式，不显示 range 点击框
-                cell.SetCellColor(activeConfig.playerCellColor, isRuntime: true);
-                cell.SetLineColor(activeConfig.playerLineColor);
+                // Point 类型下，角色格离开悬停后还原为 Character 样式，不显示范围点击框。
+                cell.SetCellColor(activeConfig.characterCellColor, isRuntime: true);
+                cell.SetLineColor(activeConfig.characterLineColor);
             }
             else
             {
@@ -402,7 +423,7 @@ public class GridHoverController : MonoBehaviour
             return;
         }
 
-        if (!isPointType && cell == centerCell)
+        if (!isPointType && IsCharacterCell(cell))
             return;
 
         if (validTargetSet.Contains(cell))
@@ -429,14 +450,14 @@ public class GridHoverController : MonoBehaviour
 
         if (activeRangeSet.Contains(cell))
         {
-            if (isPointType && cell == centerCell)
+            if (isPointType && IsCharacterCell(cell))
             {
-                cell.SetCellColor(activeConfig.playerCellColor, isRuntime: true);
-                cell.SetLineColor(activeConfig.playerLineColor);
+                cell.SetCellColor(activeConfig.characterCellColor, isRuntime: true);
+                cell.SetLineColor(activeConfig.characterLineColor);
                 return;
             }
 
-            if (!isPointType && cell == centerCell)
+            if (!isPointType && IsCharacterCell(cell))
                 return;
 
             cell.SetCellColor(activeConfig.cellClickedColor, isRuntime: true);
@@ -468,8 +489,8 @@ public class GridHoverController : MonoBehaviour
             return;
         }
 
-        // 中心格不产生方向，保持玩家格样式。
-        if (centerCell == null || IsCenterGrid(newHover))
+        // 中心格不产生方向，保持角色格样式。
+        if (centerCell == null || IsCharacterGrid(newHover))
         {
             RestoreQuarterCircleTargets();
             return;
@@ -506,9 +527,9 @@ public class GridHoverController : MonoBehaviour
             if (cell == null) continue;
 
             var (cellX, cellZ) = gridManager.GetCellGridPosition(cell);
-            if (IsCenterGrid(new Vector2Int(cellX, cellZ)))
+            if (IsCharacterGrid(new Vector2Int(cellX, cellZ)))
             {
-                ApplyPlayerCellStyle(cell);
+                ApplyCharacterCellStyle(cell);
                 continue;
             }
 
@@ -535,9 +556,9 @@ public class GridHoverController : MonoBehaviour
             if (cell == null) continue;
 
             var (cellX, cellZ) = gridManager.GetCellGridPosition(cell);
-            if (IsCenterGrid(new Vector2Int(cellX, cellZ)))
+            if (IsCharacterGrid(new Vector2Int(cellX, cellZ)))
             {
-                ApplyPlayerCellStyle(cell);
+                ApplyCharacterCellStyle(cell);
                 continue;
             }
 
@@ -609,7 +630,7 @@ public class GridHoverController : MonoBehaviour
         RestoreCellDefault(newHover);
     }
 
-    /// <summary>AOE：范围内全部格子联动高亮——实体合法格显示 Target 色，非法格显示 Error 色（玩家格保持 Player 样式）。</summary>
+    /// <summary>AOE：范围内全部格子联动高亮——实体合法格显示 Target 色，非法格显示 Error 色（角色格保持 Character 样式）。</summary>
     private void HighlightWholeRangeAsTarget()
     {
         if (activeConfig == null || activeRangeSet.Count == 0) return;
@@ -618,9 +639,9 @@ public class GridHoverController : MonoBehaviour
         {
             if (cell == null) continue;
             var (cellX, cellZ) = gridManager.GetCellGridPosition(cell);
-            if (!isPointType && IsCenterGrid(new Vector2Int(cellX, cellZ)))
+            if (!isPointType && IsCharacterGrid(new Vector2Int(cellX, cellZ)))
             {
-                ApplyPlayerCellStyle(cell);
+                ApplyCharacterCellStyle(cell);
                 continue;
             }
 
@@ -637,7 +658,7 @@ public class GridHoverController : MonoBehaviour
         }
     }
 
-    /// <summary>AOE：范围内全部格子还原为拖拽后的范围色（玩家格保持 Player 样式）。</summary>
+    /// <summary>AOE：范围内全部格子还原为拖拽后的范围色（角色格保持 Character 样式）。</summary>
     private void RestoreWholeRange()
     {
         if (activeConfig == null || activeRangeSet.Count == 0) return;
@@ -646,19 +667,19 @@ public class GridHoverController : MonoBehaviour
         {
             if (cell == null) continue;
 
-            // 非 Point 模式下玩家格不属于范围高亮，保持 Player 样式不参与还原
+            // 非 Point 模式下角色格不属于范围高亮，保持 Character 样式不参与还原。
             var (cx, cz) = gridManager.GetCellGridPosition(cell);
-            if (!isPointType && IsCenterGrid(new Vector2Int(cx, cz)))
+            if (!isPointType && IsCharacterGrid(new Vector2Int(cx, cz)))
             {
-                ApplyPlayerCellStyle(cell);
+                ApplyCharacterCellStyle(cell);
                 continue;
             }
 
-            if (isPointType && IsCenterGrid(new Vector2Int(cx, cz)))
+            if (isPointType && IsCharacterGrid(new Vector2Int(cx, cz)))
             {
-                // Point 类型下玩家格还原为 Player 样式，与单格还原逻辑一致
-                cell.SetCellColor(activeConfig.playerCellColor, isRuntime: true);
-                cell.SetLineColor(activeConfig.playerLineColor);
+                // Point 类型下角色格还原为 Character 样式，与单格还原逻辑一致。
+                cell.SetCellColor(activeConfig.characterCellColor, isRuntime: true);
+                cell.SetLineColor(activeConfig.characterLineColor);
                 continue;
             }
 
@@ -667,20 +688,32 @@ public class GridHoverController : MonoBehaviour
         }
     }
 
-    private bool IsCenterGrid(Vector2Int grid)
+    private bool IsCharacterGrid(Vector2Int grid)
     {
-        if (centerCell == null) return false;
+        if (characterCellSet.Count == 0) return false;
 
-        var (centerX, centerZ) = gridManager.GetCellGridPosition(centerCell);
-        return grid.x == centerX && grid.y == centerZ;
+        foreach (CellManager characterCell in characterCellSet)
+        {
+            if (characterCell == null) continue;
+
+            var (characterX, characterZ) = gridManager.GetCellGridPosition(characterCell);
+            if (grid.x == characterX && grid.y == characterZ) return true;
+        }
+
+        return false;
     }
 
-    private void ApplyPlayerCellStyle(CellManager cell)
+    private bool IsCharacterCell(CellManager cell)
+    {
+        return cell != null && characterCellSet.Contains(cell);
+    }
+
+    private void ApplyCharacterCellStyle(CellManager cell)
     {
         if (cell == null || activeConfig == null) return;
 
-        cell.SetCellColor(activeConfig.playerCellColor, isRuntime: true);
-        cell.SetLineColor(activeConfig.playerLineColor);
+        cell.SetCellColor(activeConfig.characterCellColor, isRuntime: true);
+        cell.SetLineColor(activeConfig.characterLineColor);
     }
 
     private void ClearHoverHighlight()

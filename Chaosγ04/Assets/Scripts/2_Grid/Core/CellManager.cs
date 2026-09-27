@@ -247,19 +247,41 @@ public class CellManager : MonoBehaviour
     public bool IsPlayerInside => isPlayerInside;
 
     /// <summary>当前格子内是否有怪物。</summary>
-    public bool HasMonsterInside => monstersInside.Count > 0;
+    public bool HasMonsterInside
+    {
+        get
+        {
+            PruneInactiveMonsters();
+            return monstersInside.Count > 0;
+        }
+    }
 
     /// <summary>
     /// 供外部查询：格子内当前的怪物列表（只读）
     /// </summary>
-    public IReadOnlyCollection<MonsterIdentityManager> GetMonstersInside() => monstersInside;
+    public IReadOnlyCollection<MonsterIdentityManager> GetMonstersInside()
+    {
+        PruneInactiveMonsters();
+        return monstersInside;
+    }
 
     /// <summary>
     /// 供外部查询：格子内是否存在某种类型的怪物，比如只想知道有没有Boss
     /// </summary>
     public bool HasMonsterOfType(MonsterIdentityManager.MonsterType type)
     {
-        return monstersInside.Any(m => m.type == type);
+        PruneInactiveMonsters();
+        return monstersInside.Any(m => m != null && m.type == type);
+    }
+
+    /// <summary>
+    /// 清理已销毁或已被禁用的怪物引用。
+    /// 死亡怪物会执行 SetActive(false)，但禁用的 Collider 不保证触发 OnTriggerExit。
+    /// </summary>
+    private void PruneInactiveMonsters()
+    {
+        monstersInside.RemoveWhere(
+            monster => monster == null || !monster.gameObject.activeInHierarchy);
     }
 
     /// <summary>
@@ -400,6 +422,7 @@ public class CellManager : MonoBehaviour
                 displayText += "\nC = Player";
             }
 
+            PruneInactiveMonsters();
             if (monstersInside.Count > 0)
             {
                 // monsterId 本身就是"类型_序号"格式（如 Skeleton_1），直接读取即可，无需再拼接类型和名字

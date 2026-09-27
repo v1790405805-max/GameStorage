@@ -31615,7 +31615,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4723f864be834f44f9a28907aa57fe60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterMoveManager
-  mobility: 3
+  mobility: 2
   stepDuration: 0.5
   pauseBeforeFacePlayer: 0.05
   gridManager: {fileID: 1996419300}
@@ -58158,6 +58158,52 @@ Material:
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
+--- !u!1 &680460713
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 680460714}
+  - component: {fileID: 680460715}
+  m_Layer: 0
+  m_Name: MonsterAttackRangeVisualizer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &680460714
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 680460713}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2139297592}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &680460715
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 680460713}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22bd842ed8c94d79893568d56bbb2e06, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackRangeVisualizer
+  visualManager: {fileID: 1996419303}
+  movementStyle: {fileID: 11400000, guid: 56ed38ce330b70544b2c2b4fe9dd9175, type: 2}
 --- !u!21 &682369652
 Material:
   serializedVersion: 8
@@ -69163,7 +69209,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4723f864be834f44f9a28907aa57fe60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterMoveManager
-  mobility: 3
+  mobility: 2
   stepDuration: 0.5
   pauseBeforeFacePlayer: 0.05
   gridManager: {fileID: 1996419300}
@@ -69311,7 +69357,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4723f864be834f44f9a28907aa57fe60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterMoveManager
-  mobility: 3
+  mobility: 2
   stepDuration: 0.5
   pauseBeforeFacePlayer: 0.05
   gridManager: {fileID: 1996419300}
@@ -82924,7 +82970,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4723f864be834f44f9a28907aa57fe60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterMoveManager
-  mobility: 3
+  mobility: 2
   stepDuration: 0.5
   pauseBeforeFacePlayer: 0.05
   gridManager: {fileID: 1996419300}
@@ -133290,7 +133336,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4723f864be834f44f9a28907aa57fe60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterMoveManager
-  mobility: 3
+  mobility: 2
   stepDuration: 0.5
   pauseBeforeFacePlayer: 0.05
   gridManager: {fileID: 1996419300}
@@ -179832,6 +179878,38 @@ Material:
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
+--- !u!1 &2139297591
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2139297592}
+  m_Layer: 0
+  m_Name: MonsterManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2139297592
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2139297591}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 680460714}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2141253110
 GameObject:
   m_ObjectHideFlags: 0
@@ -192361,6 +192439,7 @@ SceneRoots:
   - {fileID: 813922579}
   - {fileID: 1599302574}
   - {fileID: 3888395638843745667}
+  - {fileID: 2139297592}
   - {fileID: 4698892105571456324}
   - {fileID: 1569729689}
   - {fileID: 1489697170}

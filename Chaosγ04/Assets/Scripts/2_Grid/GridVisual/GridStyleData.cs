@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 /// <summary>
 /// Grid 渲染样式资产（ScriptableObject）。
@@ -14,9 +15,11 @@ public class GridStyleData : ScriptableObject
     [Header("范围区域外边线颜色配置")]
     public Color outerLineClickedColor = new Color(0f,           1f,           170f / 255f,  1f);
 
-    [Header("玩家所在格颜色配置")]
-    public Color playerCellColor       = new Color(125f / 255f,  178f / 255f,  125f / 255f,  102f / 255f);
-    public Color playerLineColor       = new Color(128f / 255f,  1f,           128f / 255f,  1f);
+    [Header("角色所在格颜色配置")]
+    [FormerlySerializedAs("playerCellColor")]
+    public Color characterCellColor    = new Color(125f / 255f,  178f / 255f,  125f / 255f,  102f / 255f);
+    [FormerlySerializedAs("playerLineColor")]
+    public Color characterLineColor    = new Color(128f / 255f,  1f,           128f / 255f,  1f);
 
     [Header("目标格（范围内鼠标悬停）颜色配置")]
     public Color targetCellColor       = new Color(54f / 255f,   76f / 255f,   54f / 255f,   102f / 255f);

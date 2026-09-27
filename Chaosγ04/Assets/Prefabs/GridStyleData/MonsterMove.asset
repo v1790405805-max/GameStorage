@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f7d627d7d42f7004bb3219b5c60a673f, type: 3}
-  m_Name: CardAttack
+  m_Name: MonsterMove
   m_EditorClassIdentifier: Assembly-CSharp::GridStyleData
-  cellClickedColor: {r: 0.25, g: 0.029411767, b: 0, a: 0.6}
+  cellClickedColor: {r: 0.25, g: 0.029411767, b: 0, a: 0.4}
   lineClickedColor: {r: 1, g: 0.73673207, b: 0.7019608, a: 0.101960786}
   outerLineClickedColor: {r: 1, g: 0.116666675, b: 0, a: 1}
   characterCellColor: {r: 0.5019608, g: 0.14341962, b: 0.09938825, a: 0.8}
   characterLineColor: {r: 1, g: 0.11811024, b: 0, a: 0.5019608}
-  targetCellColor: {r: 1, g: 0.13636364, b: 0, a: 1}
-  targetLineColor: {r: 0.4, g: 0.4, b: 0.4, a: 1}
+  targetCellColor: {r: 0.2509804, g: 0.03137255, b: 0, a: 0.6}
+  targetLineColor: {r: 1, g: 1, b: 1, a: 1}

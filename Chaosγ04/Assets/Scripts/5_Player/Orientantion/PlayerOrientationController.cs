@@ -327,9 +327,9 @@ public class PlayerOrientationController : MonoBehaviour
         CellManager playerCell = GetPlayerCell();
         if (playerCell == null) return;
 
-        // 点状渲染：只涂玩家格本身（Point 类型下非玩家格不参与高亮）
-        playerCell.SetCellColor(playerOrientationStyle.playerCellColor, Application.isPlaying);
-        playerCell.SetLineColor(playerOrientationStyle.playerLineColor);
+        // 点状渲染：只涂角色格本身（Point 类型下非角色格不参与高亮）。
+        playerCell.SetCellColor(playerOrientationStyle.characterCellColor, Application.isPlaying);
+        playerCell.SetLineColor(playerOrientationStyle.characterLineColor);
     }
 
     private CellManager GetPlayerCell()
