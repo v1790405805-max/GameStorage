@@ -173,11 +173,16 @@ public class MonsterMoveAction : MonsterActionBase
     {
         MonsterIsMoving = true; // 【状态切换】开始移动时加锁
 
+        CellManager reachedCell = path[0];
+
         for (int i = 1; i < path.Count; i++)
         {
             CellManager currentCell = path[i - 1];
             CellManager targetCell = path[i];
             if (currentCell == null || targetCell == null) continue;
+
+            // 路径生成后落点可能被其它怪物占据，执行前再次检查并停在上一格。
+            if (IsCellBlockedForMonster(targetCell, allowPlayerCell: false)) break;
 
             // 实时设置每一步的行走朝向
             UpdateDirectionAnimation(currentCell, targetCell);
@@ -195,6 +200,7 @@ public class MonsterMoveAction : MonsterActionBase
             }
 
             transform.position = targetPos;
+            reachedCell = targetCell;
         }
 
         // 1. 移动完成，先停止行走动画，保持停顿
@@ -207,8 +213,7 @@ public class MonsterMoveAction : MonsterActionBase
         }
 
         // 3. 停顿结束后，转向玩家所在格
-        CellManager finalCell = path[path.Count - 1];
-        FaceTowardsTarget(finalCell, playerCell);
+        FaceTowardsTarget(reachedCell, playerCell);
 
         moveCoroutine = null;
         MonsterIsMoving = false; // 【状态切换】彻底结束时解除锁定
@@ -312,6 +317,23 @@ public class MonsterMoveAction : MonsterActionBase
         {
             monsterAnimator.SetBool(walkBoolName, isWalking);
         }
+    }
+
+    /// <summary>
+    /// 判断格子是否被占用；玩家所在格仅允许作为寻路终点，不能实际踏入。
+    /// </summary>
+    private bool IsCellBlockedForMonster(CellManager cell, bool allowPlayerCell)
+    {
+        if (cell == null || cell.IsLocked) return true;
+        if (!allowPlayerCell && cell.IsPlayerInside) return true;
+
+        foreach (MonsterIdentityManager monster in cell.GetMonstersInside())
+        {
+            if (monster == null || monster == selfIdentity) continue;
+            if (monster.gameObject.activeInHierarchy) return true;
+        }
+
+        return false;
     }
 
     /// <summary>
@@ -447,7 +469,7 @@ public class MonsterMoveAction : MonsterActionBase
                 {
                     if (neighborCell == null) continue;
                     if (closedSet.Contains(neighborCell)) continue;
-                    if (neighborCell.IsLocked) continue; // 状态锁：怪物不可走上/穿过
+                    if (IsCellBlockedForMonster(neighborCell, allowPlayerCell: neighborCell == targetCell)) continue;
                     // 跨层连接规则：层差 ≤ 1 可走（≥ 2 视为悬崖/高台，不可通行）
                     if (!RangeSystem.CanConnectAcrossLayers(gridManager, currentNode.cell, neighborCell)) continue;
 
