@@ -106,40 +106,92 @@ public class MapInspector : MonoBehaviour
     /// <summary>
     /// 处理鼠标右键点击，自动聚焦到点击的地块
     /// </summary>
+    /// <summary>
+    /// 处理鼠标右键点击，自动聚焦到点击的地块
+    /// </summary>
+    /// <summary>
+    /// 处理鼠标右键点击，自动聚焦到点击的地块（使用纯相对差值算法，彻底杜绝向下漂移）
+    /// </summary>
+    /// <summary>
+    /// 处理鼠标右键点击，自动聚焦到点击的地块
+    /// </summary>
+    /// <summary>
+    /// 处理鼠标右键点击，自动聚焦到点击的地块
+    /// </summary>
     private void HandleRightClickToFocus()
     {
         if (Mouse.current == null || mainCamera == null) return;
-        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()) return;
 
         if (Mouse.current.rightButton.wasPressedThisFrame)
         {
-            Ray ray = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
-            if (Physics.Raycast(ray, out RaycastHit hit, 1000f, mapLayerMask))
+            // 1. 排查日志：是否接收到了右键按键
+            Debug.Log("[MapInspector] 1. 成功按下鼠标右键！");
+
+            // 2. 检查是否有 UI 遮挡
+            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
             {
-                Vector3 focusPoint = hit.point;
+                // 如果你依然想让手牌区挡住右键，但不想让全屏透明 UI 挡住，可以在这里过滤
+                // 暂时打印出来，看看到底是谁在挡
+                Debug.LogWarning("[MapInspector] 警告：右键被 UI 拦截了！如果是透明面板，请取消勾选其 Raycast Target！");
 
-                // 只有当你点到的物体身上（或父级）真的有 CellManager（说明是个实打实的小格子）
-                // 才去吸附这个小格子的中心点
-                CellManager cell = hit.collider.GetComponentInParent<CellManager>();
-                if (cell != null)
+                // 【核心修改】：如果被挡了，我们先强行跳过 UI 拦截继续往下走，测试是不是 UI 的锅！
+                // return; // <-- 将此行注释掉，彻底不让 UI 吞掉右键！
+            }
+
+            Ray clickRay = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
+            Ray centerRay = mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+
+            float targetHeight = 0f;
+            Vector3 clickWorldPos = Vector3.zero;
+            bool hitSuccess = false;
+
+            // 3. 物理射线检测
+            if (Physics.Raycast(clickRay, out RaycastHit hit, 1000f, mapLayerMask))
+            {
+                clickWorldPos = hit.point;
+                targetHeight = hit.point.y;
+                hitSuccess = true;
+                Debug.Log($"[MapInspector] 2. 物理射线命中地块: {hit.collider.name}，位置: {clickWorldPos}");
+            }
+            else
+            {
+                // 保底数学平面
+                Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
+                if (groundPlane.Raycast(clickRay, out float enter))
                 {
-                    focusPoint = hit.collider.bounds.center;
+                    clickWorldPos = clickRay.GetPoint(enter);
+                    targetHeight = 0f;
+                    hitSuccess = true;
+                    Debug.Log($"[MapInspector] 2. 未命中物理Collider，使用保底水平面交点: {clickWorldPos}");
                 }
+            }
 
-                Vector3 targetCamPos = focusPoint + cameraOffset;
-
-                if (enableBounds)
+            // 4. 执行镜头位移
+            if (hitSuccess)
+            {
+                Plane focusPlane = new Plane(Vector3.up, new Vector3(0f, targetHeight, 0f));
+                if (focusPlane.Raycast(centerRay, out float centerEnter))
                 {
-                    targetCamPos.x = Mathf.Clamp(targetCamPos.x, minX, maxX);
-                    targetCamPos.z = Mathf.Clamp(targetCamPos.z, minY, maxY);
-                }
+                    Vector3 centerWorldPos = centerRay.GetPoint(centerEnter);
+                    Vector3 delta = clickWorldPos - centerWorldPos;
+                    delta.y = 0f;
 
-                mainCamera.transform.DOKill();
-                mainCamera.transform.DOMove(targetCamPos, 0.4f).SetEase(Ease.OutCubic);
+                    Vector3 targetCamPos = mainCamera.transform.position + delta;
+
+                    if (enableBounds)
+                    {
+                        targetCamPos.x = Mathf.Clamp(targetCamPos.x, minX, maxX);
+                        targetCamPos.z = Mathf.Clamp(targetCamPos.z, minY, maxY);
+                    }
+
+                    Debug.Log($"[MapInspector] 3. 正在移动相机，位移量 Delta: {delta}，目标位置: {targetCamPos}");
+
+                    mainCamera.transform.DOKill();
+                    mainCamera.transform.DOMove(targetCamPos, 0.4f).SetEase(Ease.OutCubic);
+                }
             }
         }
     }
-
     private void HandleCameraDrag()
     {
         if (Mouse.current == null || mainCamera == null) return;
