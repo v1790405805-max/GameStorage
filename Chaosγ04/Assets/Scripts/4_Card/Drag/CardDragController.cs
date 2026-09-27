@@ -205,6 +205,14 @@ public class CardDragController : MonoBehaviour
             return;
         }
 
+        if (!CardEffectCore.CanPlayAll(data, releaseGrid))
+        {
+            Debug.Log($"[CardDragController] 卡牌 [{data.cardName}] 的额外效果不允许在当前状态使用，取消出牌。");
+            OnCardDragEnd();
+            cardUI.ResetToOriginalState();
+            return;
+        }
+
         Debug.Log($"[CardDragController] 卡牌 [{data.cardName}] 落点格子：{releaseGrid}，模式：{data.targetSelectMode}");
         OnCardDragEnd();
 

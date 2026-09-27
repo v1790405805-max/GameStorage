@@ -71,7 +71,7 @@ public class CombatStatsManager : MonoBehaviour
     }
 
     [Header("--- 玩家战斗临时属性 ---")]
-    public int maxHP = 66;
+    public int maxHP = 50;
     public int currentHP;
     public int currentBlock;
     public int maxEnergy = 3;

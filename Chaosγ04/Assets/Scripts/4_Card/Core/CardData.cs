@@ -217,7 +217,13 @@ public class CardData : ScriptableObject
 
     public int GetEffectiveRangeDistance()
     {
-        return Mathf.Max(0, rangeDistance + GetTotalMoveDistanceModifier());
+        int rangeModifier = GetTotalMoveDistanceModifier();
+        if (effectFlags.HasFlag(CardEffectType.Movement))
+        {
+            rangeModifier += MovementRangeEnlargeEffect.GetRangeDistanceBonus(this);
+        }
+
+        return Mathf.Max(0, rangeDistance + rangeModifier);
     }
 
     private int GetTotalMoveDistanceModifier()
