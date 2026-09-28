@@ -2,10 +2,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
+
+public enum CellAccessState
+{
+    Normal = 0,
+    SpecialTerrain = 1,
+    HardLocked = 2
+}
 
 [ExecuteInEditMode]
 public class CellManager : MonoBehaviour
@@ -13,19 +21,42 @@ public class CellManager : MonoBehaviour
     public static event Action<CellManager> PlayerEntered;
     public static event Action<CellManager, MonsterIdentityManager> MonsterEntered;
 
-    [Header("状态锁")]
-    [Tooltip("启用后该格子对玩家与怪物全部失效：无法移动上去、不在范围判定内、无法选中、悬停无效果，" +
-             "格子上色与边框上色改为 GridManager 中配置的锁定颜色。注意：仅代表逻辑失效，格子本身并未被禁用（组件与 GameObject 保持 active）。")]
-    [SerializeField] private bool isLocked = false;
+    [Header("格子通行状态")]
+    [Tooltip("普通：玩家与怪物均可通行。特殊地形：玩家与普通怪物禁入，特殊怪物可通行，并显示特殊地形颜色。" +
+             "真正锁死：所有单位禁入、不可选、无悬停，并恢复为全透明显示。")]
+    [SerializeField] private CellAccessState accessState = CellAccessState.Normal;
+
+    [HideInInspector]
+    [FormerlySerializedAs("isLocked")]
+    [SerializeField] private bool legacyIsLocked = false;
+
+    [HideInInspector]
+    [SerializeField] private bool accessStateMigrated = false;
+
+    public CellAccessState AccessState => accessState;
+    public bool IsSpecialTerrain => accessState == CellAccessState.SpecialTerrain;
+    public bool IsHardLocked => accessState == CellAccessState.HardLocked;
+    public bool BlocksPlayer => accessState != CellAccessState.Normal;
+    public bool SuppressesHoverHighlight => accessState != CellAccessState.Normal;
 
     /// <summary>
-    /// 状态锁：true 表示该格子逻辑失效（禁入、范围外、不可选中、显示锁定颜色）。
-    /// 注意：仅逻辑失效，不代表格子被禁用（组件/对象保持 active）。
+    /// 判断指定怪物能否进入/经过该格。特殊地形仅允许显式开启该能力的怪物通行。
     /// </summary>
-    public bool IsLocked => isLocked;
+    public bool CanMonsterTraverse(MonsterIdentityManager monster)
+    {
+        switch (accessState)
+        {
+            case CellAccessState.Normal:
+                return true;
+            case CellAccessState.SpecialTerrain:
+                return monster != null && monster.CanTraverseSpecialTerrain;
+            default:
+                return false;
+        }
+    }
 
     // ------------------------------------------------------------------
-    // 外观缓存：记录最近一次请求的颜色/边框参数，状态锁解锁时恢复（保证锁定/解锁可逆）
+    // 外观缓存：记录最近一次请求的颜色/边框参数，返回 Normal 时恢复。
     // ------------------------------------------------------------------
     private Color lastCellColor = Color.white;
     private Color lastLineColor = Color.white;
@@ -33,8 +64,8 @@ public class CellManager : MonoBehaviour
     private Color lastIndividualOuterColor = Color.white;
     private bool lastUpOuter, lastDownOuter, lastLeftOuter, lastRightOuter;
     private bool hasIndividualLines = false; // 最近一次边框请求是否为逐边模式
-    [HideInInspector][SerializeField] private bool wasLocked = false; // 上一次锁状态（供 OnValidate 检测变化）
-    [HideInInspector][SerializeField] private Material cellMaterialInstance; // 锁定 Cell 的独立材质实例
+    [HideInInspector][SerializeField] private CellAccessState lastAccessState = CellAccessState.Normal;
+    [HideInInspector][SerializeField] private Material cellMaterialInstance; // 特殊状态的独立材质实例
 
     [Header("调试 UI 设置")]
     public Color gizmosTextColor = Color.white;     // 调试文本颜色
@@ -57,8 +88,10 @@ public class CellManager : MonoBehaviour
     {
         meshRenderer = GetComponent<MeshRenderer>();
         CacheLineRenderers();
+        EnsureAccessStateMigrated();
 
-        if (isLocked) ApplyLockedColors();
+        if (accessState != CellAccessState.Normal)
+            ApplyAccessStateVisuals();
     }
 
     private void OnDisable()
@@ -69,62 +102,114 @@ public class CellManager : MonoBehaviour
 
     private void OnValidate()
     {
-        bool lockedChanged = (isLocked != wasLocked);
-        wasLocked = isLocked;
+        EnsureAccessStateMigrated();
 
-        if (isLocked)
-        {
-            // 勾选锁定：立即应用 GridManager 中配置的锁定颜色
-            ApplyLockedColors();
-        }
-        else if (lockedChanged)
-        {
-            // 取消锁定：恢复锁定前最近一次请求的外观（可逆）
-            SetCellColor(lastCellColor, Application.isPlaying);
-            if (hasIndividualLines)
-                SetIndividualLinesColor(lastIndividualDefaultColor, lastIndividualOuterColor,
-                    lastUpOuter, lastDownOuter, lastLeftOuter, lastRightOuter);
-            else
-                SetLineColor(lastLineColor);
-        }
+        bool accessStateChanged = accessState != lastAccessState;
+        lastAccessState = accessState;
+
+        if (accessStateChanged || accessState != CellAccessState.Normal)
+            ApplyAccessStateVisuals();
     }
 
     /// <summary>
-    /// 勾选状态锁时，立即把面片与四条边框置为 GridManager 中配置的锁定颜色。
-    /// 这里直接改渲染对象，不走 SetCellColor / SetLineColor / SetIndividualLinesColor，
-    /// 避免把"锁定颜色"写进 lastCellColor / lastLineColor / 逐边参数等缓存——
-    /// 否则取消勾选时拿到的"上次请求颜色"已经被改成锁定颜色，无法恢复原外观。
+    /// 兼容旧场景数据：原 isLocked=true 统一迁移为特殊地形，保留现有显示效果。
     /// </summary>
-    private void ApplyLockedColors()
+    private void EnsureAccessStateMigrated()
     {
-        GetGridLockedColors(out Color lockedCellColor, out Color lockedLineColor);
+        if (accessStateMigrated)
+            return;
+
+        if (legacyIsLocked && accessState == CellAccessState.Normal)
+            accessState = CellAccessState.SpecialTerrain;
+
+        legacyIsLocked = false;
+        accessStateMigrated = true;
+    }
+
+    /// <summary>
+    /// 应用当前状态对应的显示。状态色不会写入请求颜色缓存，保证切回 Normal 时可恢复。
+    /// </summary>
+    private void ApplyAccessStateVisuals()
+    {
+        switch (accessState)
+        {
+            case CellAccessState.SpecialTerrain:
+                ApplySpecialTerrainVisuals();
+                break;
+            case CellAccessState.HardLocked:
+                ApplyHardLockedVisuals();
+                break;
+            default:
+                RestoreLastRequestedVisuals();
+                break;
+        }
+    }
+
+    private void ApplySpecialTerrainVisuals()
+    {
+        GetSpecialTerrainColors(out Color cellColor, out Color lineColor);
 
         if (meshRenderer == null) meshRenderer = GetComponent<MeshRenderer>();
-        ApplyCellColor(lockedCellColor, Application.isPlaying, forceInstance: true);
+        ApplyCellColor(cellColor, Application.isPlaying, forceInstance: true);
 
         for (int i = 0; i < 4; i++)
         {
             if (lineRenderers[i] == null) continue;
-            lineRenderers[i].startColor = lockedLineColor;
-            lineRenderers[i].endColor = lockedLineColor;
+            lineRenderers[i].startColor = lineColor;
+            lineRenderers[i].endColor = lineColor;
         }
     }
 
     /// <summary>
-    /// 从所属 GridManager 读取锁定颜色；未找到时回退为透明，兼容独立测试的 Cell。
+    /// 真正锁死时恢复旧版表现：格子面片与四条边框全部透明。
     /// </summary>
-    private void GetGridLockedColors(out Color lockedCellColor, out Color lockedLineColor)
+    private void ApplyHardLockedVisuals()
+    {
+        if (meshRenderer == null) meshRenderer = GetComponent<MeshRenderer>();
+        ApplyCellColor(Color.clear, Application.isPlaying, forceInstance: true);
+
+        for (int i = 0; i < 4; i++)
+        {
+            if (lineRenderers[i] == null) continue;
+            lineRenderers[i].startColor = Color.clear;
+            lineRenderers[i].endColor = Color.clear;
+        }
+    }
+
+    private void RestoreLastRequestedVisuals()
+    {
+        SetCellColor(lastCellColor, Application.isPlaying);
+        if (hasIndividualLines)
+        {
+            SetIndividualLinesColor(
+                lastIndividualDefaultColor,
+                lastIndividualOuterColor,
+                lastUpOuter,
+                lastDownOuter,
+                lastLeftOuter,
+                lastRightOuter);
+        }
+        else
+        {
+            SetLineColor(lastLineColor);
+        }
+    }
+
+    /// <summary>
+    /// 从所属 GridManager 读取特殊地形颜色；未找到时回退为透明，兼容独立测试的 Cell。
+    /// </summary>
+    private void GetSpecialTerrainColors(out Color cellColor, out Color lineColor)
     {
         GridManager gridManager = GetComponentInParent<GridManager>();
         if (gridManager == null)
         {
-            lockedCellColor = Color.clear;
-            lockedLineColor = Color.clear;
+            cellColor = Color.clear;
+            lineColor = Color.clear;
             return;
         }
 
-        lockedCellColor = gridManager.CellLockedColor;
-        lockedLineColor = gridManager.LineLockedColor;
+        cellColor = gridManager.SpecialTerrainCellColor;
+        lineColor = gridManager.SpecialTerrainLineColor;
     }
 
     /// <summary>
@@ -289,17 +374,20 @@ public class CellManager : MonoBehaviour
     /// </summary>
     public void SetCellColor(Color color, bool isRuntime)
     {
-        // 缓存最近一次请求的颜色（锁定时也记录请求值，供解锁恢复）
+        // 状态覆盖时也缓存外部请求，供返回 Normal 时恢复。
         lastCellColor = color;
 
-        // 状态锁：外部请求不覆盖锁定外观
-        if (isLocked)
+        if (accessState == CellAccessState.SpecialTerrain)
         {
-            GetGridLockedColors(out Color lockedCellColor, out _);
-            color = lockedCellColor;
+            GetSpecialTerrainColors(out Color specialCellColor, out _);
+            color = specialCellColor;
+        }
+        else if (accessState == CellAccessState.HardLocked)
+        {
+            color = Color.clear;
         }
 
-        ApplyCellColor(color, isRuntime, forceInstance: isLocked);
+        ApplyCellColor(color, isRuntime, forceInstance: accessState != CellAccessState.Normal);
     }
 
     /// <summary>
@@ -307,14 +395,18 @@ public class CellManager : MonoBehaviour
     /// </summary>
     public void SetLineColor(Color color)
     {
-        // 缓存最近一次请求的边框颜色（锁定时也记录请求值，供解锁恢复）
+        // 状态覆盖时也缓存外部请求，供返回 Normal 时恢复。
         lastLineColor = color;
         hasIndividualLines = false; // 最近一次为统一边框模式
 
-        if (isLocked)
+        if (accessState == CellAccessState.SpecialTerrain)
         {
-            GetGridLockedColors(out _, out Color lockedLineColor);
-            color = lockedLineColor;
+            GetSpecialTerrainColors(out _, out Color specialLineColor);
+            color = specialLineColor;
+        }
+        else if (accessState == CellAccessState.HardLocked)
+        {
+            color = Color.clear;
         }
         for (int i = 0; i < 4; i++)
         {
@@ -333,18 +425,23 @@ public class CellManager : MonoBehaviour
     /// <param name="outerColor">外包络暴露边的颜色</param>
     public void SetIndividualLinesColor(Color defaultColor, Color outerColor, bool upOuter, bool downOuter, bool leftOuter, bool rightOuter)
     {
-        // 缓存最近一次请求的逐边参数（锁定时也记录请求值，供解锁恢复）
+        // 状态覆盖时也缓存外部请求，供返回 Normal 时恢复。
         lastIndividualDefaultColor = defaultColor;
         lastIndividualOuterColor = outerColor;
         lastUpOuter = upOuter; lastDownOuter = downOuter;
         lastLeftOuter = leftOuter; lastRightOuter = rightOuter;
         hasIndividualLines = true; // 最近一次为逐边模式
 
-        if (isLocked)
+        if (accessState == CellAccessState.SpecialTerrain)
         {
-            GetGridLockedColors(out _, out Color lockedLineColor);
-            defaultColor = lockedLineColor;
-            outerColor = lockedLineColor;
+            GetSpecialTerrainColors(out _, out Color specialLineColor);
+            defaultColor = specialLineColor;
+            outerColor = specialLineColor;
+        }
+        else if (accessState == CellAccessState.HardLocked)
+        {
+            defaultColor = Color.clear;
+            outerColor = Color.clear;
         }
         // 0: 左
         if (lineRenderers[0] != null)

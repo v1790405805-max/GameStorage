@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 /// <summary>
@@ -20,6 +21,12 @@ using UnityEngine;
 public class PlayerOrientationDamageController : MonoBehaviour
 {
     public static PlayerOrientationDamageController Instance { get; private set; }
+
+    /// <summary>
+    /// Raised after a monster attack when the player's HP did not change.
+    /// Parameters: attacking monster, attacker grid position.
+    /// </summary>
+    public event Action<MonsterIdentityManager, Vector2Int> AttackFullyBlocked;
 
     [Header("引用（留空则自动查找）")]
     [SerializeField] private GridManager gridManager;
@@ -66,9 +73,13 @@ public class PlayerOrientationDamageController : MonoBehaviour
     /// attackerGrid 为 null 时（例如无法获取攻击者格坐标的旧调用/自伤场景），
     /// 不做任何减免，直接按原始伤害结算。
     /// </summary>
-    public void ResolveMonsterAttack(int rawDamage, Vector2Int? attackerGrid)
+    public void ResolveMonsterAttack(
+        int rawDamage,
+        Vector2Int? attackerGrid,
+        MonsterIdentityManager attacker = null)
     {
         int finalDamage = rawDamage;
+        int hpBeforeAttack = stats != null ? stats.currentHP : 0;
 
         if (attackerGrid.HasValue)
         {
@@ -81,6 +92,11 @@ public class PlayerOrientationDamageController : MonoBehaviour
         if (stats != null)
         {
             stats.TakeDamage(finalDamage);
+
+            if (stats.currentHP == hpBeforeAttack && attacker != null && attackerGrid.HasValue)
+            {
+                AttackFullyBlocked?.Invoke(attacker, attackerGrid.Value);
+            }
         }
     }
 

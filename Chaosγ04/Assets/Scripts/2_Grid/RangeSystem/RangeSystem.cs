@@ -169,7 +169,9 @@ public static class RangeSystem
         GridManager gridManager,
         RangeType type = RangeType.Diamond,
         bool blockByMonster = true,
-        bool useAbilityTraversal = false)
+        bool useAbilityTraversal = false,
+        MonsterIdentityManager traversingMonster = null,
+        bool blockBySpecialTerrain = true)
     {
         HashSet<CellManager> reachable = new HashSet<CellManager>();
         if (gridManager == null || startCell == null) return reachable;
@@ -211,7 +213,13 @@ public static class RangeSystem
                 foreach (CellManager neighbor in gridManager.GetCellManagersInColumn(nextCol.x, nextCol.y))
                 {
                     if (neighbor == null) continue;
-                    if (neighbor.IsLocked) continue; // 状态锁：不可移动上去、不在范围判定内
+                    if (BlocksTerrainTraversal(
+                            neighbor,
+                            traversingMonster,
+                            blockBySpecialTerrain))
+                    {
+                        continue;
+                    }
                     if (!CanConnectAcrossLayers(gridManager, current, neighbor)) continue;
                     if (!traversed.Add(neighbor)) continue;
 
@@ -258,7 +266,9 @@ public static class RangeSystem
         int maxRange,
         GridManager gridManager,
         RangeType type = RangeType.Diamond,
-        bool blockByMonster = true)
+        bool blockByMonster = true,
+        MonsterIdentityManager traversingMonster = null,
+        bool blockBySpecialTerrain = true)
     {
         HashSet<Vector2Int> reachable = new HashSet<Vector2Int>();
         if (gridManager == null || !gridManager.IsValidGridPosition(startPos.x, startPos.y))
@@ -293,7 +303,14 @@ public static class RangeSystem
                 if (reachable.Contains(next)) continue;
 
                 CellManager cell = gridManager.GetCellManagerAt(next.x, next.y);
-                if (cell != null && cell.IsLocked) continue; // 状态锁：不在范围判定内
+                if (cell != null &&
+                    BlocksTerrainTraversal(
+                        cell,
+                        traversingMonster,
+                        blockBySpecialTerrain))
+                {
+                    continue;
+                }
                 if (blockByMonster && cell != null && cell.HasMonsterInside) continue;
 
                 reachable.Add(next);
@@ -302,6 +319,20 @@ public static class RangeSystem
         }
 
         return reachable;
+    }
+
+    private static bool BlocksTerrainTraversal(
+        CellManager cell,
+        MonsterIdentityManager traversingMonster,
+        bool blockBySpecialTerrain)
+    {
+        if (traversingMonster != null)
+            return !cell.CanMonsterTraverse(traversingMonster);
+
+        if (cell.IsHardLocked)
+            return true;
+
+        return blockBySpecialTerrain && cell.IsSpecialTerrain;
     }
 
     /// <summary>

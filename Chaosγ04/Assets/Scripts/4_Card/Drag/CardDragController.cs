@@ -246,10 +246,13 @@ public class CardDragController : MonoBehaviour
     private bool IsValidTargetCell(CellManager cell, CardData data, bool allowEmptyAttackTarget = false)
     {
         if (cell == null) return false;
-        if (cell.IsLocked) return false;
+        if (cell.IsHardLocked) return false;
 
         bool hasMovement = (data.effectFlags & CardEffectType.Movement) != 0;
         bool hasAttack = (data.effectFlags & CardEffectType.Attack) != 0;
+
+        if (hasMovement && cell.BlocksPlayer)
+            return false;
 
         if (hasMovement)
             return !cell.IsPlayerInside && !cell.HasMonsterInside;
@@ -257,7 +260,7 @@ public class CardDragController : MonoBehaviour
         if (hasAttack)
             return allowEmptyAttackTarget || cell.HasMonsterInside;
 
-        return cell.IsPlayerInside;
+        return !cell.BlocksPlayer && cell.IsPlayerInside;
     }
 
     // ===================================================================
@@ -366,7 +369,13 @@ public class CardDragController : MonoBehaviour
         HashSet<CellManager> rangeCells = new HashSet<CellManager>();
         if (gridManager == null || centerCell == null) return rangeCells;
 
-        return RangeSystem.CalculateReachableCells(centerCell, distance, gridManager, type, blockByMonster: false);
+        return RangeSystem.CalculateReachableCells(
+            centerCell,
+            distance,
+            gridManager,
+            type,
+            blockByMonster: false,
+            blockBySpecialTerrain: false);
     }
 
     private HashSet<Vector2Int> GetQuarterCircleTargetGrids(Vector2Int hoverGrid)

@@ -374,7 +374,8 @@ public class CombatStatsManager : MonoBehaviour
     {
         currentEnergy = maxEnergy;
         currentActionPoint = maxActionPoint;
-        currentBlock = 0;
+
+        // 护甲采用炉石式结算：战斗中跨回合保留，仅在新战斗初始化时清空。
         ResetUsedActionPointCount();
         TriggerStatsChanged();
     }

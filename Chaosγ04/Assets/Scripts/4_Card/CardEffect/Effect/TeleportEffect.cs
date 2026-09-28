@@ -34,9 +34,9 @@ public class TeleportEffect : CardEffectCore
             return false;
         }
 
-        if (targetCell.IsLocked)
+        if (targetCell.BlocksPlayer)
         {
-            Debug.LogWarning($"[TeleportEffect] 传送失败：目标格 [{targetGrid}] 处于状态锁，无法传送。");
+            Debug.LogWarning($"[TeleportEffect] 传送失败：目标格 [{targetGrid}] 不可作为玩家落点。");
             return false;
         }
 

@@ -302,7 +302,7 @@ public class MonsterAttackRangeVisualizer : MonoBehaviour
                         continue;
                     }
 
-                    if (neighbor.IsLocked || neighbor == playerCell)
+                    if (!neighbor.CanMonsterTraverse(movingMonster) || neighbor == playerCell)
                     {
                         continue;
                     }

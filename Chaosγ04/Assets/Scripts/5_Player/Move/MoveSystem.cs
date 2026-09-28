@@ -96,7 +96,7 @@ public static class MoveSystem
                 {
                     if (neighborCell == null) continue;
                     if (closedList.Contains(neighborCell)) continue;
-                    if (neighborCell.IsLocked) continue; // 状态锁：不可走上/穿过
+                    if (neighborCell.BlocksPlayer) continue;
                     // 跨层连接规则：只相隔一层可连
                     if (!RangeSystem.CanConnectAcrossLayers(gridManager, currentNode.cell, neighborCell)) continue;
 
@@ -210,7 +210,7 @@ public static class MoveSystem
                 if (closedList.Contains(neighborPos)) continue;
 
                 CellManager neighborCell = gridManager.GetCellManagerAt(neighborPos.x, neighborPos.y);
-                if (neighborCell != null && neighborCell.IsLocked) continue; // 状态锁：不可走上/穿过
+                if (neighborCell != null && neighborCell.BlocksPlayer) continue;
                 if (neighborCell != null && neighborCell.HasMonsterInside) continue;
 
                 int newCost = currentNode.gCost + 1;

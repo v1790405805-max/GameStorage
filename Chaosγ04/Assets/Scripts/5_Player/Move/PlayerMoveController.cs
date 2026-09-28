@@ -276,8 +276,8 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
                 }
                 else if (cellUnderMouse != null && reachableGridSet.Contains(cellUnderMouse))
                 {
-                    if (cellUnderMouse.IsLocked)
-                        Debug.Log("[PlayerMoveController] 目标格处于状态锁，无法进入！");
+                    if (cellUnderMouse.BlocksPlayer)
+                        Debug.Log("[PlayerMoveController] 目标格为特殊地形或已锁死，无法进入！");
                     else if (cellUnderMouse.HasMonsterInside)
                         Debug.Log("[PlayerMoveController] 目标格有怪物，无法进入！");
                     else

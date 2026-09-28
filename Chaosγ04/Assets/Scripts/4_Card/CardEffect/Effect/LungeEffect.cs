@@ -82,10 +82,10 @@ public class LungeEffect : CardEffectCore
             return false;
         }
 
-        // 条件2：正前方一格必须为空（无怪物、未锁定）
-        if (frontCell.IsLocked || frontCell.HasMonsterInside)
+        // 条件2：正前方一格必须为空且玩家可通行
+        if (frontCell.BlocksPlayer || frontCell.HasMonsterInside)
         {
-            Debug.Log($"[LungeEffect] 正前方格 [{frontGrid}] 非空（锁定或站有怪物），不突进。");
+            Debug.Log($"[LungeEffect] 正前方格 [{frontGrid}] 不可通行或站有怪物，不突进。");
             return false;
         }
 
