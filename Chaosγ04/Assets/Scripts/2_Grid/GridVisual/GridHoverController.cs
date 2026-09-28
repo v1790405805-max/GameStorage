@@ -254,7 +254,7 @@ public class GridHoverController : MonoBehaviour
         if (!gridManager.IsValidGridPosition(grid.x, grid.y)) return;
         CellManager cell = ResolveHoverCell(grid);
         if (cell == null) return;
-        if (cell.IsLocked) return; // 状态锁：悬停无效果（保持锁定颜色）
+        if (cell.SuppressesHoverHighlight) return;
 
         cell.SetCellColor(visualManager.cellSelectedColor, isRuntime: true);
         cell.SetLineColor(visualManager.lineSelectedColor);
@@ -280,7 +280,7 @@ public class GridHoverController : MonoBehaviour
 
         CellManager cell = ResolveHoverCell(grid);
         if (cell == null) return;
-        if (cell.IsLocked) return; // 状态锁：悬停无效果（保持锁定颜色）
+        if (cell.SuppressesHoverHighlight) return;
 
         // 非 Point 模式时，角色所在格不响应悬停；Point 模式下允许响应角色格悬停。
         if (!isPointType && IsCharacterCell(cell)) return;

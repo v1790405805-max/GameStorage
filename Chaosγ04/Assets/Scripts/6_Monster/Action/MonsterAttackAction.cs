@@ -158,7 +158,7 @@ public class MonsterAttackAction : MonsterActionBase
             if (PlayerOrientationDamageController.Instance != null)
             {
                 PlayerOrientationDamageController.Instance.ResolveMonsterAttack(
-                    attackDamage, new Vector2Int(monsterX, monsterZ));
+                    attackDamage, new Vector2Int(monsterX, monsterZ), selfIdentity);
             }
             else if (CombatStatsManager.Instance != null)
             {
@@ -169,7 +169,7 @@ public class MonsterAttackAction : MonsterActionBase
         else if (PlayerOrientationDamageController.Instance != null)
         {
             // 没有格坐标信息（理论上不会走到这里），交给减免控制器按无方位处理
-            PlayerOrientationDamageController.Instance.ResolveMonsterAttack(attackDamage, null);
+            PlayerOrientationDamageController.Instance.ResolveMonsterAttack(attackDamage, null, selfIdentity);
         }
         else if (CombatStatsManager.Instance != null)
         {

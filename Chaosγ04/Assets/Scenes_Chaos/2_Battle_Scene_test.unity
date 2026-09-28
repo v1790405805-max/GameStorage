@@ -547,8 +547,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -893,8 +895,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -3538,8 +3542,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -3991,8 +3997,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 1660671447}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -5896,8 +5904,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -6400,8 +6410,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -6686,8 +6698,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 450260919}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -6806,8 +6820,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -7959,8 +7975,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 28383532}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -8230,8 +8248,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -9660,8 +9680,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 1949309987}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -9862,8 +9884,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -12641,8 +12665,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 495138570}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -14886,8 +14912,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -15953,8 +15981,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -17209,8 +17239,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 1284660264}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -17607,8 +17639,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 372936870}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -18156,8 +18190,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 1523184622}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -20766,8 +20802,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 1009664127}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -23277,8 +23315,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -23397,8 +23437,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -24024,8 +24066,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -24705,8 +24749,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -25452,8 +25498,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -27493,8 +27541,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -27695,8 +27745,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 2286265}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -28003,8 +28055,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 1019993498}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -28123,8 +28177,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -29015,8 +29071,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 1112794202}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -30369,8 +30427,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -30493,8 +30553,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 774050661}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -30768,8 +30830,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 878008369}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -31655,6 +31719,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterManager
   type: 2
   monsterId: 
+  canTraverseSpecialTerrain: 0
 --- !u!4 &348390861
 Transform:
   m_ObjectHideFlags: 0
@@ -32576,8 +32641,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -33570,8 +33637,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -34249,8 +34318,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -35483,8 +35554,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 178722301}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -35758,8 +35831,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 707767150}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -36940,8 +37015,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -37060,8 +37137,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -37180,8 +37259,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -38712,8 +38793,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -42761,8 +42844,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 1878320206}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -45259,8 +45344,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 2118279622}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -45680,8 +45767,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -46375,8 +46464,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -46724,8 +46815,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -46885,8 +46978,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -47498,8 +47593,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -48564,8 +48661,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -49363,8 +49462,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -50210,8 +50311,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -53350,8 +53453,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -55777,8 +55882,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 346899337}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -58849,8 +58956,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -64750,8 +64859,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -66184,8 +66295,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 290725626}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -68251,8 +68364,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 2038522813}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -68539,8 +68654,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 1714829836}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -69231,6 +69348,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterManager
   type: 2
   monsterId: 
+  canTraverseSpecialTerrain: 0
 --- !u!114 &811627181
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -69394,6 +69512,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterManager
   type: 2
   monsterId: 
+  canTraverseSpecialTerrain: 0
 --- !u!21 &814975501
 Material:
   serializedVersion: 8
@@ -71127,8 +71246,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -71278,8 +71399,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 1548390428}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -72185,8 +72308,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -72309,8 +72434,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 698825128}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -74291,8 +74418,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 1941714565}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -76855,8 +76984,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 1549079934}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -77770,8 +77901,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -78127,8 +78260,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 785501915}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -78443,8 +78578,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 1101830274}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -79468,8 +79605,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -80095,8 +80234,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -80366,8 +80507,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -80833,8 +80976,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 1273107979}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -81323,8 +81468,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -81748,8 +81895,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 1925428112}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -83007,6 +83156,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterManager
   type: 2
   monsterId: 
+  canTraverseSpecialTerrain: 0
 --- !u!21 &1009245608
 Material:
   serializedVersion: 8
@@ -83285,8 +83435,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -83409,8 +83561,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 1339032840}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -87618,8 +87772,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 2024419655}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -88985,8 +89141,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 1060695553}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -89530,8 +89688,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -89654,8 +89814,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 563442217}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -93703,8 +93865,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -94513,8 +94677,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 56829688}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -96932,8 +97098,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -99601,8 +99769,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -99721,8 +99891,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -99996,8 +100168,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 105494722}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -101307,8 +101481,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -101899,8 +102075,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 1678564368}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -102481,8 +102659,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -102646,8 +102826,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 2003933911}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -103072,8 +103254,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 447174291}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -104228,8 +104412,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 1461237671}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -104430,8 +104616,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -108271,8 +108459,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 720976786}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -110235,8 +110425,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -110482,8 +110674,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 2070078454}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -111684,8 +111878,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -111804,8 +112000,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -112437,8 +112635,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -113736,8 +113936,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 817416954}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -115413,8 +115615,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 562221121}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -116165,8 +116369,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 2137675704}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -116330,8 +116536,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 1742340858}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -116752,8 +116960,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -117098,8 +117308,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -118924,8 +119136,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 762174308}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -119044,8 +119258,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -119698,8 +119914,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -119822,8 +120040,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 1435205644}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -121749,8 +121969,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -122294,8 +122516,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -124067,8 +124291,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 181628699}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -124730,8 +124956,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -125156,8 +125384,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 1222475980}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -126420,8 +126650,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -127260,8 +127492,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 2040065790}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -128087,8 +128321,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 1448024875}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -128742,8 +128978,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 1506284922}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -129209,8 +129447,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 1004585932}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -131169,8 +131409,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -132631,8 +132873,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -133376,6 +133620,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterManager
   type: 2
   monsterId: 
+  canTraverseSpecialTerrain: 1
 --- !u!4 &1599302574
 Transform:
   m_ObjectHideFlags: 0
@@ -134495,8 +134740,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -134619,8 +134866,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 595702789}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -137181,8 +137430,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -137305,8 +137556,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 285224078}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -139094,8 +139347,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -139623,8 +139878,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 1369793068}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -139863,8 +140120,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 1547829988}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -140494,8 +140753,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 1661885198}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -141422,8 +141683,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -141583,8 +141846,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -142549,8 +142814,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -143044,8 +143311,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 818511107}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -145157,8 +145426,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -145449,8 +145720,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 746698700}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -145928,8 +146201,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 748562795}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -146130,8 +146405,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -147405,8 +147682,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 1431333826}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -147762,8 +148041,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 790807863}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -148229,8 +148510,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 1413515553}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -148353,8 +148636,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 373547277}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -149226,8 +149511,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -149373,8 +149660,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -149497,8 +149786,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 815711925}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -151604,8 +151895,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -151728,8 +152021,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 158577526}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -152689,8 +152984,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 161519953}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -152809,8 +153106,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -154277,8 +154576,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 615332323}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -154684,6 +154985,7 @@ GameObject:
   - component: {fileID: 1860863963}
   - component: {fileID: 1860863965}
   - component: {fileID: 1860863966}
+  - component: {fileID: 1860863967}
   m_Layer: 0
   m_Name: Adventurer
   m_TagString: Player
@@ -154889,6 +155191,26 @@ MonoBehaviour:
   gridManager: {fileID: 1996419300}
   playerMoveController: {fileID: 1860863964}
   damageReduction: 0.2
+--- !u!114 &1860863967
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1860863961}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ed0ddf64e6d4aafa70fbbf1729286b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DefenseCounterAttack
+  counterDamage: 10
+  attackImpactDelay: 0.2
+  counterRange: 1
+  attackTriggerName: Attack
+  gridManager: {fileID: 1996419300}
+  playerMoveController: {fileID: 1860863964}
+  playerAnimator: {fileID: 82650083}
+  orientationDamageController: {fileID: 1860863966}
 --- !u!1 &1865314806 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -3270559696613859888, guid: b4a733dba4ed3bd40aac32be2418e61d, type: 3}
@@ -159500,8 +159822,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -160135,8 +160459,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 691261082}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -161141,8 +161467,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 1189916906}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -161347,8 +161675,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 297489202}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -162546,8 +162876,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -162885,8 +163217,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -163842,8 +164176,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -164761,8 +165097,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 2001184267}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -166794,8 +167132,8 @@ MonoBehaviour:
   cellNormalColor: {r: 1, g: 1, b: 1, a: 0}
   lineNormalColor: {r: 0.06289297, g: 0.06289297, b: 0.06289297, a: 0.41960785}
   lineWidth: 0.03
-  CellLockedColor: {r: 1, g: 1, b: 1, a: 0}
-  LineLockedColor: {r: 0.5406, g: 0.86919993, b: 0.90099996, a: 0.5019608}
+  SpecialTerrainCellColor: {r: 1, g: 1, b: 1, a: 0}
+  SpecialTerrainLineColor: {r: 0.5406, g: 0.86919993, b: 0.90099996, a: 0.5019608}
   cellLayer: 3
   gridRoot: {fileID: 1016639035}
 --- !u!120 &1996419302
@@ -167208,8 +167546,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -168471,8 +168811,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -169839,8 +170181,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 801150068}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -170800,8 +171144,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 686189996}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -171596,8 +171942,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 1127108699}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -173169,8 +173517,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -174608,8 +174958,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -174910,8 +175262,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 1105165257}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -175716,8 +176070,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -176028,8 +176384,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -176963,8 +177321,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -177083,8 +177443,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -178107,8 +178469,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 0
-  wasLocked: 0
+  accessState: 0
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 0
   cellMaterialInstance: {fileID: 0}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8
@@ -180814,8 +181178,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
-  isLocked: 1
-  wasLocked: 1
+  accessState: 1
+  legacyIsLocked: 0
+  accessStateMigrated: 1
+  lastAccessState: 1
   cellMaterialInstance: {fileID: 1927532448}
   gizmosTextColor: {r: 1, g: 1, b: 1, a: 1}
   fontSize: 8

@@ -67,7 +67,7 @@ public class PushEffect : CardEffectCore
 
         int targetLayer = gridManager.GetCellLayer(targetCell);
         Vector2Int pushedGrid = targetGrid + direction;
-        CellManager pushedCell = FindMovableCell(gridManager, pushedGrid, targetLayer);
+        CellManager pushedCell = FindMovableCell(gridManager, pushedGrid, targetLayer, targetMonster);
 
         if (pushedCell == null)
         {
@@ -196,14 +196,15 @@ public class PushEffect : CardEffectCore
     private static CellManager FindMovableCell(
         GridManager gridManager,
         Vector2Int grid,
-        int originLayer)
+        int originLayer,
+        MonsterIdentityManager monster)
     {
         CellManager nearestValidCell = null;
         int nearestLayerDifference = int.MaxValue;
 
         foreach (CellManager cell in gridManager.GetCellManagersInColumn(grid.x, grid.y))
         {
-            if (cell == null || cell.IsLocked)
+            if (cell == null || !cell.CanMonsterTraverse(monster))
             {
                 continue;
             }

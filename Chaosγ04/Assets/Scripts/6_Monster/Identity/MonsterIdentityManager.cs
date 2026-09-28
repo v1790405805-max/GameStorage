@@ -23,6 +23,12 @@ public class MonsterIdentityManager : MonoBehaviour
     [Tooltip("业务层唯一标识，格式为 类型_序号（如 Skeleton_1），由MonsterSystem在注册时自动生成，无需手动填写。")]
     public string monsterId;
 
+    [Header("特殊地形通行")]
+    [Tooltip("允许该怪物进入并穿过特殊地形格。")]
+    [SerializeField] private bool canTraverseSpecialTerrain = false;
+
+    public bool CanTraverseSpecialTerrain => canTraverseSpecialTerrain;
+
     protected virtual void OnEnable()
     {
         // 自动向系统注册；monsterId 会在注册过程中由MonsterSystem按类型分配序号

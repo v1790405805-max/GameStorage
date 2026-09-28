@@ -324,7 +324,7 @@ public class MonsterMoveAction : MonsterActionBase
     /// </summary>
     private bool IsCellBlockedForMonster(CellManager cell, bool allowPlayerCell)
     {
-        if (cell == null || cell.IsLocked) return true;
+        if (cell == null || !cell.CanMonsterTraverse(selfIdentity)) return true;
         if (!allowPlayerCell && cell.IsPlayerInside) return true;
 
         foreach (MonsterIdentityManager monster in cell.GetMonstersInside())
