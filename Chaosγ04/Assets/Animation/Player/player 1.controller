@@ -8,7 +8,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: daiji-new
-  m_Speed: 1
+  m_Speed: 2
   m_CycleOffset: 0
   m_Transitions: []
   m_StateMachineBehaviours: []
@@ -40,7 +40,7 @@ AnimatorStateMachine:
     m_Position: {x: 200, y: 0, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 8135114950758303054}
-    m_Position: {x: 235, y: 65, z: 0}
+    m_Position: {x: 240, y: 60, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -4408313686043107208}
     m_Position: {x: 270, y: 130, z: 0}
@@ -90,7 +90,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: die-new2
-  m_Speed: 1
+  m_Speed: 1.5
   m_CycleOffset: 0
   m_Transitions: []
   m_StateMachineBehaviours: []
