@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardData
   cardID: 4002
   cardName: "\u5148\u53D1\u5236\u4EBA"
-  type: 0
+  type: 4
   cost: 1
   effectFlags: 1
   moveDistance: 3
@@ -30,8 +30,7 @@ MonoBehaviour:
   targetSelectMode: 1
   extraEffects:
   - effectScript: {fileID: 11500000, guid: 368659028c75438b810770fcb5e1b29a, type: 3}
-    effectTypeName: FirstTimeMovementEffect, Assembly-CSharp, Version=0.0.0.0,
-      Culture=neutral,
+    effectTypeName: FirstTimeMovementEffect, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
   - effectScript: {fileID: 11500000, guid: d06c2e8e69778cc4f9e9fe25ec97a55e, type: 3}
     effectTypeName: TeleportEffect, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,

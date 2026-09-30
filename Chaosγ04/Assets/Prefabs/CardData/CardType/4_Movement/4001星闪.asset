@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardData
   cardID: 4001
   cardName: "\u661F\u95EA"
-  type: 0
+  type: 4
   cost: 1
   effectFlags: 1
   moveDistance: 3

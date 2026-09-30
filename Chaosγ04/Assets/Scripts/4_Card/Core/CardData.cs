@@ -26,32 +26,9 @@ public enum RangeType
 /// </summary>
 public enum TargetSelectMode
 {
-    /// <summary>
-    /// 玩家可在范围内任意选一格作为落点。
-    /// 落点必须命中 CurrentHighlightedGrids 内的某个格子。
-    /// 适用：指向性攻击、位移落点选择等。
-    /// </summary>
     AnyCell,
-
-    /// <summary>
-    /// 只能选范围最外沿的格子作为落点（每个方向取最远有效格）。
-    /// 高亮显示完整范围，但落点验证只接受边沿格。
-    /// 适用：必须打到最远处的穿刺技能等。
-    /// </summary>
     EdgeOnly,
-
-    /// <summary>
-    /// AOE（范围效果）：范围内任意格都可作为落点，释放后效果作用于整个范围。
-    /// 悬停范围内任意格时，整个范围联动显示为目标高亮。
-    /// 适用：范围轰炸、群体增益/治疗等覆盖整片区域的卡牌。
-    /// </summary>
     Aoe,
-
-    /// <summary>
-    /// 四分之一圆：以玩家为中心，根据悬停格划分为上、下、左、右四个主方向。
-    /// 悬停范围内任意格时，只联动高亮该主方向的格子，方向内所有格子都会成为施法目标。
-    /// 对角边界格允许同时属于相邻两个方向；悬停对角格时默认按垂直方向判定。
-    /// </summary>
     AQuarterCircle,
 }
 
@@ -61,22 +38,17 @@ public enum TargetSelectMode
 [Flags]
 public enum CardEffectType
 {
-    None        = 0,
-    Movement    = 1 << 0,   // 位移
-    Attack      = 1 << 1,   // 攻击
-    Defense     = 1 << 2,   // 防御（格挡）
-    Health      = 1 << 3,   // 血量（治疗/自损）
-    Energy      = 1 << 4,   // 能量（增减）
+    None = 0,
+    Movement = 1 << 0,   // 位移
+    Attack = 1 << 1,   // 攻击
+    Defense = 1 << 2,   // 防御（格挡）
+    Health = 1 << 3,   // 血量（治疗/自损）
+    Energy = 1 << 4,   // 能量（增减）
     ActionPoint = 1 << 5,   // 行动点（增减）
-    DrawCard    = 1 << 6,   // 摸牌
+    DrawCard = 1 << 6,   // 摸牌
     DiscardCard = 1 << 7    // 弃牌
 }
 
-/// <summary>
-/// 额外效果挂载槽：直接拖拽效果脚本（CardEffectCore 子类的 .cs）挂载，非数值类效果经此触发。
-/// 注意：Unity 6 中 MonoScript 仅编辑器可用，运行时通过 effectTypeName 解析类型实例化，
-/// 该字段由 CardDataEditor 在拖入脚本时自动写入。
-/// </summary>
 [Serializable]
 public struct ExtraCardEffect
 {
@@ -84,13 +56,9 @@ public struct ExtraCardEffect
     public UnityEngine.Object effectScript;
 
     [HideInInspector]
-    public string effectTypeName;   // 拖入脚本时由编辑器自动写入类型全名（运行时实例化用）
+    public string effectTypeName;
 }
 
-/// <summary>
-/// 卡牌表现效果挂载槽：动画与特效脚本共用相同的引用结构。
-/// 实际类型由 CardDataEditor 校验，运行时通过 effectTypeName 实例化。
-/// </summary>
 [Serializable]
 public struct CardPresentationEffectReference
 {
@@ -98,7 +66,7 @@ public struct CardPresentationEffectReference
     public UnityEngine.Object effectScript;
 
     [HideInInspector]
-    public string effectTypeName;   // 拖入脚本时由编辑器自动写入类型全名（运行时实例化用）
+    public string effectTypeName;
 }
 
 /// <summary>
@@ -109,11 +77,11 @@ public class CardData : ScriptableObject
 {
     public const int VariableCostValue = -1;
 
-    public string   cardID;
-    public string   cardName;
+    public string cardID;
+    public string cardName;
     public CardType type;
     [Tooltip("固定费用输入整数；变量费用输入 X（序列化值为 -1）")]
-    public int      cost;           // 卡牌费用，-1 表示 X
+    public int cost;
 
     public bool IsVariableCost => cost == VariableCostValue;
 
@@ -136,15 +104,9 @@ public class CardData : ScriptableObject
     [Tooltip("弃牌数量")]
     public int discardAmount;
 
-    public RangeType rangeType     = RangeType.Point;
-    public int       rangeDistance;                     // 范围距离
+    public RangeType rangeType = RangeType.Point;
+    public int rangeDistance;
 
-    [Tooltip("目标选择模式：决定玩家如何在范围内指定落点。\n" +
-             "AllCells = 整个范围全部生效，无需落点\n" +
-             "AnyCell  = 范围内任选一格\n" +
-             "EdgeOnly = 只能选最外沿格子\n" +
-             "AOE      = 范围内任意格释放，效果覆盖整个范围\n" +
-             "AQuarterCircle = 根据悬停格选择上下左右主方向；对角格可属于相邻两方向，但悬停对角格时默认按垂直方向判定")]
     public TargetSelectMode targetSelectMode = TargetSelectMode.AnyCell;
 
     [Tooltip("额外效果（非数值类），按需拖拽效果脚本（.cs）挂载，可挂多个")]
@@ -158,46 +120,28 @@ public class CardData : ScriptableObject
     [Tooltip("按顺序拖拽 CardVFXCore 子类脚本（.cs）挂载此卡牌的特效表现")]
     public List<CardPresentationEffectReference> vfxEffects = new List<CardPresentationEffectReference>();
 
-
-    [Tooltip("拖拽此卡牌时使用的 Grid 高亮样式资产（GridStyleData）。\n" +
-             "留空则不显示范围高亮。")]
+    [Tooltip("拖拽此卡牌时使用的 Grid 高亮样式资产（GridStyleData）。\n留空则不显示范围高亮。")]
     public GridStyleData gridStyle;
 
     [Header("卡牌效果描述")]
     [TextArea(2, 4)]
     public string description;
 
-    /// <summary>
-    /// 获取应用所有 CardEffectCore 费用修正后的实际出牌费用。
-    /// </summary>
     public int GetEffectiveCost()
     {
-        // X 费用按 Cost=1 判断是否可打出，重复次数在 CardManager 中结算。
-        if (IsVariableCost)
-        {
-            return 1;
-        }
+        if (IsVariableCost) return 1;
 
         int effectiveCost = cost;
-
-        if (extraEffects == null)
-        {
-            return Mathf.Max(0, effectiveCost);
-        }
+        if (extraEffects == null) return Mathf.Max(0, effectiveCost);
 
         foreach (ExtraCardEffect extra in extraEffects)
         {
             if (string.IsNullOrEmpty(extra.effectTypeName)) continue;
-
             Type effectType = Type.GetType(extra.effectTypeName);
-            if (effectType == null || !typeof(CardEffectCore).IsAssignableFrom(effectType))
-            {
-                continue;
-            }
+            if (effectType == null || !typeof(CardEffectCore).IsAssignableFrom(effectType)) continue;
 
             CardEffectCore instance = CreateInstance(effectType) as CardEffectCore;
             if (instance == null) continue;
-
             effectiveCost += instance.GetCostModifier(this);
             Destroy(instance);
         }
@@ -205,15 +149,9 @@ public class CardData : ScriptableObject
         return Mathf.Max(0, effectiveCost);
     }
 
-    public string GetCostDisplayText()
-    {
-        return IsVariableCost ? "X" : GetEffectiveCost().ToString();
-    }
+    public string GetCostDisplayText() => IsVariableCost ? "X" : GetEffectiveCost().ToString();
 
-    public int GetEffectiveMoveDistance()
-    {
-        return Mathf.Max(0, moveDistance + GetTotalMoveDistanceModifier());
-    }
+    public int GetEffectiveMoveDistance() => Mathf.Max(0, moveDistance + GetTotalMoveDistanceModifier());
 
     public int GetEffectiveRangeDistance()
     {
@@ -222,32 +160,22 @@ public class CardData : ScriptableObject
         {
             rangeModifier += MovementRangeEnlargeEffect.GetRangeDistanceBonus(this);
         }
-
         return Mathf.Max(0, rangeDistance + rangeModifier);
     }
 
     private int GetTotalMoveDistanceModifier()
     {
         int modifier = 0;
-
-        if (extraEffects == null)
-        {
-            return modifier;
-        }
+        if (extraEffects == null) return modifier;
 
         foreach (ExtraCardEffect extra in extraEffects)
         {
             if (string.IsNullOrEmpty(extra.effectTypeName)) continue;
-
             Type effectType = Type.GetType(extra.effectTypeName);
-            if (effectType == null || !typeof(CardEffectCore).IsAssignableFrom(effectType))
-            {
-                continue;
-            }
+            if (effectType == null || !typeof(CardEffectCore).IsAssignableFrom(effectType)) continue;
 
             CardEffectCore instance = CreateInstance(effectType) as CardEffectCore;
             if (instance == null) continue;
-
             modifier += instance.GetMoveDistanceModifier(this);
             Destroy(instance);
         }
@@ -255,34 +183,31 @@ public class CardData : ScriptableObject
         return modifier;
     }
 
-    /// <summary>
-    /// 克隆卡牌数据，防止运行时修改影响原始资产。
-    /// </summary>
     public CardData Clone()
     {
         CardData clone = CreateInstance<CardData>();
-        clone.name              = string.IsNullOrEmpty(cardName) ? name : cardName;
-        clone.cardID            = cardID;
-        clone.cardName          = cardName;
-        clone.type              = type;
-        clone.cost              = cost;
-        clone.effectFlags       = effectFlags;
-        clone.extraEffects      = extraEffects == null ? null : new List<ExtraCardEffect>(extraEffects);
-        clone.animationEffects  = animationEffects == null ? null : new List<CardPresentationEffectReference>(animationEffects);
-        clone.vfxEffects        = vfxEffects == null ? null : new List<CardPresentationEffectReference>(vfxEffects);
-        clone.moveDistance      = moveDistance;
-        clone.damage            = damage;
-        clone.block             = block;
-        clone.healthChange      = healthChange;
-        clone.energyChange      = energyChange;
+        clone.name = string.IsNullOrEmpty(cardName) ? name : cardName;
+        clone.cardID = cardID;
+        clone.cardName = cardName;
+        clone.type = type;
+        clone.cost = cost;
+        clone.effectFlags = effectFlags;
+        clone.extraEffects = extraEffects == null ? null : new List<ExtraCardEffect>(extraEffects);
+        clone.animationEffects = animationEffects == null ? null : new List<CardPresentationEffectReference>(animationEffects);
+        clone.vfxEffects = vfxEffects == null ? null : new List<CardPresentationEffectReference>(vfxEffects);
+        clone.moveDistance = moveDistance;
+        clone.damage = damage;
+        clone.block = block;
+        clone.healthChange = healthChange;
+        clone.energyChange = energyChange;
         clone.actionPointChange = actionPointChange;
-        clone.drawAmount        = drawAmount;
-        clone.discardAmount     = discardAmount;
-        clone.rangeType         = rangeType;
-        clone.rangeDistance     = rangeDistance;
-        clone.targetSelectMode  = targetSelectMode;
-        clone.gridStyle         = gridStyle;    // ScriptableObject 引用，浅拷贝即可
-        clone.description       = description;
+        clone.drawAmount = drawAmount;
+        clone.discardAmount = discardAmount;
+        clone.rangeType = rangeType;
+        clone.rangeDistance = rangeDistance;
+        clone.targetSelectMode = targetSelectMode;
+        clone.gridStyle = gridStyle;
+        clone.description = description;
         return clone;
     }
 }

@@ -271,7 +271,8 @@ public class CardManager : MonoBehaviour
         bool hasExtraEffects = card.extraEffects != null && card.extraEffects.Count > 0;
         bool cardHasAbility = AbilityCore.HasAbilityEffect(card);
 
-        // 卡牌表现由动画和特效两个大类分别管理，只播放一次。
+        // 卡牌表现由动画与特效系统协同调度：
+        // CardVFXCore 会智能判断：攻击特效自动等待动画击发，非攻击特效即时播放
         CardAnimationCore.PlayAll(card, targetGrid);
         CardVFXCore.PlayAll(card, targetGrid);
         AbilityCore.NotifyCardPlayed(card, targetGrid);
@@ -341,8 +342,6 @@ public class CardManager : MonoBehaviour
             GridManager gridMgr = FindFirstObjectByType<GridManager>();
             if (gridMgr != null && MonsterIdentitySystem.Instance != null)
             {
-                // 伤害击杀怪物时，MonsterIdentityManager.OnDisable 会从全局 HashSet 注销。
-                // 先复制快照，避免枚举期间集合被修改。
                 List<MonsterIdentityManager> monsters =
                     new List<MonsterIdentityManager>(MonsterIdentitySystem.Instance.GetAllMonsters());
 
