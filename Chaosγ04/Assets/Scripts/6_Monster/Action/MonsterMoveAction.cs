@@ -29,8 +29,8 @@ public class MonsterMoveAction : MonsterActionBase
     [Tooltip("Animator引用")]
     public Animator monsterAnimator;
 
-    [Tooltip("控制行走动画状态的 Bool 参数名称")]
-    public string walkBoolName = "Walk";
+    [Tooltip("控制移动动画状态的 Bool 参数名称")]
+    public string moveBoolName = "Move";
 
     [Tooltip("控制水平朝向的 Float 参数名称")]
     public string horizontalFloatName = "Horizontal";
@@ -78,7 +78,7 @@ public class MonsterMoveAction : MonsterActionBase
 
         if (TargetLossEffect.MonstersLosePlayerTargetThisRound)
         {
-            SetWalkAnimationState(false);
+            SetMoveAnimationState(false);
             CompleteAction();
             return;
         }
@@ -86,7 +86,7 @@ public class MonsterMoveAction : MonsterActionBase
         if (gridManager == null || selfIdentity == null)
         {
             Debug.LogError($"[{name}] 缺少 GridManager 或自身未挂载 MonsterIdentityManager，无法执行移动！");
-            SetWalkAnimationState(false);
+            SetMoveAnimationState(false);
             CompleteAction();
             return;
         }
@@ -95,7 +95,7 @@ public class MonsterMoveAction : MonsterActionBase
         if (!TryGetMonsterCell(out CellManager monsterCell))
         {
             Debug.LogWarning($"[{name}] 未在任何 CellManager 中匹配到当前怪物的标记，取消移动。");
-            SetWalkAnimationState(false);
+            SetMoveAnimationState(false);
             CompleteAction();
             return;
         }
@@ -103,7 +103,7 @@ public class MonsterMoveAction : MonsterActionBase
         if (!TryGetPlayerCell(out CellManager playerCell))
         {
             Debug.LogWarning($"[{name}] 未在任何 CellManager 中匹配到 C = Player 标记，取消移动。");
-            SetWalkAnimationState(false);
+            SetMoveAnimationState(false);
             CompleteAction();
             return;
         }
@@ -112,7 +112,7 @@ public class MonsterMoveAction : MonsterActionBase
         if (!ConcealmentCell.CanMonsterSeePlayer(monsterCell))
         {
             Debug.Log($"[{name}] Player hidden in a concealment patch, monster outside, skip chase.");
-            SetWalkAnimationState(false);
+            SetMoveAnimationState(false);
             CompleteAction();
             return;
         }
@@ -142,7 +142,7 @@ public class MonsterMoveAction : MonsterActionBase
         List<CellManager> actualPathWithStart = fullPath.GetRange(0, actualSteps + 1);
 
         // 5. 开启行走动画并启动移动协程
-        SetWalkAnimationState(true);
+        SetMoveAnimationState(true);
         moveCoroutine = StartCoroutine(MoveRoutine(actualPathWithStart, playerCell));
     }
 
@@ -158,7 +158,7 @@ public class MonsterMoveAction : MonsterActionBase
             moveCoroutine = null;
         }
 
-        SetWalkAnimationState(false);
+        SetMoveAnimationState(false);
     }
 
     // ==================================================================
@@ -204,7 +204,7 @@ public class MonsterMoveAction : MonsterActionBase
         }
 
         // 1. 移动完成，先停止行走动画，保持停顿
-        SetWalkAnimationState(false);
+        SetMoveAnimationState(false);
 
         // 2. 停顿指定的秒数（例如 0.5s）
         if (pauseBeforeFacePlayer > 0f)
@@ -228,7 +228,7 @@ public class MonsterMoveAction : MonsterActionBase
     private IEnumerator StationaryTurnRoutine(CellManager currentCell, CellManager playerCell)
     {
         MonsterIsMoving = true; // 【状态切换】原地行为也视为移动中加锁
-        SetWalkAnimationState(false);
+        SetMoveAnimationState(false);
 
         if (pauseBeforeFacePlayer > 0f)
         {
@@ -311,11 +311,11 @@ public class MonsterMoveAction : MonsterActionBase
         monsterAnimator.SetFloat(verticalFloatName, v);
     }
 
-    private void SetWalkAnimationState(bool isWalking)
+    private void SetMoveAnimationState(bool isMoving)
     {
         if (monsterAnimator != null)
         {
-            monsterAnimator.SetBool(walkBoolName, isWalking);
+            monsterAnimator.SetBool(moveBoolName, isMoving);
         }
     }
 

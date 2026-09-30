@@ -1,13 +1,12 @@
-﻿using System.Collections;
 using System.Linq;
 using UnityEngine;
 
 /// <summary>
-/// 怪物攻击动作：检测是否与 Player 水平/垂直相邻，若相邻则先播放攻击动画，播放完毕后再进行数值结算
+/// 怪物攻击动作：检测是否与 Player 水平/垂直相邻，若相邻则触发攻击动画并进行数值结算
 ///
 /// 【职责边界】本类只负责：
 /// 1) 判断是否满足发起攻击的条件（相邻、视野等）
-/// 2) 播放攻击动画
+/// 2) 触发攻击动画
 /// 3) 把"攻击"这一动作及其初始伤害数值（attackDamage）连同攻击者所在格坐标
 ///    交给 PlayerOrientationDamageController 去处理
 /// 本类完全不参与伤害减免的计算，也不直接决定玩家最终掉多少血。
@@ -21,16 +20,13 @@ public class MonsterAttackAction : MonsterActionBase
     public Animator monsterAnimator;
 
     [Header("动画参数配置")]
-    [Tooltip("触发攻击的 Animator Bool 变量名")]
-    public string attackBoolName = "Attack";
-    [Tooltip("动画保持开启及播放的总时长（秒）")]
-    public float attackDuration = 2f / 3f; // 2/3 秒
+    [Tooltip("触发攻击的 Animator Trigger 变量名")]
+    public string attackTriggerName = "Attack";
 
     [Header("怪物数值配置")]
     [Tooltip("怪物攻击力（未经任何减免的初始数值）")]
     public int attackDamage = 5;
 
-    private Coroutine attackCoroutine;
     private MonsterIdentityManager selfIdentity;
 
     private void Awake()
@@ -87,8 +83,10 @@ public class MonsterAttackAction : MonsterActionBase
 
         if (isAdjacent)
         {
-            // 满足攻击条件，启动攻击协程
-            attackCoroutine = StartCoroutine(PerformAttackRoutine());
+            // 满足攻击条件，触发攻击动画并结算伤害
+            PlayAttackAnimation();
+            ResolveAttackDamage();
+            CompleteAction();
         }
         else
         {
@@ -123,33 +121,27 @@ public class MonsterAttackAction : MonsterActionBase
         return (deltaX + deltaZ) == 1;
     }
 
-    /// <summary>
-    /// 执行攻击动作：先播放完整动画，再把攻击这一动作和初始伤害数值交出去结算
-    /// </summary>
-    private IEnumerator PerformAttackRoutine()
+    private void PlayAttackAnimation()
     {
-        // 1. 开启攻击动画
         if (monsterAnimator != null)
         {
-            monsterAnimator.SetBool(attackBoolName, true);
+            int attackTriggerHash = Animator.StringToHash(attackTriggerName);
+            monsterAnimator.ResetTrigger(attackTriggerHash);
+            monsterAnimator.SetTrigger(attackTriggerHash);
         }
         else
         {
-            Debug.LogWarning($"[{name}] MonsterAnimator 未关联，仅等待时间后进行伤害计算。");
+            Debug.LogWarning($"[{name}] MonsterAnimator 未关联，跳过攻击动画。");
         }
+    }
 
-        // 2. 等待动画播放完毕
-        yield return new WaitForSeconds(attackDuration);
-
-        // 3. 重置攻击动画 Bool 状态
-        if (monsterAnimator != null)
-        {
-            monsterAnimator.SetBool(attackBoolName, false);
-        }
-
-        // 4.【发起攻击】只传出"攻击"这一动作的初始伤害数值（attackDamage）
-        // 以及攻击者所在格坐标（用于朝向判定），具体减免多少、
-        // 最终扣多少血完全不在本类关心范围内。
+    /// <summary>
+    /// 只传出"攻击"这一动作的初始伤害数值（attackDamage）
+    /// 以及攻击者所在格坐标（用于朝向判定），具体减免多少、
+    /// 最终扣多少血完全不在本类关心范围内。
+    /// </summary>
+    private void ResolveAttackDamage()
+    {
         if (gridManager != null)
         {
             gridManager.EnsureGridSystemInitialized();
@@ -175,25 +167,15 @@ public class MonsterAttackAction : MonsterActionBase
         {
             CombatStatsManager.Instance.TakeDamage(attackDamage);
         }
-
-        attackCoroutine = null;
-
-        // 5. 标记当前 Action 执行完成
-        CompleteAction();
     }
 
     public override void CancelAction()
     {
         base.CancelAction();
-        if (attackCoroutine != null)
-        {
-            StopCoroutine(attackCoroutine);
-            attackCoroutine = null;
-        }
-        // 被打断或取消时重置 Animator 变量
+        // 被打断或取消时清除尚未消费的攻击 Trigger
         if (monsterAnimator != null)
         {
-            monsterAnimator.SetBool(attackBoolName, false);
+            monsterAnimator.ResetTrigger(Animator.StringToHash(attackTriggerName));
         }
     }
 }
