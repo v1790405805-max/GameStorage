@@ -34187,7 +34187,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4723f864be834f44f9a28907aa57fe60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterMoveManager
-  postActionDelay: 0.5
+  postActionDelay: 0.2
   mobility: 2
   stepDuration: 1
   pauseBeforeFacePlayer: 0.05
@@ -47475,7 +47475,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4723f864be834f44f9a28907aa57fe60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterMoveManager
-  postActionDelay: 0.5
+  postActionDelay: 0.2
   mobility: 2
   stepDuration: 0.5
   pauseBeforeFacePlayer: 0.05
@@ -81537,7 +81537,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4723f864be834f44f9a28907aa57fe60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterMoveManager
-  postActionDelay: 0.5
+  postActionDelay: 0.2
   mobility: 2
   stepDuration: 0.5
   pauseBeforeFacePlayer: 0.05
@@ -92303,7 +92303,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4723f864be834f44f9a28907aa57fe60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterMoveManager
-  postActionDelay: 0.5
+  postActionDelay: 0.2
   mobility: 2
   stepDuration: 0.5
   pauseBeforeFacePlayer: 0.05
@@ -161857,7 +161857,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4723f864be834f44f9a28907aa57fe60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterMoveManager
-  postActionDelay: 0.5
+  postActionDelay: 0.2
   mobility: 2
   stepDuration: 0.5
   pauseBeforeFacePlayer: 0.05
