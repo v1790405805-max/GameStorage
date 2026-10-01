@@ -2,7 +2,7 @@ using System.Linq;
 using UnityEngine;
 
 /// <summary>
-/// 怪物攻击动作：检测是否与 Player 水平/垂直相邻，若相邻则触发攻击动画并进行数值结算
+/// 怪物攻击动作：检测攻击范围内是否存在敌对单位，若 Player 在攻击范围内则触发攻击动画并进行数值结算
 ///
 /// 【职责边界】本类只负责：
 /// 1) 判断是否满足发起攻击的条件（相邻、视野等）
@@ -13,6 +13,10 @@ using UnityEngine;
 /// </summary>
 public class MonsterAttackAction : MonsterActionBase
 {
+    [Header("Attack Range")]
+    [Tooltip("攻击距离，按 XZ 网格曼哈顿距离计算，1 表示上下左右相邻格。")]
+    [SerializeField, Min(1)] private int attackRange = 1;
+
     [Header("网格管理器引用")]
     public GridManager gridManager;
 
@@ -29,18 +33,31 @@ public class MonsterAttackAction : MonsterActionBase
 
     private MonsterIdentityManager selfIdentity;
 
+    public int AttackRange => attackRange;
+
     private void Awake()
     {
         selfIdentity = GetComponent<MonsterIdentityManager>();
+        EnsureGridManager();
+    }
+
+    public override bool CanExecute(MonsterActionContext context)
+    {
+        return context != null && context.HasHostileInAttackRangeNow(attackRange);
+    }
+
+    public override void OnSkipped()
+    {
+        if (monsterAnimator != null)
+        {
+            monsterAnimator.ResetTrigger(Animator.StringToHash(attackTriggerName));
+        }
     }
 
     protected override void OnStart()
     {
         // 1. 确保 GridManager 存在
-        if (gridManager == null)
-        {
-            gridManager = FindFirstObjectByType<GridManager>();
-        }
+        EnsureGridManager();
         if (gridManager == null)
         {
             Debug.LogError($"[{name}] MonsterAttackAction 无法找到场景中的 GridManager！");
@@ -78,10 +95,10 @@ public class MonsterAttackAction : MonsterActionBase
             return;
         }
 
-        // 4. 判定是否为水平或垂直相邻（曼哈顿距离为 1）
-        bool isAdjacent = IsOrthogonallyAdjacent(monsterX, monsterZ, playerX, playerZ);
+        // 4. 判定玩家是否位于攻击范围内
+        bool isInAttackRange = IsWithinAttackRange(monsterX, monsterZ, playerX, playerZ);
 
-        if (isAdjacent)
+        if (isInAttackRange)
         {
             // 满足攻击条件，触发攻击动画并结算伤害
             PlayAttackAnimation();
@@ -112,13 +129,22 @@ public class MonsterAttackAction : MonsterActionBase
     }
 
     /// <summary>
-    /// 判断两个格子坐标是否在水平或垂直方向上紧邻（不包含斜向与自身重合）
+    /// 判断目标是否位于攻击范围内（曼哈顿距离大于 0 且不超过 attackRange）
     /// </summary>
-    private bool IsOrthogonallyAdjacent(int x1, int z1, int x2, int z2)
+    private bool IsWithinAttackRange(int x1, int z1, int x2, int z2)
     {
         int deltaX = Mathf.Abs(x1 - x2);
         int deltaZ = Mathf.Abs(z1 - z2);
-        return (deltaX + deltaZ) == 1;
+        int distance = deltaX + deltaZ;
+        return distance > 0 && distance <= attackRange;
+    }
+
+    private void EnsureGridManager()
+    {
+        if (gridManager == null)
+        {
+            gridManager = FindFirstObjectByType<GridManager>();
+        }
     }
 
     private void PlayAttackAnimation()

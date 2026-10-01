@@ -72,6 +72,17 @@ public class MonsterMoveAction : MonsterActionBase
     // 重写 MonsterActionBase 核心接口
     // ==================================================================
 
+    public override bool CanExecute(MonsterActionContext context)
+    {
+        return context == null || !context.HostileInAttackRangeAtTurnStart;
+    }
+
+    public override void OnSkipped()
+    {
+        MonsterIsMoving = false;
+        SetMoveAnimationState(false);
+    }
+
     protected override void OnStart()
     {
         EnsureGridManager();
@@ -356,6 +367,7 @@ public class MonsterMoveAction : MonsterActionBase
                 }
             }
         }
+
         return false;
     }
 

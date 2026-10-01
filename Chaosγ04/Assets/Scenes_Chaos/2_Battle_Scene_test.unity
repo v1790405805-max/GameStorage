@@ -34139,9 +34139,7 @@ MonoBehaviour:
   startDelay: 0.2
   actionSequence:
   - action: {fileID: 384918150}
-    interval: 0.5
   - action: {fileID: 384918148}
-    interval: 0.5
 --- !u!114 &384918148
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -34154,6 +34152,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab6f9c6ef226a554f91bcbe0f5069208, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackAction
+  postActionDelay: 0.5
+  attackRange: 1
   gridManager: {fileID: 1996419300}
   monsterAnimator: {fileID: 3143698802893842853}
   attackTriggerName: Attack
@@ -34187,6 +34187,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4723f864be834f44f9a28907aa57fe60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterMoveManager
+  postActionDelay: 0.5
   mobility: 2
   stepDuration: 1
   pauseBeforeFacePlayer: 0.05
@@ -47426,9 +47427,7 @@ MonoBehaviour:
   startDelay: 0.2
   actionSequence:
   - action: {fileID: 556471849}
-    interval: 0.5
   - action: {fileID: 556471847}
-    interval: 0.5
 --- !u!114 &556471847
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -47441,6 +47440,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab6f9c6ef226a554f91bcbe0f5069208, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackAction
+  postActionDelay: 0.5
+  attackRange: 1
   gridManager: {fileID: 1996419300}
   monsterAnimator: {fileID: 7080626493093617588}
   attackTriggerName: Tear
@@ -47474,6 +47475,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4723f864be834f44f9a28907aa57fe60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterMoveManager
+  postActionDelay: 0.5
   mobility: 2
   stepDuration: 0.5
   pauseBeforeFacePlayer: 0.05
@@ -81487,9 +81489,7 @@ MonoBehaviour:
   startDelay: 0.2
   actionSequence:
   - action: {fileID: 983314785}
-    interval: 0.5
   - action: {fileID: 983314783}
-    interval: 0.5
 --- !u!114 &983314783
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -81502,6 +81502,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab6f9c6ef226a554f91bcbe0f5069208, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackAction
+  postActionDelay: 0.5
+  attackRange: 1
   gridManager: {fileID: 1996419300}
   monsterAnimator: {fileID: 1232584861}
   attackTriggerName: Tear
@@ -81535,6 +81537,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4723f864be834f44f9a28907aa57fe60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterMoveManager
+  postActionDelay: 0.5
   mobility: 2
   stepDuration: 0.5
   pauseBeforeFacePlayer: 0.05
@@ -92252,9 +92255,7 @@ MonoBehaviour:
   startDelay: 0.2
   actionSequence:
   - action: {fileID: 1096482201}
-    interval: 0.5
   - action: {fileID: 1096482199}
-    interval: 0.5
 --- !u!114 &1096482199
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -92267,6 +92268,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab6f9c6ef226a554f91bcbe0f5069208, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackAction
+  postActionDelay: 0.5
+  attackRange: 1
   gridManager: {fileID: 1996419300}
   monsterAnimator: {fileID: 1048001019}
   attackTriggerName: Tear
@@ -92300,6 +92303,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4723f864be834f44f9a28907aa57fe60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterMoveManager
+  postActionDelay: 0.5
   mobility: 2
   stepDuration: 0.5
   pauseBeforeFacePlayer: 0.05
@@ -161805,9 +161809,7 @@ MonoBehaviour:
   startDelay: 0.2
   actionSequence:
   - action: {fileID: 1949179983}
-    interval: 0.5
   - action: {fileID: 1949179981}
-    interval: 0.5
 --- !u!114 &1949179981
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -161820,6 +161822,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab6f9c6ef226a554f91bcbe0f5069208, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackAction
+  postActionDelay: 0.5
+  attackRange: 1
   gridManager: {fileID: 1996419300}
   monsterAnimator: {fileID: 176702011}
   attackTriggerName: Tear
@@ -161853,6 +161857,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4723f864be834f44f9a28907aa57fe60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterMoveManager
+  postActionDelay: 0.5
   mobility: 2
   stepDuration: 0.5
   pauseBeforeFacePlayer: 0.05

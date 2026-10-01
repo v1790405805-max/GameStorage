@@ -6,32 +6,39 @@ using UnityEngine;
 [Serializable]
 public class MonsterActionStep
 {
-    [Tooltip("ÒªÖ´ĞĞµÄ¾ßÌå¶¯×÷½Å±¾×é¼ş")]
+    [Tooltip("è¦æ‰§è¡Œçš„å…·ä½“åŠ¨ä½œè„šæœ¬ç»„ä»¶")]
     public MonsterActionBase action;
-    [Tooltip("±¾¶¯×÷Ö´ĞĞÍê±Ïºó£¬µÈ´ıÖ´ĞĞÏÂÒ»¸ö¶¯×÷µÄ¼ä¸ôÊ±¼ä£¨Ãë£©")]
-    public float interval = 0.5f;
 }
 
 public class MonsterActionManager : MonoBehaviour, ITurnStateListener
 {
-    [Header("»ØºÏ³õÊ¼»º³åÊ±¼ä")]
-    [Tooltip("ÇĞµ½±¾¹ÖÎïĞĞ¶¯ºó£¬µÈ´ı¶à¾Ã²Å¿ªÊ¼Ö´ĞĞµÚÒ»¸ö¶¯×÷£¨Ãë£©")]
+    [Header("å›åˆåˆå§‹ç¼“å†²æ—¶é—´")]
+    [Tooltip("åˆ‡åˆ°æœ¬æ€ªç‰©è¡ŒåŠ¨åï¼Œç­‰å¾…å¤šä¹…æ‰å¼€å§‹æ‰§è¡Œç¬¬ä¸€ä¸ªåŠ¨ä½œï¼ˆç§’ï¼‰")]
     [SerializeField] private float startDelay = 0.5f;
 
-    [Header("¶¯×÷ĞòÁĞ")]
-    [Tooltip("±¾»ØºÏÒªÒÀ´ÎÖ´ĞĞµÄ¶¯×÷ÁĞ±í")]
+    [Header("åŠ¨ä½œåºåˆ—")]
+    [Tooltip("æœ¬å›åˆè¦ä¾æ¬¡æ‰§è¡Œçš„åŠ¨ä½œåˆ—è¡¨")]
     [SerializeField] private List<MonsterActionStep> actionSequence = new List<MonsterActionStep>();
 
     private int currentIndex = -1;
     private bool isExecuting = false;
     private Coroutine sequenceCoroutine;
+    private MonsterIdentityManager selfIdentity;
+    private MonsterAttackAction attackAction;
+    private GridManager gridManager;
 
     public event Action OnSequenceStarted;
     public event Action<MonsterActionBase> OnActionStarted;
     public event Action<MonsterActionBase> OnActionFinished;
+    public event Action<MonsterActionBase> OnActionSkipped;
     public event Action OnSequenceFinished;
 
     public bool IsExecuting => isExecuting;
+
+    private void Awake()
+    {
+        ResolveReferences();
+    }
 
     private void OnEnable()
     {
@@ -50,7 +57,7 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
     }
 
     // ==================================================================
-    // ÊµÏÖ ITurnStateListener ½Ó¿Ú
+    // å®ç° ITurnStateListener æ¥å£
     // ==================================================================
     public void OnTurnActivated()
     {
@@ -63,24 +70,25 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
     }
 
     // ==================================================================
-    // ºËĞÄĞòÁĞÂß¼­
+    // æ ¸å¿ƒåºåˆ—é€»è¾‘
     // ==================================================================
     public void StartSequence()
     {
         if (isExecuting)
         {
-            Debug.LogWarning($"[{name}] ÒÑÓĞĞòÁĞÔÚÖ´ĞĞÖĞ¡£");
+            Debug.LogWarning($"[{name}] å·²æœ‰åºåˆ—åœ¨æ‰§è¡Œä¸­ã€‚");
             return;
         }
 
         if (actionSequence == null || actionSequence.Count == 0)
         {
-            Debug.LogWarning($"[{name}] ¶¯×÷ĞòÁĞÎª¿Õ£¬Ö±½ÓÅĞ¶¨ĞòÁĞ½áÊø¡£");
+            Debug.LogWarning($"[{name}] åŠ¨ä½œåºåˆ—ä¸ºç©ºï¼Œç›´æ¥åˆ¤å®šåºåˆ—ç»“æŸã€‚");
             OnSequenceFinished?.Invoke();
             return;
         }
 
-        sequenceCoroutine = StartCoroutine(ExecuteSequenceRoutine());
+        MonsterActionContext context = BuildActionContext();
+        sequenceCoroutine = StartCoroutine(ExecuteSequenceRoutine(context));
     }
 
     public void StopSequence()
@@ -104,7 +112,7 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
         currentIndex = -1;
     }
 
-    private IEnumerator ExecuteSequenceRoutine()
+    private IEnumerator ExecuteSequenceRoutine(MonsterActionContext context)
     {
         isExecuting = true;
         OnSequenceStarted?.Invoke();
@@ -122,6 +130,15 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
             if (step == null || step.action == null) continue;
 
             var action = step.action;
+
+            if (!action.CanExecute(context))
+            {
+                Debug.Log($"[{name}] {action.GetType().Name} çš„å‰ç½®æ¡ä»¶ä¸æ»¡è¶³ï¼Œå·²è·³è¿‡ã€‚");
+                action.OnSkipped();
+                OnActionSkipped?.Invoke(action);
+                continue;
+            }
+
             bool isCompleted = false;
             Action completionHandler = null;
 
@@ -134,17 +151,17 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
             action.OnActionCompleted += completionHandler;
             OnActionStarted?.Invoke(action);
 
-            // Ö´ĞĞµ±Ç°¶¯×÷ (ÄÚ²¿µ÷ÓÃ OnStart)
+            // æ‰§è¡Œå½“å‰åŠ¨ä½œ (å†…éƒ¨è°ƒç”¨ OnStart)
             action.StartAction();
 
-            // µÈ´ı¶¯×÷ÄÚ²¿µ÷ÓÃ CompleteAction()
+            // ç­‰å¾…åŠ¨ä½œå†…éƒ¨è°ƒç”¨ CompleteAction()
             yield return new WaitUntil(() => isCompleted);
 
             OnActionFinished?.Invoke(action);
 
-            if (step.interval > 0f)
+            if (action.PostActionDelay > 0f)
             {
-                yield return new WaitForSeconds(step.interval);
+                yield return new WaitForSeconds(action.PostActionDelay);
             }
         }
 
@@ -152,7 +169,7 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
         currentIndex = -1;
         sequenceCoroutine = null;
 
-        // Í¨Öª TurnManager£¬±¾¹ÖÎïÈ«²¿¶¯×÷ÒÑÍê³É
+        // é€šçŸ¥ TurnManagerï¼Œæœ¬æ€ªç‰©å…¨éƒ¨åŠ¨ä½œå·²å®Œæˆ
         OnSequenceFinished?.Invoke();
     }
 
@@ -162,14 +179,13 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
         actionSequence = steps ?? new List<MonsterActionStep>();
     }
 
-    public void AddAction(MonsterActionBase action, float interval = 0.5f)
+    public void AddAction(MonsterActionBase action)
     {
         if (action != null)
         {
             actionSequence.Add(new MonsterActionStep
             {
-                action = action,
-                interval = interval
+                action = action
             });
         }
     }
@@ -179,4 +195,60 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
         if (isExecuting) return;
         actionSequence.Clear();
     }
+
+    private void ResolveReferences()
+    {
+        if (selfIdentity == null)
+        {
+            selfIdentity = GetComponent<MonsterIdentityManager>();
+        }
+
+        if (attackAction == null)
+        {
+            attackAction = GetComponent<MonsterAttackAction>();
+            if (attackAction == null && actionSequence != null)
+            {
+                for (int i = 0; i < actionSequence.Count; i++)
+                {
+                    MonsterActionStep step = actionSequence[i];
+                    if (step != null && step.action is MonsterAttackAction candidate)
+                    {
+                        attackAction = candidate;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (gridManager == null)
+        {
+            gridManager = attackAction != null ? attackAction.gridManager : null;
+            if (gridManager == null)
+            {
+                gridManager = FindFirstObjectByType<GridManager>();
+            }
+        }
+    }
+
+    private MonsterActionContext BuildActionContext()
+    {
+        ResolveReferences();
+
+        bool hostileInAttackRangeAtTurnStart = false;
+        if (selfIdentity != null && gridManager != null && attackAction != null)
+        {
+            hostileInAttackRangeAtTurnStart =
+                MonsterTargetManager.HasHostileInAttackRange(
+                    selfIdentity,
+                    gridManager,
+                    attackAction.AttackRange);
+        }
+
+        return new MonsterActionContext(
+            selfIdentity,
+            gridManager,
+            attackAction,
+            hostileInAttackRangeAtTurnStart);
+    }
+
 }
