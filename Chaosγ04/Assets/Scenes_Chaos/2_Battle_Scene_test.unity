@@ -7426,21 +7426,25 @@ MonoBehaviour:
   - vfxName: Slash
     vfxPrefab: {fileID: 9195517544617927957, guid: 6400ca329e0ea36488d64e19003af0ac, type: 3}
     customSpawnPoint: {fileID: 1924844871}
+    rotationOffset: {x: 0, y: 0, z: 0}
     attachToTransform: 0
     destroyTime: 1
   - vfxName: Shield
     vfxPrefab: {fileID: 1289543790355709915, guid: b99922c2f59b1a542bdd06ae8bee47ae, type: 3}
     customSpawnPoint: {fileID: 373634247}
+    rotationOffset: {x: 0, y: 0, z: 0}
     attachToTransform: 1
     destroyTime: 4
   - vfxName: Sparks
     vfxPrefab: {fileID: 8493111694580260906, guid: 44e7e5164439e724da4641229db376f4, type: 3}
     customSpawnPoint: {fileID: 373634247}
+    rotationOffset: {x: 0, y: 0, z: 0}
     attachToTransform: 1
     destroyTime: 2
   - vfxName: Stab
     vfxPrefab: {fileID: 4187335808819459110, guid: 5ec8715d7527069408615b1c67833de1, type: 3}
     customSpawnPoint: {fileID: 1102678609}
+    rotationOffset: {x: 0, y: 0, z: 0}
     attachToTransform: 0
     destroyTime: 1
 --- !u!21 &86290693
@@ -34218,9 +34222,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51d2f9b4dcdd48641b6e070d2c8af35c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterManager
-  type: 2
+  faction: 1
   monsterId: 
+  hostileFactions: 5
   canTraverseSpecialTerrain: 1
+  hostileFactionsInitialized: 1
 --- !u!21 &385382864
 Material:
   serializedVersion: 8
@@ -47502,9 +47508,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51d2f9b4dcdd48641b6e070d2c8af35c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterManager
-  type: 2
+  faction: 0
   monsterId: 
+  hostileFactions: 6
   canTraverseSpecialTerrain: 0
+  hostileFactionsInitialized: 1
 --- !u!1 &557168890
 GameObject:
   m_ObjectHideFlags: 0
@@ -81560,9 +81568,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51d2f9b4dcdd48641b6e070d2c8af35c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterManager
-  type: 2
+  faction: 0
   monsterId: 
+  hostileFactions: 6
   canTraverseSpecialTerrain: 0
+  hostileFactionsInitialized: 1
 --- !u!21 &985240514
 Material:
   serializedVersion: 8
@@ -92322,9 +92332,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51d2f9b4dcdd48641b6e070d2c8af35c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterManager
-  type: 2
+  faction: 0
   monsterId: 
+  hostileFactions: 6
   canTraverseSpecialTerrain: 0
+  hostileFactionsInitialized: 1
 --- !u!21 &1098235686
 Material:
   serializedVersion: 8
@@ -161872,9 +161884,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51d2f9b4dcdd48641b6e070d2c8af35c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterManager
-  type: 2
+  faction: 0
   monsterId: 
+  hostileFactions: 6
   canTraverseSpecialTerrain: 0
+  hostileFactionsInitialized: 1
 --- !u!21 &1949309987
 Material:
   serializedVersion: 8
