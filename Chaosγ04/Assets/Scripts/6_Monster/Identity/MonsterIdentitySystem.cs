@@ -43,7 +43,8 @@ public class MonsterIdentitySystem : MonoBehaviour
     }
 
     private readonly HashSet<MonsterIdentityManager> allMonsters = new HashSet<MonsterIdentityManager>();
-    private readonly Dictionary<MonsterIdentityManager.MonsterType, int> typeCounters = new Dictionary<MonsterIdentityManager.MonsterType, int>();
+    private readonly Dictionary<MonsterIdentityManager.MonsterFaction, int> factionCounters =
+        new Dictionary<MonsterIdentityManager.MonsterFaction, int>();
 
     private void Awake()
     {
@@ -81,16 +82,16 @@ public class MonsterIdentitySystem : MonoBehaviour
         if (monster == null) return;
         if (string.IsNullOrEmpty(monster.monsterId))
         {
-            monster.monsterId = GenerateMonsterId(monster.type);
+            monster.monsterId = GenerateMonsterId(monster.faction);
         }
         allMonsters.Add(monster);
     }
 
-    private string GenerateMonsterId(MonsterIdentityManager.MonsterType type)
+    private string GenerateMonsterId(MonsterIdentityManager.MonsterFaction faction)
     {
-        if (!typeCounters.ContainsKey(type)) typeCounters[type] = 0;
-        typeCounters[type]++;
-        return $"{type}_{typeCounters[type]}";
+        if (!factionCounters.ContainsKey(faction)) factionCounters[faction] = 0;
+        factionCounters[faction]++;
+        return $"{faction}_{factionCounters[faction]}";
     }
 
     public void UnregisterMonster(MonsterIdentityManager monster)
@@ -100,7 +101,8 @@ public class MonsterIdentitySystem : MonoBehaviour
     }
 
     public IReadOnlyCollection<MonsterIdentityManager> GetAllMonsters() => allMonsters;
-    public List<MonsterIdentityManager> GetMonstersByType(MonsterIdentityManager.MonsterType type) => allMonsters.Where(m => m.type == type).ToList();
+    public List<MonsterIdentityManager> GetMonstersByFaction(MonsterIdentityManager.MonsterFaction faction) =>
+        allMonsters.Where(m => m != null && m.faction == faction).ToList();
     public MonsterIdentityManager GetMonsterById(string monsterId) => allMonsters.FirstOrDefault(m => m.monsterId == monsterId);
     public int MonsterCount => allMonsters.Count;
 }

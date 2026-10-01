@@ -105,7 +105,7 @@ public class TurnManager : MonoBehaviour
 
             if (targetMonster == null)
             {
-                targetMonster = unhandledSceneMonsters.Find(m => m.type == savedData.monsterType);
+                targetMonster = unhandledSceneMonsters.Find(m => m.faction == savedData.monsterFaction);
             }
 
             if (targetMonster != null)

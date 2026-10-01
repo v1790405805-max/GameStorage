@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 public struct MonsterSaveData
 {
     public string monsterId;
-    public MonsterIdentityManager.MonsterType monsterType;
+    public MonsterIdentityManager.MonsterFaction monsterFaction;
     public Vector3 position;
     public int hp;
     public int block;
@@ -331,7 +331,7 @@ public class CombatStatsManager : MonoBehaviour
             savedMonsters.Add(new MonsterSaveData
             {
                 monsterId = monster.monsterId,
-                monsterType = monster.type,
+                monsterFaction = monster.faction,
                 position = monster.transform.position,
                 hp = currentHp,
                 block = currentBlock

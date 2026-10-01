@@ -351,12 +351,12 @@ public class CellManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 供外部查询：格子内是否存在某种类型的怪物，比如只想知道有没有Boss
+    /// 供外部查询：格子内是否存在指定阵营的怪物。
     /// </summary>
-    public bool HasMonsterOfType(MonsterIdentityManager.MonsterType type)
+    public bool HasMonsterOfFaction(MonsterIdentityManager.MonsterFaction faction)
     {
         PruneInactiveMonsters();
-        return monstersInside.Any(m => m != null && m.type == type);
+        return monstersInside.Any(m => m != null && m.faction == faction);
     }
 
     /// <summary>
