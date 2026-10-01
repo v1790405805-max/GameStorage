@@ -36,6 +36,10 @@ public class MonsterIdentityManager : MonoBehaviour
     [Tooltip("业务层唯一标识，格式为 类型_序号（如 Skeleton_1），由MonsterSystem在注册时自动生成，无需手动填写。")]
     public string monsterId;
 
+    [Tooltip("仅 Dog 阵营有效。勾选后，该怪物会被识别为狗首领；Crocodile 会自动清除此标记。")]
+    [SerializeField]
+    private bool isDogLeader = false;
+
     [Header("敌对阵营")]
     [Tooltip("勾选后的阵营是本怪物的敌对阵营。当前怪物自身阵营会由编辑器锁定，不能勾选。")]
     [SerializeField]
@@ -51,6 +55,7 @@ public class MonsterIdentityManager : MonoBehaviour
 
     public bool CanTraverseSpecialTerrain => canTraverseSpecialTerrain;
     public HostileFactionFlags HostileFactions => hostileFactions;
+    public bool IsDogLeader => faction == MonsterFaction.Dog && isDogLeader;
 
     /// <summary>
     /// 把单个怪物阵营转换为敌对集合中的位标志。
@@ -102,6 +107,7 @@ public class MonsterIdentityManager : MonoBehaviour
     {
         MigrateLegacyFaction();
         EnsureHostileFactionConfiguration();
+        EnsureDogLeaderConfiguration();
     }
 
 #if UNITY_EDITOR
@@ -109,6 +115,7 @@ public class MonsterIdentityManager : MonoBehaviour
     {
         MigrateLegacyFaction();
         EnsureHostileFactionConfiguration();
+        EnsureDogLeaderConfiguration();
     }
 #endif
 
@@ -117,7 +124,9 @@ public class MonsterIdentityManager : MonoBehaviour
         hostileFactions =
             HostileFactionFlags.Dog | HostileFactionFlags.Crocodile | HostileFactionFlags.Player;
         hostileFactionsInitialized = true;
+        isDogLeader = false;
         EnsureHostileFactionConfiguration();
+        EnsureDogLeaderConfiguration();
     }
 
     protected virtual void OnEnable()
@@ -160,5 +169,16 @@ public class MonsterIdentityManager : MonoBehaviour
         }
 
         hostileFactions &= ~GetFactionFlag(faction);
+    }
+
+    /// <summary>
+    /// 狗首领标记只在 Dog 阵营有效，阵营为 Crocodile 时强制清除。
+    /// </summary>
+    public void EnsureDogLeaderConfiguration()
+    {
+        if (faction != MonsterFaction.Dog)
+        {
+            isDogLeader = false;
+        }
     }
 }

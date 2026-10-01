@@ -34224,6 +34224,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterManager
   faction: 1
   monsterId: 
+  isDogLeader: 0
   hostileFactions: 5
   canTraverseSpecialTerrain: 1
   hostileFactionsInitialized: 1
@@ -47510,6 +47511,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterManager
   faction: 0
   monsterId: 
+  isDogLeader: 1
   hostileFactions: 6
   canTraverseSpecialTerrain: 0
   hostileFactionsInitialized: 1
@@ -81570,6 +81572,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterManager
   faction: 0
   monsterId: 
+  isDogLeader: 0
   hostileFactions: 6
   canTraverseSpecialTerrain: 0
   hostileFactionsInitialized: 1
@@ -92334,6 +92337,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterManager
   faction: 0
   monsterId: 
+  isDogLeader: 0
   hostileFactions: 6
   canTraverseSpecialTerrain: 0
   hostileFactionsInitialized: 1
@@ -161886,6 +161890,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterManager
   faction: 0
   monsterId: 
+  isDogLeader: 0
   hostileFactions: 6
   canTraverseSpecialTerrain: 0
   hostileFactionsInitialized: 1
