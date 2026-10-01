@@ -75128,7 +75128,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: 5fb247fa6294c75458941a2f4e0346bc, type: 2}
   m_Color: {r: 1, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -91363,7 +91363,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1088867545}
   m_LocalRotation: {x: 0.27984518, y: 0.3647056, z: -0.11591566, w: 0.88047725}
-  m_LocalPosition: {x: 0, y: 0, z: -0.24999997}
+  m_LocalPosition: {x: 0, y: 0, z: -0.22999999}
   m_LocalScale: {x: 0.015, y: 0.015, z: 0.015000001}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -91374,7 +91374,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: -0.24999997, y: -0.20999995}
+  m_AnchoredPosition: {x: -0.22999999, y: -0.16999999}
   m_SizeDelta: {x: 1920, y: 1080}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1088867547
@@ -152670,7 +152670,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: 5fb247fa6294c75458941a2f4e0346bc, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -158388,7 +158388,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: 5fb247fa6294c75458941a2f4e0346bc, type: 2}
   m_Color: {r: 1, g: 0.77308184, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -192357,15 +192357,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 215629673157353421, guid: c3ab56b206854114e8794ab72cedd792, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.22
+      value: 0.24
       objectReference: {fileID: 0}
     - target: {fileID: 215629673157353421, guid: c3ab56b206854114e8794ab72cedd792, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.74
+      value: 0.78
       objectReference: {fileID: 0}
     - target: {fileID: 215629673157353421, guid: c3ab56b206854114e8794ab72cedd792, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.22
+      value: 0.24
       objectReference: {fileID: 0}
     - target: {fileID: 215629673157353421, guid: c3ab56b206854114e8794ab72cedd792, type: 3}
       propertyPath: m_LocalRotation.w
