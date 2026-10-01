@@ -10,16 +10,19 @@ public class GenericVFXSpawner : MonoBehaviour
     [System.Serializable]
     public class VFXEntry
     {
-        [Tooltip("特效标识符，需与动画事件中填写的 String 一致")]
+        [Tooltip("特效标识符，需与卡牌或动画事件中填写的名称一致")]
         public string vfxName;
 
         [Tooltip("特效预制体")]
         public GameObject vfxPrefab;
 
-        [Tooltip("生成位置的骨骼节点（如剑刃、手掌）。如果留空，则默认在角色脚底/中心生成")]
+        [Tooltip("生成位置的挂点（如 Sword Slash Shooter / Stab Shooter）。仅取其世界坐标")]
         public Transform customSpawnPoint;
 
-        [Tooltip("是否作为子物体生成？（如果是光环、护盾，需要跟随角色移动，请勾选；如果是留在原地的刀光/爆炸，不勾选）")]
+        [Tooltip("针对该特效的旋转角度微调（应对不同美术粒子的初始朝向差异）")]
+        public Vector3 rotationOffset = Vector3.zero;
+
+        [Tooltip("是否作为子物体跟随角色？")]
         public bool attachToTransform = false;
 
         [Tooltip("多少秒后自动销毁该特效？")]
@@ -29,27 +32,25 @@ public class GenericVFXSpawner : MonoBehaviour
     [Header("角色的特效库")]
     public List<VFXEntry> vfxList = new List<VFXEntry>();
 
-    // 存储当前打出卡牌所登记的待播特效队列
-    private readonly List<string> pendingVFXQueue = new List<string>();
+    private struct PendingVFXData
+    {
+        public string vfxName;
+        public Vector2Int? targetGrid;
+    }
+
+    private readonly List<PendingVFXData> pendingVFXQueue = new List<PendingVFXData>();
     private Coroutine fallbackCoroutine;
 
-    /// <summary>
-    /// 供 CardVFXCore 注册待播放的特效
-    /// </summary>
-    public void RegisterPendingVFX(string vfxName)
+    public void RegisterPendingVFX(string vfxName, Vector2Int? targetGrid = null)
     {
         if (string.IsNullOrEmpty(vfxName)) return;
 
-        pendingVFXQueue.Add(vfxName);
+        pendingVFXQueue.Add(new PendingVFXData { vfxName = vfxName, targetGrid = targetGrid });
 
-        // 启动 0.5s 保底：如果动画片段忘了加事件，0.5秒后强制触发，防止特效丢失
         if (fallbackCoroutine != null) StopCoroutine(fallbackCoroutine);
         fallbackCoroutine = StartCoroutine(FallbackTriggerRoutine());
     }
 
-    /// <summary>
-    /// 清空待播放队列
-    /// </summary>
     public void ClearPendingVFX()
     {
         pendingVFXQueue.Clear();
@@ -60,13 +61,8 @@ public class GenericVFXSpawner : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 供动画事件（Animation Event）调用的通用方法
-    /// </summary>
-    /// <param name="eventName">动画帧填写的特效标识符或通用信号（如 "OnHit", "OnAction"）</param>
     public void PlayVFX(string eventName)
     {
-        // 1. 如果有卡牌登记的待播特效，优先消耗卡牌队列
         if (pendingVFXQueue.Count > 0)
         {
             if (fallbackCoroutine != null)
@@ -75,20 +71,19 @@ public class GenericVFXSpawner : MonoBehaviour
                 fallbackCoroutine = null;
             }
 
-            List<string> toPlay = new List<string>(pendingVFXQueue);
+            List<PendingVFXData> toPlay = new List<PendingVFXData>(pendingVFXQueue);
             pendingVFXQueue.Clear();
 
-            foreach (string vfxName in toPlay)
+            foreach (var item in toPlay)
             {
-                SpawnVFX(vfxName);
+                SpawnVFX(item.vfxName, item.targetGrid);
             }
             return;
         }
 
-        // 2. 如果队列为空，且动画事件指定了独立特效名，直接播放
         if (!string.IsNullOrEmpty(eventName) && eventName != "OnHit" && eventName != "OnAction")
         {
-            SpawnVFX(eventName);
+            SpawnVFX(eventName, null);
         }
     }
 
@@ -97,12 +92,12 @@ public class GenericVFXSpawner : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
         if (pendingVFXQueue.Count > 0)
         {
-            Debug.LogWarning("[GenericVFXSpawner] 角色动作已播放，但未检测到 Animation Event！已自动保底播放特效。请检查当前动作切片是否添加了事件。");
+            Debug.LogWarning("[GenericVFXSpawner] 角色动作已播放，但未检测到 Animation Event！已自动保底播放特效。");
             PlayVFX("Fallback");
         }
     }
 
-    private void SpawnVFX(string vfxName)
+    private void SpawnVFX(string vfxName, Vector2Int? targetGrid)
     {
         foreach (var entry in vfxList)
         {
@@ -110,16 +105,40 @@ public class GenericVFXSpawner : MonoBehaviour
             {
                 if (entry.vfxPrefab == null) return;
 
-                Transform spawnTransform = entry.customSpawnPoint != null ? entry.customSpawnPoint : transform;
-                GameObject vfxInstance;
+                Transform spawnPoint = entry.customSpawnPoint != null ? entry.customSpawnPoint : transform;
 
+                Vector3 finalPosition = spawnPoint.position;
+                Quaternion finalRotation = spawnPoint.rotation;
+
+                // 统一四向朝向计算
+                if (targetGrid.HasValue)
+                {
+                    float yawAngle = Calculate4DirectionYaw(targetGrid.Value);
+                    Quaternion yawRotation = Quaternion.Euler(0f, yawAngle, 0f);
+
+                    // 1. 发射点位置绕角色中心做步进旋转
+                    Vector3 worldOffset = spawnPoint.position - transform.position;
+                    finalPosition = transform.position + (yawRotation * worldOffset);
+
+                    // 2. 特效朝向：纯净对齐四向，并叠加该特效专用的 rotationOffset
+                    finalRotation = yawRotation * Quaternion.Euler(entry.rotationOffset);
+                }
+
+                GameObject vfxInstance;
                 if (entry.attachToTransform)
                 {
-                    vfxInstance = Instantiate(entry.vfxPrefab, spawnTransform.position, spawnTransform.rotation, spawnTransform);
+                    vfxInstance = Instantiate(entry.vfxPrefab, finalPosition, finalRotation, spawnPoint);
                 }
                 else
                 {
-                    vfxInstance = Instantiate(entry.vfxPrefab, spawnTransform.position, spawnTransform.rotation);
+                    vfxInstance = Instantiate(entry.vfxPrefab, finalPosition, finalRotation);
+                }
+
+                // 保持层级高于角色，防止被遮挡
+                Renderer[] renderers = vfxInstance.GetComponentsInChildren<Renderer>(true);
+                foreach (Renderer r in renderers)
+                {
+                    r.sortingOrder = Mathf.Max(150, r.sortingOrder + 105);
                 }
 
                 if (entry.destroyTime > 0)
@@ -131,5 +150,29 @@ public class GenericVFXSpawner : MonoBehaviour
         }
 
         Debug.LogWarning($"[GenericVFXSpawner] 未能在特效库中找到名为 '{vfxName}' 的特效配置！");
+    }
+
+    private float Calculate4DirectionYaw(Vector2Int targetGrid)
+    {
+        GridManager gridMgr = FindFirstObjectByType<GridManager>();
+        if (gridMgr == null) return 0f;
+
+        CellManager targetCell = gridMgr.GetCellManagerAt(targetGrid.x, targetGrid.y);
+        if (targetCell == null) return 0f;
+
+        Vector3 dir = targetCell.transform.position - transform.position;
+        dir.y = 0f;
+
+        if (dir == Vector3.zero) return 0f;
+
+        // 斜45度标准四向步进
+        if (Mathf.Abs(dir.x) >= Mathf.Abs(dir.z))
+        {
+            return dir.x > 0 ? 0f : 180f;   // 右下 (+X) / 左上 (-X)
+        }
+        else
+        {
+            return dir.z > 0 ? 270f : 90f;  // 右上 (+Z) / 左下 (-Z)
+        }
     }
 }

@@ -2,6 +2,16 @@ using System;
 using UnityEngine;
 
 /// <summary>
+/// 特效触发时机枚举
+/// </summary>
+public enum VFXTiming
+{
+    Auto,           // 自动判断：卡牌带动作则等动作发力点，无动作则立即播放
+    Instant,        // 强制立即触发（出牌瞬间生成，适用于护盾、回血）
+    OnAnimationHit  // 强制动作发力点触发（等待动画事件）
+}
+
+/// <summary>
 /// 卡牌特效基类。
 /// 负责管理 CardData.vfxEffects 中挂载的特效脚本。
 /// </summary>
@@ -9,19 +19,21 @@ public abstract class CardVFXCore : ScriptableObject
 {
     protected abstract string VFXName { get; }
 
+    public virtual VFXTiming Timing => VFXTiming.Auto;
+
     public virtual bool Execute(CardData card, Vector2Int targetGrid)
     {
-        // 核心解耦：只要卡牌配置了任何角色动作（如挥刀、举盾、施法），
-        // 特效便自动进入队列，等待动作播放到发力帧击发！
         bool hasAnimation = card != null && card.animationEffects != null && card.animationEffects.Count > 0;
+        bool isHitTiming = Timing == VFXTiming.OnAnimationHit ||
+                           (Timing == VFXTiming.Auto && hasAnimation);
 
-        if (hasAnimation)
+        if (isHitTiming)
         {
-            return RegisterToSpawnerQueue();
+            // 将特效与目标格子一同登记到角色的待命队列
+            return RegisterToSpawnerQueue(targetGrid);
         }
         else
         {
-            // 没有任何角色动作的卡（纯即时法术/抽牌），出牌瞬间直接播放
             return PlayConfiguredVFXImmediately();
         }
     }
@@ -30,7 +42,6 @@ public abstract class CardVFXCore : ScriptableObject
     {
         if (card == null || card.vfxEffects == null) return;
 
-        // 若当前卡牌含有动作，打出前先重置上一次动作可能残留的特效队列
         bool hasAnimation = card.animationEffects != null && card.animationEffects.Count > 0;
         if (hasAnimation)
         {
@@ -63,7 +74,7 @@ public abstract class CardVFXCore : ScriptableObject
         }
     }
 
-    private bool RegisterToSpawnerQueue()
+    private bool RegisterToSpawnerQueue(Vector2Int targetGrid)
     {
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj == null) return false;
@@ -71,7 +82,7 @@ public abstract class CardVFXCore : ScriptableObject
         GenericVFXSpawner vfxSpawner = playerObj.GetComponent<GenericVFXSpawner>();
         if (vfxSpawner == null) return false;
 
-        vfxSpawner.RegisterPendingVFX(VFXName);
+        vfxSpawner.RegisterPendingVFX(VFXName, targetGrid);
         return true;
     }
 
