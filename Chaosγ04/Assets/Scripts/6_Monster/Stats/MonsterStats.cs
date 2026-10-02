@@ -20,6 +20,7 @@ public class MonsterStats : MonoBehaviour, IDamageable
 
     // 怪物死亡事件（供战斗结算器监听）
     public static event Action OnAnyMonsterDied;
+    public static event Action<MonsterIdentityManager> PlayerAttackedMonster;
 
     private MonsterHateSystem hateSystem;
 
@@ -85,6 +86,15 @@ public class MonsterStats : MonoBehaviour, IDamageable
         }
 
         RegisterHitHate(attacker);
+
+        if (playerAttributed)
+        {
+            MonsterIdentityManager identity = GetComponent<MonsterIdentityManager>();
+            if (identity != null)
+            {
+                PlayerAttackedMonster?.Invoke(identity);
+            }
+        }
 
         // 3. 死亡判定
         if (currentHp <= 0)

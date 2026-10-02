@@ -115,6 +115,11 @@ public sealed class MonsterHateSystem : MonoBehaviour
         }
     }
 
+    public void AddBaselineHateForPlayer(int amount)
+    {
+        AddBaselineHate(PlayerTargetKey, amount);
+    }
+
     public List<MonsterTarget> GetHostileTargets(GridManager gridManager)
     {
         List<MonsterTarget> targets = new List<MonsterTarget>();
