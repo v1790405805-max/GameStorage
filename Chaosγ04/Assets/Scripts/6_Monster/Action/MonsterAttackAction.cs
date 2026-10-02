@@ -1,22 +1,11 @@
-using System.Linq;
 using UnityEngine;
 
 /// <summary>
-/// 怪物攻击动作：检测攻击范围内是否存在敌对单位，若 Player 在攻击范围内则触发攻击动画并进行数值结算
-///
-/// 【职责边界】本类只负责：
-/// 1) 判断是否满足发起攻击的条件（相邻、视野等）
-/// 2) 触发攻击动画
-/// 3) 把"攻击"这一动作及其初始伤害数值（attackDamage）连同攻击者所在格坐标
-///    交给 PlayerOrientationDamageController 去处理
-/// 本类完全不参与伤害减免的计算，也不直接决定玩家最终掉多少血。
+/// Monster attack action. The attack target is selected by MonsterHateSystem and may be
+/// the player or any other hostile-faction monster. Leave decisions suppress this action.
 /// </summary>
 public class MonsterAttackAction : MonsterActionBase
 {
-    [Header("Attack Range")]
-    [Tooltip("攻击距离，按 XZ 网格曼哈顿距离计算，1 表示上下左右相邻格。")]
-    [SerializeField, Min(1)] private int attackRange = 1;
-
     [Header("网格管理器引用")]
     public GridManager gridManager;
 
@@ -24,26 +13,44 @@ public class MonsterAttackAction : MonsterActionBase
     public Animator monsterAnimator;
 
     [Header("动画参数配置")]
-    [Tooltip("触发攻击的 Animator Trigger 变量名")]
     public string attackTriggerName = "Attack";
 
-    [Header("怪物数值配置")]
-    [Tooltip("怪物攻击力（未经任何减免的初始数值）")]
-    public int attackDamage = 5;
-
     private MonsterIdentityManager selfIdentity;
+    private MonsterHateSystem hateSystem;
+    private MonsterStats monsterStats;
+    private bool suppressedForTurn;
 
-    public int AttackRange => attackRange;
+    public int AttackRange => monsterStats != null ? monsterStats.attackRange : 0;
+    public int AttackDamage => monsterStats != null ? monsterStats.attackDamage : 0;
 
     private void Awake()
     {
         selfIdentity = GetComponent<MonsterIdentityManager>();
+        monsterStats = GetComponent<MonsterStats>();
+        hateSystem = MonsterHateSystem.EnsureOn(selfIdentity);
         EnsureGridManager();
     }
 
     public override bool CanExecute(MonsterActionContext context)
     {
-        return context != null && context.HasHostileInAttackRangeNow(attackRange);
+        if (suppressedForTurn || context == null)
+        {
+            return false;
+        }
+
+        EnsureGridManager();
+        EnsureHateSystem();
+        EnsureMonsterStats();
+        if (gridManager == null ||
+            selfIdentity == null ||
+            hateSystem == null ||
+            monsterStats == null ||
+            AttackRange <= 0)
+        {
+            return false;
+        }
+
+        return TrySelectAttackTarget(out _, out _);
     }
 
     public override void OnSkipped()
@@ -56,87 +63,89 @@ public class MonsterAttackAction : MonsterActionBase
 
     protected override void OnStart()
     {
-        // 1. 确保 GridManager 存在
         EnsureGridManager();
-        if (gridManager == null)
+        EnsureHateSystem();
+        EnsureMonsterStats();
+
+        if (suppressedForTurn)
         {
-            Debug.LogError($"[{name}] MonsterAttackAction 无法找到场景中的 GridManager！");
             CompleteAction();
             return;
         }
+
+        if (gridManager == null || selfIdentity == null || hateSystem == null || monsterStats == null)
+        {
+            Debug.LogError($"[{name}] MonsterAttackAction 缺少 GridManager / MonsterIdentityManager / MonsterHateSystem / MonsterStats！");
+            CompleteAction();
+            return;
+        }
+
         gridManager.EnsureGridSystemInitialized();
 
-        // 2. 获取自身 (Monster) 所在的网格坐标 (X, Z)
-        (int monsterX, int monsterZ) = gridManager.GetGridPosition(transform.position);
-
-        // 检查自身是否处于有效网格内
-        if (!gridManager.IsValidGridPosition(monsterX, monsterZ))
-        {
-            Debug.LogWarning($"[{name}] 怪物当前位置不在有效的网格范围内！");
-            CompleteAction();
-            return;
-        }
-
-        // 3. 寻找场景中的 Player 及其坐标
-        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-        if (playerObj == null)
-        {
-            Debug.LogWarning($"[{name}] 场景中未找到 Tag 为 'Player' 的物体！");
-            CompleteAction();
-            return;
-        }
-        (int playerX, int playerZ) = gridManager.GetGridPosition(playerObj.transform.position);
-
-        // 3.5 可隐蔽片视野判定：怪物所在隐蔽片若不包含玩家所在格，则丢失视野，跳过攻击
-        CellManager monsterCell = FindMonsterCellInColumn(monsterX, monsterZ);
-        if (!ConcealmentCell.CanMonsterSeePlayer(monsterCell))
+        if (!TrySelectAttackTarget(out MonsterTarget target, out _))
         {
             CompleteAction();
             return;
         }
 
-        // 4. 判定玩家是否位于攻击范围内
-        bool isInAttackRange = IsWithinAttackRange(monsterX, monsterZ, playerX, playerZ);
+        PlayAttackAnimation();
+        ResolveAttackDamage(target);
+        CompleteAction();
+    }
 
-        if (isInAttackRange)
+    public void SetSuppressedForTurn(bool suppressed)
+    {
+        suppressedForTurn = suppressed;
+    }
+
+    public void ResetTurnState()
+    {
+        suppressedForTurn = false;
+        if (monsterAnimator != null)
         {
-            // 满足攻击条件，触发攻击动画并结算伤害
-            PlayAttackAnimation();
-            ResolveAttackDamage();
-            CompleteAction();
-        }
-        else
-        {
-            // 不满足攻击条件，直接结束该动作
-            CompleteAction();
+            monsterAnimator.ResetTrigger(Animator.StringToHash(attackTriggerName));
         }
     }
 
-    /// <summary>
-    /// 在怪物所在列 (x, z) 的各层格子中定位怪物实际所在的格子。
-    /// 依赖 CellManager 的 Trigger 登记（与 MonsterMoveAction.TryGetMonsterCell 同方式）。
-    /// </summary>
-    private CellManager FindMonsterCellInColumn(int x, int z)
+    private bool TrySelectAttackTarget(out MonsterTarget target, out int distance)
     {
-        foreach (CellManager cell in gridManager.GetCellManagersInColumn(x, z))
+        target = null;
+        distance = int.MaxValue;
+        if (gridManager == null || selfIdentity == null || hateSystem == null || monsterStats == null)
         {
-            if (cell != null && cell.GetMonstersInside().Contains(selfIdentity))
-            {
-                return cell;
-            }
+            return false;
         }
-        return null;
-    }
 
-    /// <summary>
-    /// 判断目标是否位于攻击范围内（曼哈顿距离大于 0 且不超过 attackRange）
-    /// </summary>
-    private bool IsWithinAttackRange(int x1, int z1, int x2, int z2)
-    {
-        int deltaX = Mathf.Abs(x1 - x2);
-        int deltaZ = Mathf.Abs(z1 - z2);
-        int distance = deltaX + deltaZ;
-        return distance > 0 && distance <= attackRange;
+        CellManager selfCell = MonsterPathfinding.FindMonsterCell(gridManager, selfIdentity);
+        if (selfCell == null)
+        {
+            return false;
+        }
+
+        bool includePlayer = ConcealmentCell.CanMonsterSeePlayer(selfCell);
+        if (hateSystem.TrySelectTarget(
+            gridManager,
+            AttackRange,
+            includePlayer,
+            out target,
+            out distance,
+            out _))
+        {
+            return true;
+        }
+
+        if (includePlayer)
+        {
+            return hateSystem.TrySelectTarget(
+              gridManager,
+              AttackRange,
+              false,
+              out target,
+              out distance,
+              out _);
+        }
+
+        return false;
     }
 
     private void EnsureGridManager()
@@ -147,58 +156,80 @@ public class MonsterAttackAction : MonsterActionBase
         }
     }
 
-    private void PlayAttackAnimation()
+    private void EnsureHateSystem()
     {
-        if (monsterAnimator != null)
+        if (hateSystem == null)
         {
-            int attackTriggerHash = Animator.StringToHash(attackTriggerName);
-            monsterAnimator.ResetTrigger(attackTriggerHash);
-            monsterAnimator.SetTrigger(attackTriggerHash);
-        }
-        else
-        {
-            Debug.LogWarning($"[{name}] MonsterAnimator 未关联，跳过攻击动画。");
+            hateSystem = MonsterHateSystem.EnsureOn(selfIdentity);
         }
     }
 
-    /// <summary>
-    /// 只传出"攻击"这一动作的初始伤害数值（attackDamage）
-    /// 以及攻击者所在格坐标（用于朝向判定），具体减免多少、
-    /// 最终扣多少血完全不在本类关心范围内。
-    /// </summary>
-    private void ResolveAttackDamage()
+    private void EnsureMonsterStats()
     {
-        if (gridManager != null)
+        if (monsterStats == null)
         {
-            gridManager.EnsureGridSystemInitialized();
-            (int monsterX, int monsterZ) = gridManager.GetGridPosition(transform.position);
+            monsterStats = GetComponent<MonsterStats>();
+        }
+    }
 
+    private void PlayAttackAnimation()
+    {
+        if (monsterAnimator == null)
+        {
+            Debug.LogWarning($"[{name}] MonsterAnimator 未关联，跳过攻击动画。");
+            return;
+        }
+
+        int attackTriggerHash = Animator.StringToHash(attackTriggerName);
+        monsterAnimator.ResetTrigger(attackTriggerHash);
+        monsterAnimator.SetTrigger(attackTriggerHash);
+    }
+
+    private void ResolveAttackDamage(MonsterTarget target)
+    {
+        (int monsterX, int monsterZ) = gridManager.GetGridPosition(transform.position);
+        Vector2Int attackerGrid = new Vector2Int(monsterX, monsterZ);
+
+        if (target.IsPlayer)
+        {
             if (PlayerOrientationDamageController.Instance != null)
             {
                 PlayerOrientationDamageController.Instance.ResolveMonsterAttack(
-                    attackDamage, new Vector2Int(monsterX, monsterZ), selfIdentity);
+                  AttackDamage,
+                  attackerGrid,
+                  selfIdentity);
             }
             else if (CombatStatsManager.Instance != null)
             {
-                // 兜底：找不到朝向减免控制器时，按原始伤害直接结算
-                CombatStatsManager.Instance.TakeDamage(attackDamage);
+                CombatStatsManager.Instance.TakeDamage(AttackDamage);
             }
+            return;
         }
-        else if (PlayerOrientationDamageController.Instance != null)
+
+        if (target.Monster == null)
         {
-            // 没有格坐标信息（理论上不会走到这里），交给减免控制器按无方位处理
-            PlayerOrientationDamageController.Instance.ResolveMonsterAttack(attackDamage, null, selfIdentity);
+            return;
         }
-        else if (CombatStatsManager.Instance != null)
+
+        MonsterStats targetStats = target.Monster.GetComponent<MonsterStats>();
+        if (targetStats == null)
         {
-            CombatStatsManager.Instance.TakeDamage(attackDamage);
+            targetStats = target.Monster.GetComponentInChildren<MonsterStats>();
         }
+
+        if (targetStats == null)
+        {
+            Debug.LogWarning($"[{name}] 攻击目标 [{target.DisplayName}] 缺少 MonsterStats 组件。");
+            return;
+        }
+
+        targetStats.TakeDamage(AttackDamage, selfIdentity);
     }
 
     public override void CancelAction()
     {
         base.CancelAction();
-        // 被打断或取消时清除尚未消费的攻击 Trigger
+
         if (monsterAnimator != null)
         {
             monsterAnimator.ResetTrigger(Animator.StringToHash(attackTriggerName));

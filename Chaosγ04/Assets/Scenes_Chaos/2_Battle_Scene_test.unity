@@ -34114,6 +34114,7 @@ GameObject:
   - component: {fileID: 384918149}
   - component: {fileID: 384918152}
   - component: {fileID: 384918147}
+  - component: {fileID: 384918153}
   - component: {fileID: 384918150}
   - component: {fileID: 384918148}
   - component: {fileID: 384918151}
@@ -34138,6 +34139,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterActionManager
   startDelay: 0.2
   actionSequence:
+  - action: {fileID: 384918153}
   - action: {fileID: 384918150}
   - action: {fileID: 384918148}
 --- !u!114 &384918148
@@ -34153,11 +34155,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackAction
   postActionDelay: 0.5
-  attackRange: 1
   gridManager: {fileID: 1996419300}
   monsterAnimator: {fileID: 3143698802893842853}
   attackTriggerName: Attack
-  attackDamage: 15
 --- !u!4 &384918149
 Transform:
   m_ObjectHideFlags: 0
@@ -34188,7 +34188,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterMoveManager
   postActionDelay: 0.2
-  mobility: 2
   stepDuration: 1
   pauseBeforeFacePlayer: 0.05
   gridManager: {fileID: 1996419300}
@@ -34211,6 +34210,9 @@ MonoBehaviour:
   maxHp: 15
   currentHp: 0
   currentBlock: 0
+  mobility: 2
+  attackRange: 1
+  attackDamage: 12
 --- !u!114 &384918152
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -34229,6 +34231,23 @@ MonoBehaviour:
   hostileFactions: 5
   canTraverseSpecialTerrain: 1
   hostileFactionsInitialized: 1
+--- !u!114 &384918153
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 384918146}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fbb6b6bb22c4ee894d93a2c5a63204c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterLeaveAction
+  postActionDelay: 0.5
+  hostileCountThreshold: 1
+  moveAction: {fileID: 384918150}
+  attackAction: {fileID: 384918148}
+  gridManager: {fileID: 1996419300}
 --- !u!21 &385382864
 Material:
   serializedVersion: 8
@@ -47406,7 +47425,7 @@ GameObject:
   - component: {fileID: 556471847}
   - component: {fileID: 556471850}
   m_Layer: 0
-  m_Name: Dog_4
+  m_Name: Dog_Leader
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -47441,11 +47460,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackAction
   postActionDelay: 0.5
-  attackRange: 1
   gridManager: {fileID: 1996419300}
   monsterAnimator: {fileID: 7080626493093617588}
   attackTriggerName: Tear
-  attackDamage: 15
 --- !u!4 &556471848
 Transform:
   m_ObjectHideFlags: 0
@@ -47476,7 +47493,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterMoveManager
   postActionDelay: 0.2
-  mobility: 2
   stepDuration: 0.5
   pauseBeforeFacePlayer: 0.05
   gridManager: {fileID: 1996419300}
@@ -47499,6 +47515,9 @@ MonoBehaviour:
   maxHp: 15
   currentHp: 0
   currentBlock: 0
+  mobility: 2
+  attackRange: 1
+  attackDamage: 8
 --- !u!114 &556471851
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -81503,11 +81522,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackAction
   postActionDelay: 0.5
-  attackRange: 1
   gridManager: {fileID: 1996419300}
   monsterAnimator: {fileID: 1232584861}
   attackTriggerName: Tear
-  attackDamage: 15
 --- !u!4 &983314784
 Transform:
   m_ObjectHideFlags: 0
@@ -81538,7 +81555,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterMoveManager
   postActionDelay: 0.2
-  mobility: 2
   stepDuration: 0.5
   pauseBeforeFacePlayer: 0.05
   gridManager: {fileID: 1996419300}
@@ -81561,6 +81577,9 @@ MonoBehaviour:
   maxHp: 15
   currentHp: 0
   currentBlock: 0
+  mobility: 2
+  attackRange: 1
+  attackDamage: 8
 --- !u!114 &983314787
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -92269,11 +92288,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackAction
   postActionDelay: 0.5
-  attackRange: 1
   gridManager: {fileID: 1996419300}
   monsterAnimator: {fileID: 1048001019}
   attackTriggerName: Tear
-  attackDamage: 15
 --- !u!4 &1096482200
 Transform:
   m_ObjectHideFlags: 0
@@ -92304,7 +92321,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterMoveManager
   postActionDelay: 0.2
-  mobility: 2
   stepDuration: 0.5
   pauseBeforeFacePlayer: 0.05
   gridManager: {fileID: 1996419300}
@@ -92327,6 +92343,9 @@ MonoBehaviour:
   maxHp: 15
   currentHp: 0
   currentBlock: 0
+  mobility: 2
+  attackRange: 1
+  attackDamage: 8
 --- !u!114 &1096482203
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -131630,11 +131649,11 @@ MonoBehaviour:
   - {fileID: 1860863964}
   - {fileID: 4698892105571456326}
   enemyBehaviours:
+  - {fileID: 556471846}
+  - {fileID: 384918147}
   - {fileID: 983314782}
   - {fileID: 1096482198}
   - {fileID: 1949179980}
-  - {fileID: 556471846}
-  - {fileID: 384918147}
 --- !u!4 &1569729689
 Transform:
   m_ObjectHideFlags: 0
@@ -161823,11 +161842,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackAction
   postActionDelay: 0.5
-  attackRange: 1
   gridManager: {fileID: 1996419300}
   monsterAnimator: {fileID: 176702011}
   attackTriggerName: Tear
-  attackDamage: 15
 --- !u!4 &1949179982
 Transform:
   m_ObjectHideFlags: 0
@@ -161858,7 +161875,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterMoveManager
   postActionDelay: 0.2
-  mobility: 2
   stepDuration: 0.5
   pauseBeforeFacePlayer: 0.05
   gridManager: {fileID: 1996419300}
@@ -161881,6 +161897,9 @@ MonoBehaviour:
   maxHp: 15
   currentHp: 0
   currentBlock: 0
+  mobility: 2
+  attackRange: 1
+  attackDamage: 8
 --- !u!114 &1949179985
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -192421,10 +192440,10 @@ SceneRoots:
   - {fileID: 1486800798852349202}
   - {fileID: 1996419297}
   - {fileID: 1860863962}
+  - {fileID: 556471848}
   - {fileID: 983314784}
   - {fileID: 1096482200}
   - {fileID: 1949179982}
-  - {fileID: 556471848}
   - {fileID: 384918149}
   - {fileID: 3888395638843745667}
   - {fileID: 2139297592}

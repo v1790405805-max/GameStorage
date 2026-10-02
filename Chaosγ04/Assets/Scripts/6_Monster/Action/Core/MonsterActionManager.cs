@@ -25,6 +25,8 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
     private Coroutine sequenceCoroutine;
     private MonsterIdentityManager selfIdentity;
     private MonsterAttackAction attackAction;
+    private MonsterMoveAction moveAction;
+    private MonsterLeaveAction leaveAction;
     private GridManager gridManager;
 
     public event Action OnSequenceStarted;
@@ -38,6 +40,7 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
     private void Awake()
     {
         ResolveReferences();
+        EnsureLeaveActionInSequence();
     }
 
     private void OnEnable()
@@ -86,6 +89,8 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
             OnSequenceFinished?.Invoke();
             return;
         }
+
+        ResetTurnDecisionState();
 
         MonsterActionContext context = BuildActionContext();
         sequenceCoroutine = StartCoroutine(ExecuteSequenceRoutine(context));
@@ -177,10 +182,16 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
     {
         if (isExecuting) return;
         actionSequence = steps ?? new List<MonsterActionStep>();
+        EnsureLeaveActionInSequence();
     }
 
     public void AddAction(MonsterActionBase action)
     {
+        if (actionSequence == null)
+        {
+            actionSequence = new List<MonsterActionStep>();
+        }
+
         if (action != null)
         {
             actionSequence.Add(new MonsterActionStep
@@ -188,6 +199,8 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
                 action = action
             });
         }
+
+        EnsureLeaveActionInSequence();
     }
 
     public void ClearActions()
@@ -220,6 +233,40 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
             }
         }
 
+        if (moveAction == null)
+        {
+            moveAction = GetComponent<MonsterMoveAction>();
+            if (moveAction == null && actionSequence != null)
+            {
+                for (int i = 0; i < actionSequence.Count; i++)
+                {
+                    MonsterActionStep step = actionSequence[i];
+                    if (step != null && step.action is MonsterMoveAction candidate)
+                    {
+                        moveAction = candidate;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (leaveAction == null)
+        {
+            leaveAction = GetComponent<MonsterLeaveAction>();
+            if (leaveAction == null && actionSequence != null)
+            {
+                for (int i = 0; i < actionSequence.Count; i++)
+                {
+                    MonsterActionStep step = actionSequence[i];
+                    if (step != null && step.action is MonsterLeaveAction candidate)
+                    {
+                        leaveAction = candidate;
+                        break;
+                    }
+                }
+            }
+        }
+
         if (gridManager == null)
         {
             gridManager = attackAction != null ? attackAction.gridManager : null;
@@ -228,6 +275,104 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
                 gridManager = FindFirstObjectByType<GridManager>();
             }
         }
+    }
+
+    public int GetActionIndex(MonsterActionBase action)
+    {
+        if (action == null || actionSequence == null)
+        {
+            return -1;
+        }
+
+        for (int i = 0; i < actionSequence.Count; i++)
+        {
+            if (actionSequence[i] != null && actionSequence[i].action == action)
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    public T GetActionOfType<T>() where T : MonsterActionBase
+    {
+        if (actionSequence != null)
+        {
+            for (int i = 0; i < actionSequence.Count; i++)
+            {
+                if (actionSequence[i] != null && actionSequence[i].action is T candidate)
+                {
+                    return candidate;
+                }
+            }
+        }
+
+        return GetComponent<T>();
+    }
+
+    private void ResetTurnDecisionState()
+    {
+        if (moveAction != null)
+        {
+            moveAction.ResetTurnState();
+        }
+
+        if (attackAction != null)
+        {
+            attackAction.ResetTurnState();
+        }
+    }
+
+    private void EnsureLeaveActionInSequence()
+    {
+        // 只在已经引用 MonsterLeaveAction 时把它移动到序列最前面；不自动创建组件或插入动作。
+        if (actionSequence == null)
+        {
+            return;
+        }
+
+        if (leaveAction == null)
+        {
+            for (int i = 0; i < actionSequence.Count; i++)
+            {
+                MonsterActionStep step = actionSequence[i];
+                if (step != null && step.action is MonsterLeaveAction candidate)
+                {
+                    leaveAction = candidate;
+                    break;
+                }
+            }
+        }
+
+        if (leaveAction == null)
+        {
+            return;
+        }
+
+        int leaveIndex = GetActionIndex(leaveAction);
+        if (leaveIndex < 0)
+        {
+            return;
+        }
+
+        if (leaveIndex == 0)
+        {
+            return;
+        }
+
+        for (int i = actionSequence.Count - 1; i >= 0; i--)
+        {
+            if (actionSequence[i] != null && actionSequence[i].action == leaveAction)
+            {
+                actionSequence.RemoveAt(i);
+            }
+        }
+
+        actionSequence.Insert(0, new MonsterActionStep
+        {
+            action = leaveAction
+        });
     }
 
     private MonsterActionContext BuildActionContext()

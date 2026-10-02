@@ -186,7 +186,7 @@ public class MonsterAttackRangeVisualizer : MonoBehaviour
             }
 
             MonsterMoveAction moveAction = monster.GetComponent<MonsterMoveAction>();
-            if (moveAction == null || moveAction.mobility <= 0)
+            if (moveAction == null || moveAction.Mobility <= 0)
             {
                 continue;
             }
@@ -201,7 +201,7 @@ public class MonsterAttackRangeVisualizer : MonoBehaviour
                 CalculateReachableCells(
                     gridManager,
                     startCell,
-                    moveAction.mobility,
+                    moveAction.Mobility,
                     monster,
                     playerCell));
         }

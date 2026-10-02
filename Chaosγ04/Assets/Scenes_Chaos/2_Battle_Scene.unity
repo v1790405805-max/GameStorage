@@ -67924,7 +67924,6 @@ MonoBehaviour:
   gridManager: {fileID: 1996419300}
   monsterAnimator: {fileID: 2034091257}
   attackTriggerName: Attack
-  attackDamage: 5
 --- !u!114 &811627179
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -67937,7 +67936,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4723f864be834f44f9a28907aa57fe60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterMoveManager
-  mobility: 3
   stepDuration: 0.5
   pauseBeforeFacePlayer: 0.05
   gridManager: {fileID: 1996419300}
@@ -67975,6 +67973,9 @@ MonoBehaviour:
   maxHp: 20
   currentHp: 0
   currentBlock: 0
+  mobility: 3
+  attackRange: 1
+  attackDamage: 5
 --- !u!1 &812921968
 GameObject:
   m_ObjectHideFlags: 0

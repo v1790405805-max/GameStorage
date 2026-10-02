@@ -17,41 +17,58 @@ public static class MonsterTargetManager
 
         gridManager.EnsureGridSystemInitialized();
 
-        (int selfX, int selfZ) = gridManager.GetGridPosition(self.transform.position);
-        if (!gridManager.IsValidGridPosition(selfX, selfZ))
+        CellManager selfCell = MonsterPathfinding.FindMonsterCell(gridManager, self);
+        if (selfCell == null)
         {
             return false;
         }
 
-        for (int x = 0; x < gridManager.width; x++)
+        MonsterIdentitySystem monsterSystem = MonsterIdentitySystem.Instance;
+        if (monsterSystem != null)
         {
-            for (int z = 0; z < gridManager.height; z++)
+            foreach (MonsterIdentityManager other in monsterSystem.GetAllMonsters())
             {
-                int distance = Mathf.Abs(x - selfX) + Mathf.Abs(z - selfZ);
-                if (distance == 0 || distance > attackRange)
+                if (other == null ||
+                    other == self ||
+                    !other.gameObject.activeInHierarchy ||
+                    !self.IsHostileTo(other))
                 {
                     continue;
                 }
 
-                foreach (CellManager cell in gridManager.GetCellManagersInColumn(x, z))
+                CellManager targetCell = MonsterPathfinding.FindMonsterCell(gridManager, other);
+                if (targetCell == null)
                 {
-                    if (cell == null)
-                    {
-                        continue;
-                    }
+                    continue;
+                }
 
-                    if (cell.IsPlayerInside && self.IsHostileToPlayer())
-                    {
-                        return true;
-                    }
+                int distance = MonsterPathfinding.GetPathDistance(
+                    gridManager,
+                    self,
+                    selfCell,
+                    targetCell);
 
-                    foreach (MonsterIdentityManager other in cell.GetMonstersInside())
-                    {
-                        if (other != null && other != self && self.IsHostileTo(other))
-                        {
-                            return true;
-                        }
-                    }
+                if (distance > 0 && distance <= attackRange)
+                {
+                    return true;
+                }
+            }
+        }
+
+        if (self.IsHostileToPlayer())
+        {
+            CellManager playerCell = MonsterPathfinding.FindPlayerCell(gridManager);
+            if (playerCell != null)
+            {
+                int distance = MonsterPathfinding.GetPathDistance(
+                    gridManager,
+                    self,
+                    selfCell,
+                    playerCell);
+
+                if (distance > 0 && distance <= attackRange)
+                {
+                    return true;
                 }
             }
         }

@@ -213,7 +213,7 @@ public class TurnManager : MonoBehaviour
             MonsterAttackAction attackAction = monsterUI.GetComponentInParent<MonsterAttackAction>();
             if (attackAction != null)
             {
-                monsterUI.SetIntent(null, attackAction.attackDamage);
+                monsterUI.SetIntent(null, attackAction.AttackDamage);
             }
         }
 

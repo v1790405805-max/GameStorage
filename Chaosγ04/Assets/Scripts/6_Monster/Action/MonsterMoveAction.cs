@@ -1,49 +1,49 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 /// <summary>
-/// 怪物移动动作单元 (继承自 MonsterActionBase)
-/// 可直接拖入 MonsterActionManager 的动作序列列表中
+/// Monster movement action.
+///
+/// This action only moves the monster. A forced destination can be supplied by
+/// MonsterLeaveAction. When no forced destination exists, it chooses an approachable
+/// hostile target from the monster's hate state and moves as close as possible to it.
 /// </summary>
 public class MonsterMoveAction : MonsterActionBase
 {
-    // 【新增】对外暴露怪物是否处于移动动作中的状态
-    public bool MonsterIsMoving { get; private set; } = false;
+    public bool MonsterIsMoving { get; private set; }
 
     [Header("移动属性")]
-    [Tooltip("怪物在一回合内最多可以移动的格子数")]
-    public int mobility = 3;
-
     [Tooltip("怪物每平移一格所消耗的时间（秒）")]
     public float stepDuration = 0.3f;
 
-    [Tooltip("移动结束停顿多久后再转头面向玩家（秒）")]
+    [Tooltip("移动结束停顿多久后再转向目标（秒）")]
     public float pauseBeforeFacePlayer = 0.5f;
 
     [Header("网格管理器引用")]
     public GridManager gridManager;
 
     [Header("移动动画控制")]
-    [Tooltip("Animator引用")]
     public Animator monsterAnimator;
-
-    [Tooltip("控制移动动画状态的 Bool 参数名称")]
     public string moveBoolName = "Move";
-
-    [Tooltip("控制水平朝向的 Float 参数名称")]
     public string horizontalFloatName = "Horizontal";
-
-    [Tooltip("控制垂直朝向的 Float 参数名称")]
     public string verticalFloatName = "Vertical";
 
     private MonsterIdentityManager selfIdentity;
+    private MonsterHateSystem hateSystem;
+    private MonsterStats monsterStats;
     private Coroutine moveCoroutine;
+
+    private CellManager forcedDestination;
+    private bool hasForcedDestination;
+
+    public int Mobility => monsterStats != null ? monsterStats.mobility : 0;
 
     private void Awake()
     {
         selfIdentity = GetComponent<MonsterIdentityManager>();
+        monsterStats = GetComponent<MonsterStats>();
+        hateSystem = MonsterHateSystem.EnsureOn(selfIdentity);
 
         if (monsterAnimator == null)
         {
@@ -60,21 +60,18 @@ public class MonsterMoveAction : MonsterActionBase
     {
         if (gridManager == null)
         {
-            gridManager = FindObjectOfType<GridManager>();
+            gridManager = FindFirstObjectByType<GridManager>();
         }
+
         if (gridManager != null)
         {
             gridManager.EnsureGridSystemInitialized();
         }
     }
 
-    // ==================================================================
-    // 重写 MonsterActionBase 核心接口
-    // ==================================================================
-
     public override bool CanExecute(MonsterActionContext context)
     {
-        return context == null || !context.HostileInAttackRangeAtTurnStart;
+        return true;
     }
 
     public override void OnSkipped()
@@ -86,82 +83,40 @@ public class MonsterMoveAction : MonsterActionBase
     protected override void OnStart()
     {
         EnsureGridManager();
+        EnsureMonsterStats();
+        EnsureHateSystem();
 
-        if (TargetLossEffect.MonstersLosePlayerTargetThisRound)
+        if (gridManager == null || selfIdentity == null || monsterStats == null)
         {
+            Debug.LogError($"[{name}] 缺少 GridManager / MonsterIdentityManager / MonsterStats，无法执行移动！");
             SetMoveAnimationState(false);
             CompleteAction();
             return;
         }
 
-        if (gridManager == null || selfIdentity == null)
+        CellManager monsterCell = MonsterPathfinding.FindMonsterCell(gridManager, selfIdentity);
+        if (monsterCell == null)
         {
-            Debug.LogError($"[{name}] 缺少 GridManager 或自身未挂载 MonsterIdentityManager，无法执行移动！");
+            Debug.LogWarning($"[{name}] 未在任何 CellManager 中匹配到当前怪物，取消移动。");
             SetMoveAnimationState(false);
             CompleteAction();
             return;
         }
 
-        // 1. 获取怪物与玩家所在的具体格子（含层）
-        if (!TryGetMonsterCell(out CellManager monsterCell))
+        if (hasForcedDestination && forcedDestination != null)
         {
-            Debug.LogWarning($"[{name}] 未在任何 CellManager 中匹配到当前怪物的标记，取消移动。");
-            SetMoveAnimationState(false);
-            CompleteAction();
+            ExecuteForcedMove(monsterCell, forcedDestination);
             return;
         }
 
-        if (!TryGetPlayerCell(out CellManager playerCell))
-        {
-            Debug.LogWarning($"[{name}] 未在任何 CellManager 中匹配到 C = Player 标记，取消移动。");
-            SetMoveAnimationState(false);
-            CompleteAction();
-            return;
-        }
-
-        // 玩家在隐蔽片内且怪物不在同片：丢失视野，跳过追击（同片内的怪物可看到全片）
-        if (!ConcealmentCell.CanMonsterSeePlayer(monsterCell))
-        {
-            Debug.Log($"[{name}] Player hidden in a concealment patch, monster outside, skip chase.");
-            SetMoveAnimationState(false);
-            CompleteAction();
-            return;
-        }
-
-        // 2. A* 寻路计算完整路径（格子级，跨层规则：层差 ≤ 1 可连，≥ 2 不可连）
-        List<CellManager> fullPath = FindPathAStarCells(monsterCell, playerCell);
-
-        if (fullPath == null || fullPath.Count <= 1)
-        {
-            // 无有效路径，停顿后转头
-            moveCoroutine = StartCoroutine(StationaryTurnRoutine(monsterCell, playerCell));
-            return;
-        }
-
-        // 3. 目标为玩家相邻格
-        int targetIndexInPath = fullPath.Count - 2;
-
-        if (targetIndexInPath <= 0)
-        {
-            // 当前已处于玩家相邻格，无需移动，停顿后转头
-            moveCoroutine = StartCoroutine(StationaryTurnRoutine(monsterCell, playerCell));
-            return;
-        }
-
-        // 4. 根据行动力截取实际路径
-        int actualSteps = Mathf.Min(mobility, targetIndexInPath);
-        List<CellManager> actualPathWithStart = fullPath.GetRange(0, actualSteps + 1);
-
-        // 5. 开启行走动画并启动移动协程
-        SetMoveAnimationState(true);
-        moveCoroutine = StartCoroutine(MoveRoutine(actualPathWithStart, playerCell));
+        ExecuteDefaultMove(monsterCell);
     }
 
     public override void CancelAction()
     {
         base.CancelAction();
 
-        MonsterIsMoving = false; // 【状态切换】中断时解除锁定
+        MonsterIsMoving = false;
 
         if (moveCoroutine != null)
         {
@@ -172,36 +127,150 @@ public class MonsterMoveAction : MonsterActionBase
         SetMoveAnimationState(false);
     }
 
-    // ==================================================================
-    // 移动与朝向逻辑
-    // ==================================================================
-
-    /// <summary>
-    /// 逐格平移协程，移动结束后停顿再转向。
-    /// 跨层移动时目标高度取目标格子的实际高度（Y 随层变化）。
-    /// </summary>
-    private IEnumerator MoveRoutine(List<CellManager> path, CellManager playerCell)
+    public void SetForcedDestination(CellManager destination)
     {
-        MonsterIsMoving = true; // 【状态切换】开始移动时加锁
+        forcedDestination = destination;
+        hasForcedDestination = destination != null;
+    }
 
+    public void ClearForcedDestination()
+    {
+        forcedDestination = null;
+        hasForcedDestination = false;
+    }
+
+    public void ResetTurnState()
+    {
+        ClearForcedDestination();
+    }
+
+    private void ExecuteForcedMove(CellManager monsterCell, CellManager destinationCell)
+    {
+        if (destinationCell == monsterCell)
+        {
+            moveCoroutine = StartCoroutine(StationaryTurnRoutine(monsterCell, null));
+            return;
+        }
+
+        List<CellManager> path = MonsterPathfinding.FindPath(
+            gridManager,
+            selfIdentity,
+            monsterCell,
+            destinationCell);
+
+        if (path == null || path.Count <= 1)
+        {
+            moveCoroutine = StartCoroutine(StationaryTurnRoutine(monsterCell, null));
+            return;
+        }
+
+        int actualSteps = Mathf.Min(Mobility, path.Count - 1);
+        List<CellManager> actualPath = path.GetRange(0, actualSteps + 1);
+
+        SetMoveAnimationState(true);
+        moveCoroutine = StartCoroutine(MoveRoutine(actualPath, null));
+    }
+
+    private void ExecuteDefaultMove(CellManager monsterCell)
+    {
+        bool includePlayer =
+            !TargetLossEffect.MonstersLosePlayerTargetThisRound &&
+            ConcealmentCell.CanMonsterSeePlayer(monsterCell);
+
+        if (!TrySelectDefaultTarget(includePlayer, out MonsterTarget target, out _))
+        {
+            moveCoroutine = StartCoroutine(StationaryTurnRoutine(monsterCell, null));
+            return;
+        }
+
+        List<CellManager> path = MonsterPathfinding.FindPath(
+            gridManager,
+            selfIdentity,
+            monsterCell,
+            target.Cell);
+
+        if (path == null || path.Count <= 1)
+        {
+            moveCoroutine = StartCoroutine(StationaryTurnRoutine(monsterCell, target.Cell));
+            return;
+        }
+
+        int targetIndexInPath = path.Count - 2;
+        if (targetIndexInPath <= 0)
+        {
+            moveCoroutine = StartCoroutine(StationaryTurnRoutine(monsterCell, target.Cell));
+            return;
+        }
+
+        int actualSteps = Mathf.Min(Mobility, targetIndexInPath);
+        List<CellManager> actualPath = path.GetRange(0, actualSteps + 1);
+
+        SetMoveAnimationState(true);
+        moveCoroutine = StartCoroutine(MoveRoutine(actualPath, target.Cell));
+    }
+
+    private bool TrySelectDefaultTarget(
+        bool includePlayer,
+        out MonsterTarget target,
+        out int distance)
+    {
+        target = null;
+        distance = int.MaxValue;
+        if (hateSystem == null)
+        {
+            return false;
+        }
+
+        if (hateSystem.TrySelectTarget(
+                gridManager,
+                int.MaxValue,
+                includePlayer,
+                out target,
+                out distance,
+                out _))
+        {
+            return true;
+        }
+
+        if (includePlayer)
+        {
+            return hateSystem.TrySelectTarget(
+                gridManager,
+                int.MaxValue,
+                false,
+                out target,
+                out distance,
+                out _);
+        }
+
+        return false;
+    }
+
+    private IEnumerator MoveRoutine(List<CellManager> path, CellManager faceTarget)
+    {
+        MonsterIsMoving = true;
         CellManager reachedCell = path[0];
 
         for (int i = 1; i < path.Count; i++)
         {
             CellManager currentCell = path[i - 1];
             CellManager targetCell = path[i];
-            if (currentCell == null || targetCell == null) continue;
+            if (currentCell == null || targetCell == null)
+            {
+                continue;
+            }
 
-            // 路径生成后落点可能被其它怪物占据，执行前再次检查并停在上一格。
-            if (IsCellBlockedForMonster(targetCell, allowPlayerCell: false)) break;
+            if (IsCellBlockedForMonster(targetCell))
+            {
+                break;
+            }
 
-            // 实时设置每一步的行走朝向
             UpdateDirectionAnimation(currentCell, targetCell);
 
             Vector3 targetPos = targetCell.transform.position;
             Vector3 startPos = transform.position;
-
             float elapsed = 0f;
+
             while (elapsed < stepDuration)
             {
                 elapsed += Time.deltaTime;
@@ -214,31 +283,23 @@ public class MonsterMoveAction : MonsterActionBase
             reachedCell = targetCell;
         }
 
-        // 1. 移动完成，先停止行走动画，保持停顿
         SetMoveAnimationState(false);
 
-        // 2. 停顿指定的秒数（例如 0.5s）
         if (pauseBeforeFacePlayer > 0f)
         {
             yield return new WaitForSeconds(pauseBeforeFacePlayer);
         }
 
-        // 3. 停顿结束后，转向玩家所在格
-        FaceTowardsTarget(reachedCell, playerCell);
+        FaceTowardsTarget(reachedCell, faceTarget);
 
         moveCoroutine = null;
-        MonsterIsMoving = false; // 【状态切换】彻底结束时解除锁定
-
-        // 4. 动作完成
+        MonsterIsMoving = false;
         CompleteAction();
     }
 
-    /// <summary>
-    /// 当怪物不需要移动时，停顿一会儿再转向玩家
-    /// </summary>
-    private IEnumerator StationaryTurnRoutine(CellManager currentCell, CellManager playerCell)
+    private IEnumerator StationaryTurnRoutine(CellManager currentCell, CellManager faceTarget)
     {
-        MonsterIsMoving = true; // 【状态切换】原地行为也视为移动中加锁
+        MonsterIsMoving = true;
         SetMoveAnimationState(false);
 
         if (pauseBeforeFacePlayer > 0f)
@@ -246,48 +307,29 @@ public class MonsterMoveAction : MonsterActionBase
             yield return new WaitForSeconds(pauseBeforeFacePlayer);
         }
 
-        FaceTowardsTarget(currentCell, playerCell);
+        FaceTowardsTarget(currentCell, faceTarget);
 
         moveCoroutine = null;
-        MonsterIsMoving = false; // 【状态切换】解除锁定
+        MonsterIsMoving = false;
         CompleteAction();
     }
 
-    /// <summary>
-    /// 将朝向转向目标格（玩家所在格）
-    /// </summary>
     private void FaceTowardsTarget(CellManager currentCell, CellManager targetCell)
     {
-        if (currentCell == null || targetCell == null) return;
-
-        var (curX, curZ) = gridManager.GetCellGridPosition(currentCell);
-        var (tgtX, tgtZ) = gridManager.GetCellGridPosition(targetCell);
-        int deltaX = tgtX - curX;
-        int deltaY = tgtZ - curZ;
-
-        if (deltaX == 0 && deltaY == 0) return;
-
-        if (deltaX != 0 && deltaY == 0)
+        if (currentCell == null || targetCell == null)
         {
-            UpdateDirectionAnimation(currentCell, targetCell);
+            return;
         }
-        else if (deltaY != 0 && deltaX == 0)
-        {
-            UpdateDirectionAnimation(currentCell, targetCell);
-        }
-        else
-        {
-            UpdateDirectionAnimation(currentCell, targetCell);
-        }
+
+        UpdateDirectionAnimation(currentCell, targetCell);
     }
 
-    /// <summary>
-    /// 根据相对位置更新 Animator 参数
-    /// </summary>
     private void UpdateDirectionAnimation(CellManager current, CellManager next)
     {
-        if (monsterAnimator == null) return;
-        if (current == null || next == null) return;
+        if (monsterAnimator == null || current == null || next == null)
+        {
+            return;
+        }
 
         var (curX, curZ) = gridManager.GetCellGridPosition(current);
         var (nextX, nextZ) = gridManager.GetCellGridPosition(next);
@@ -330,199 +372,47 @@ public class MonsterMoveAction : MonsterActionBase
         }
     }
 
-    /// <summary>
-    /// 判断格子是否被占用；玩家所在格仅允许作为寻路终点，不能实际踏入。
-    /// </summary>
-    private bool IsCellBlockedForMonster(CellManager cell, bool allowPlayerCell)
+    private bool IsCellBlockedForMonster(CellManager cell)
     {
-        if (cell == null || !cell.CanMonsterTraverse(selfIdentity)) return true;
-        if (!allowPlayerCell && cell.IsPlayerInside) return true;
+        if (cell == null || !cell.CanMonsterTraverse(selfIdentity))
+        {
+            return true;
+        }
+
+        if (cell.IsPlayerInside)
+        {
+            return true;
+        }
 
         foreach (MonsterIdentityManager monster in cell.GetMonstersInside())
         {
-            if (monster == null || monster == selfIdentity) continue;
-            if (monster.gameObject.activeInHierarchy) return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// 查找怪物所在的具体格子（含层，遍历所有列的所有层）。
-    /// </summary>
-    private bool TryGetMonsterCell(out CellManager cell)
-    {
-        cell = null;
-        for (int x = 0; x < gridManager.width; x++)
-        {
-            for (int z = 0; z < gridManager.height; z++)
+            if (monster == null || monster == selfIdentity)
             {
-                foreach (CellManager c in gridManager.GetCellManagersInColumn(x, z))
-                {
-                    if (c != null && c.GetMonstersInside().Contains(selfIdentity))
-                    {
-                        cell = c;
-                        return true;
-                    }
-                }
+                continue;
+            }
+
+            if (monster.gameObject.activeInHierarchy)
+            {
+                return true;
             }
         }
 
         return false;
     }
 
-    /// <summary>
-    /// 查找玩家所在的具体格子（含层，遍历所有列的所有层）。
-    /// </summary>
-    private bool TryGetPlayerCell(out CellManager cell)
+    private void EnsureHateSystem()
     {
-        cell = null;
-        for (int x = 0; x < gridManager.width; x++)
+        if (hateSystem == null)
         {
-            for (int z = 0; z < gridManager.height; z++)
-            {
-                foreach (CellManager c in gridManager.GetCellManagersInColumn(x, z))
-                {
-                    if (c == null) continue;
-
-                    Collider[] colliders = Physics.OverlapBox(c.transform.position, Vector3.one * 0.1f);
-                    foreach (var col in colliders)
-                    {
-                        if (col.CompareTag("Player"))
-                        {
-                            cell = c;
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    // ==================================================================
-    // A* 寻路算法（格子级，跨层）
-    // ==================================================================
-
-    private class PathCellNode
-    {
-        public CellManager cell;
-        public int gCost;
-        public int hCost;
-        public PathCellNode parent;
-
-        public int FCost => gCost + hCost;
-
-        public PathCellNode(CellManager cell)
-        {
-            this.cell = cell;
+            hateSystem = MonsterHateSystem.EnsureOn(selfIdentity);
         }
     }
 
-    /// <summary>
-    /// 格子级 A* 寻路：节点为具体格子（含层）。
-    /// 邻居判定：四方向相邻列中，与该格层差 ≤ 1 的格子可通行
-    /// （L2 ↔ L1 / L3 可连，L1 ↔ L3 不可连）。
-    /// 会绕开悬崖/高台，只要存在连通路径即可找到最短路径。
-    /// </summary>
-    private List<CellManager> FindPathAStarCells(CellManager startCell, CellManager targetCell)
+    private void EnsureMonsterStats()
     {
-        if (startCell == null || targetCell == null) return null;
-
-        List<PathCellNode> openSet = new List<PathCellNode>();
-        HashSet<CellManager> closedSet = new HashSet<CellManager>();
-        Dictionary<CellManager, PathCellNode> nodeLookup = new Dictionary<CellManager, PathCellNode>();
-
-        PathCellNode startNode = new PathCellNode(startCell);
-        openSet.Add(startNode);
-        nodeLookup[startCell] = startNode;
-
-        var (startX, startZ) = gridManager.GetCellGridPosition(startCell);
-        var (targetX, targetZ) = gridManager.GetCellGridPosition(targetCell);
-
-        Vector2Int[] neighborDirections = new Vector2Int[]
+        if (monsterStats == null)
         {
-            new Vector2Int(0, 1),
-            new Vector2Int(0, -1),
-            new Vector2Int(-1, 0),
-            new Vector2Int(1, 0)
-        };
-
-        while (openSet.Count > 0)
-        {
-            PathCellNode currentNode = openSet[0];
-            for (int i = 1; i < openSet.Count; i++)
-            {
-                if (openSet[i].FCost < currentNode.FCost ||
-                   (openSet[i].FCost == currentNode.FCost && openSet[i].hCost < currentNode.hCost))
-                {
-                    currentNode = openSet[i];
-                }
-            }
-
-            openSet.Remove(currentNode);
-            closedSet.Add(currentNode.cell);
-
-            if (currentNode.cell == targetCell)
-            {
-                return RetraceCellPath(startNode, currentNode);
-            }
-
-            var (curX, curZ) = gridManager.GetCellGridPosition(currentNode.cell);
-
-            foreach (Vector2Int dir in neighborDirections)
-            {
-                Vector2Int neighborCol = new Vector2Int(curX + dir.x, curZ + dir.y);
-
-                if (!gridManager.IsValidGridPosition(neighborCol.x, neighborCol.y)) continue;
-
-                // 遍历邻居列所有层，只连接层差 ≤ 1 的格子
-                foreach (CellManager neighborCell in gridManager.GetCellManagersInColumn(neighborCol.x, neighborCol.y))
-                {
-                    if (neighborCell == null) continue;
-                    if (closedSet.Contains(neighborCell)) continue;
-                    if (IsCellBlockedForMonster(neighborCell, allowPlayerCell: neighborCell == targetCell)) continue;
-                    // 跨层连接规则：层差 ≤ 1 可走（≥ 2 视为悬崖/高台，不可通行）
-                    if (!RangeSystem.CanConnectAcrossLayers(gridManager, currentNode.cell, neighborCell)) continue;
-
-                    int newCostToNeighbor = currentNode.gCost + 1;
-
-                    PathCellNode neighborNode;
-                    if (!nodeLookup.TryGetValue(neighborCell, out neighborNode))
-                    {
-                        neighborNode = new PathCellNode(neighborCell);
-                        nodeLookup[neighborCell] = neighborNode;
-                    }
-
-                    if (newCostToNeighbor < neighborNode.gCost || !openSet.Contains(neighborNode))
-                    {
-                        var (nx, nz) = gridManager.GetCellGridPosition(neighborCell);
-                        neighborNode.gCost = newCostToNeighbor;
-                        neighborNode.hCost = Mathf.Abs(nx - targetX) + Mathf.Abs(nz - targetZ);
-                        neighborNode.parent = currentNode;
-
-                        if (!openSet.Contains(neighborNode))
-                        {
-                            openSet.Add(neighborNode);
-                        }
-                    }
-                }
-            }
+            monsterStats = GetComponent<MonsterStats>();
         }
-
-        return null;
-    }
-
-    private List<CellManager> RetraceCellPath(PathCellNode startNode, PathCellNode endNode)
-    {
-        List<CellManager> path = new List<CellManager>();
-        PathCellNode curr = endNode;
-        while (curr != null)
-        {
-            path.Add(curr.cell);
-            curr = curr.parent;
-        }
-        path.Reverse();
-        return path;
     }
 }

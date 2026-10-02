@@ -3,31 +3,57 @@ using UnityEngine;
 
 public class MonsterStats : MonoBehaviour, IDamageable
 {
-    [Header("¹ÖÎïÊıÖµ")]
+    [Header("ç”Ÿå‘½æ•°å€¼")]
     public int maxHp = 20;
     public int currentHp;
     public int currentBlock = 0;
 
-    // ¹ÖÎïËÀÍöÊÂ¼ş£¨¹©Õ½¶·½áËãÆ÷¼àÌı£©
+    [Header("æˆ˜æ–—å±æ€§")]
+    [Tooltip("æ€ªç‰©ä¸€å›åˆæœ€å¤šå¯ä»¥ç§»åŠ¨çš„æ ¼å­æ•°ã€‚")]
+    public int mobility = 3;
+
+    [Tooltip("ä»¥åˆ†å±‚æ ¼å­å›¾ä¸Šçš„ A* è·¯å¾„é•¿åº¦è®¡ç®—çš„æ”»å‡»è·ç¦»ã€‚")]
+    public int attackRange = 1;
+
+    [Tooltip("æ€ªç‰©æ”»å‡»çš„åŸºç¡€ä¼¤å®³ã€‚")]
+    public int attackDamage = 5;
+
+    // æ€ªç‰©æ­»äº¡äº‹ä»¶ï¼ˆä¾›æˆ˜æ–—ç»“ç®—å™¨ç›‘å¬ï¼‰
     public static event Action OnAnyMonsterDied;
+
+    private MonsterHateSystem hateSystem;
 
     private void Awake()
     {
-        // ÓÎÏ·Ò»¿ªÊ¼£¬Á¢¼´¸øµ±Ç°ÑªÁ¿¸³×î´óÖµ
+        // æ¸¸æˆä¸€å¼€å§‹ï¼Œç«‹å³ç»™å½“å‰è¡€é‡èµ‹æœ€å¤§å€¼
         currentHp = maxHp;
     }
 
     private void Start()
     {
-        // ÔÚ Start ÀïË¢ĞÂÒ»´ÎÍ·¶¥ UI ÏÔÊ¾
+        // åœ¨ Start é‡Œåˆ·æ–°ä¸€æ¬¡å¤´é¡¶ UI æ˜¾ç¤º
         GetComponentInChildren<MonsterInfoUI>()?.UpdateHpDisplay(currentHp, maxHp);
     }
 
     public void TakeDamage(int damageAmount)
     {
+        ApplyDamage(damageAmount, null, playerAttributed: true);
+    }
+
+    /// <summary>
+    /// æ€ªç‰©ä¹‹é—´æ”»å‡»æ—¶ä¼ å…¥æ”»å‡»è€…ï¼Œä¾¿äºä»‡æ¨ç³»ç»Ÿè®°å½•â€œå—åˆ°æ”»å‡»â€ã€‚
+    /// ç©å®¶æ”»å‡»ç»§ç»­ä½¿ç”¨æ—§å…¥å£ï¼Œæ”»å‡»è€…æŒ‰ Player å¤„ç†ã€‚
+    /// </summary>
+    public void TakeDamage(int damageAmount, MonsterIdentityManager attacker)
+    {
+        ApplyDamage(damageAmount, attacker, playerAttributed: attacker == null);
+    }
+
+    private void ApplyDamage(int damageAmount, MonsterIdentityManager attacker, bool playerAttributed)
+    {
         int remainingDamage = damageAmount;
 
-        // 1. ÏÈ¿Û»¤¶Ü
+        // 1. å…ˆæ‰£æŠ¤ç›¾
         if (currentBlock > 0)
         {
             if (currentBlock >= remainingDamage)
@@ -42,43 +68,61 @@ public class MonsterStats : MonoBehaviour, IDamageable
             }
         }
 
-        // 2. ÔÙ¿ÛÑªÁ¿
+        // 2. å†æ‰£è¡€é‡
         if (remainingDamage > 0)
         {
             currentHp = Mathf.Max(0, currentHp - remainingDamage);
-            Debug.Log($"[{gameObject.name}] ÊÜµ½ÁË {remainingDamage} µãÉËº¦£¬Ê£ÓàHP: {currentHp}");
+            Debug.Log($"[{gameObject.name}] å—åˆ°äº† {remainingDamage} ç‚¹ä¼¤å®³ï¼Œå‰©ä½™HP: {currentHp}");
 
-            // ÀÛ¼ÓÕæÊµÔì³ÉµÄÉËº¦
-            if (RunDataManager.Instance != null)
+            // åªæœ‰ç©å®¶é€ æˆçš„ä¼¤å®³æ‰è®¡å…¥ç©å®¶ RunData
+            if (playerAttributed && RunDataManager.Instance != null)
             {
                 RunDataManager.Instance.totalDamageDealt += remainingDamage;
             }
 
-            // ÊÜ»÷ºóÊµÊ±Ë¢ĞÂÑªÌõ UI
+            // å—å‡»åå®æ—¶åˆ·æ–°è¡€æ¡ UI
             GetComponentInChildren<MonsterInfoUI>()?.UpdateHpDisplay(currentHp, maxHp);
         }
 
-        // 3. ËÀÍöÅĞ¶¨
+        RegisterHitHate(attacker);
+
+        // 3. æ­»äº¡åˆ¤å®š
         if (currentHp <= 0)
         {
-            Die();
+            Die(playerAttributed);
         }
     }
 
-    private void Die()
+    private void RegisterHitHate(MonsterIdentityManager attacker)
     {
-        Debug.Log($"[{gameObject.name}] ËÀÍö£¡");
+        MonsterIdentityManager identity = GetComponent<MonsterIdentityManager>();
+        if (identity == null)
+        {
+            return;
+        }
 
-        // ÀÛ¼ÓÕæÊµ»÷É±Êı
-        if (RunDataManager.Instance != null)
+        if (hateSystem == null)
+        {
+            hateSystem = MonsterHateSystem.EnsureOn(identity);
+        }
+
+        hateSystem?.RegisterHit(attacker);
+    }
+
+    private void Die(bool playerAttributed)
+    {
+        Debug.Log($"[{gameObject.name}] æ­»äº¡ï¼");
+
+        // åªæœ‰ç©å®¶é€ æˆçš„å‡»æ€æ‰è®¡å…¥ç©å®¶ RunData
+        if (playerAttributed && RunDataManager.Instance != null)
         {
             RunDataManager.Instance.totalKills += 1;
         }
 
-        // ´¥·¢ËÀÍöÊÂ¼ş
+        // è§¦å‘æ­»äº¡äº‹ä»¶
         OnAnyMonsterDied?.Invoke();
 
-        // ²»ÒªÖ±½Ó Destroy£¬¸ÄÎªÒş²ØÎïÌå£¬Ö§³Ö SL ¶Áµµ»Ö¸´
+        // ä¸è¦ç›´æ¥ Destroyï¼Œæ”¹ä¸ºéšè—ç‰©ä½“ï¼Œæ”¯æŒ SL è¯»æ¡£æ¢å¤
         gameObject.SetActive(false);
     }
 }
