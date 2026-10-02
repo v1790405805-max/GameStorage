@@ -28,6 +28,7 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
     private MonsterMoveAction moveAction;
     private MonsterLeaveAction leaveAction;
     private GridManager gridManager;
+    private bool terminateRemainingActions;
 
     public event Action OnSequenceStarted;
     public event Action<MonsterActionBase> OnActionStarted;
@@ -35,7 +36,23 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
     public event Action<MonsterActionBase> OnActionSkipped;
     public event Action OnSequenceFinished;
 
+    private static event Action<MonsterActionBase> TerminationRequested;
+
     public bool IsExecuting => isExecuting;
+
+    /// <summary>
+    /// 请求终止其他动作：其他 ActionManager 的当前序列立即停止，
+    /// 发出请求的 ActionManager 则在当前 Action 完成后停止后续动作。
+    /// </summary>
+    public static void RequestTerminationOfOtherActions(MonsterActionBase source)
+    {
+        if (source == null)
+        {
+            return;
+        }
+
+        TerminationRequested?.Invoke(source);
+    }
 
     private void Awake()
     {
@@ -45,6 +62,8 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
 
     private void OnEnable()
     {
+        TerminationRequested += HandleTerminationRequested;
+
         if (TurnManager.Instance != null)
         {
             TurnManager.Instance.RegisterEnemyBehaviour(this);
@@ -53,6 +72,8 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
 
     private void OnDisable()
     {
+        TerminationRequested -= HandleTerminationRequested;
+
         if (TurnManager.Instance != null)
         {
             TurnManager.Instance.UnregisterEnemyBehaviour(this);
@@ -91,6 +112,7 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
         }
 
         ResetTurnDecisionState();
+        terminateRemainingActions = false;
 
         MonsterActionContext context = BuildActionContext();
         sequenceCoroutine = StartCoroutine(ExecuteSequenceRoutine(context));
@@ -98,6 +120,8 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
 
     public void StopSequence()
     {
+        bool wasExecuting = isExecuting;
+
         if (sequenceCoroutine != null)
         {
             StopCoroutine(sequenceCoroutine);
@@ -115,6 +139,12 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
 
         isExecuting = false;
         currentIndex = -1;
+        terminateRemainingActions = false;
+
+        if (wasExecuting)
+        {
+            OnSequenceFinished?.Invoke();
+        }
     }
 
     private IEnumerator ExecuteSequenceRoutine(MonsterActionContext context)
@@ -164,6 +194,11 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
 
             OnActionFinished?.Invoke(action);
 
+            if (terminateRemainingActions)
+            {
+                break;
+            }
+
             if (action.PostActionDelay > 0f)
             {
                 yield return new WaitForSeconds(action.PostActionDelay);
@@ -173,6 +208,7 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
         isExecuting = false;
         currentIndex = -1;
         sequenceCoroutine = null;
+        terminateRemainingActions = false;
 
         // 通知 TurnManager，本怪物全部动作已完成
         OnSequenceFinished?.Invoke();
@@ -322,6 +358,40 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
         {
             attackAction.ResetTurnState();
         }
+    }
+
+    private void HandleTerminationRequested(MonsterActionBase source)
+    {
+        MonsterActionManager sourceManager =
+            source != null ? source.GetComponent<MonsterActionManager>() : null;
+
+        if (sourceManager == this)
+        {
+            TerminateRemainingActionsAfter(source);
+            return;
+        }
+
+        StopSequence();
+    }
+
+    private void TerminateRemainingActionsAfter(MonsterActionBase source)
+    {
+        if (!isExecuting ||
+            source == null ||
+            currentIndex < 0 ||
+            actionSequence == null ||
+            currentIndex >= actionSequence.Count)
+        {
+            return;
+        }
+
+        MonsterActionStep currentStep = actionSequence[currentIndex];
+        if (currentStep == null || currentStep.action != source)
+        {
+            return;
+        }
+
+        terminateRemainingActions = true;
     }
 
     private void EnsureLeaveActionInSequence()

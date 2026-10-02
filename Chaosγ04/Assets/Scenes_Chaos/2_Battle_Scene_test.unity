@@ -47421,6 +47421,8 @@ GameObject:
   - component: {fileID: 556471848}
   - component: {fileID: 556471851}
   - component: {fileID: 556471846}
+  - component: {fileID: 556471853}
+  - component: {fileID: 556471854}
   - component: {fileID: 556471849}
   - component: {fileID: 556471847}
   - component: {fileID: 556471850}
@@ -47446,6 +47448,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterActionManager
   startDelay: 0.2
   actionSequence:
+  - action: {fileID: 556471853}
+  - action: {fileID: 556471854}
   - action: {fileID: 556471849}
   - action: {fileID: 556471847}
 --- !u!114 &556471847
@@ -47550,6 +47554,41 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HateChange_WhenDogLeaderAttacked
   playerBaselineHate: 999
+--- !u!114 &556471853
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 556471845}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f0aca8d08794b6dacd0efd670d059f2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterSummonDogsAction
+  postActionDelay: 1
+  dogPrefab: {fileID: 934049697378249724, guid: 887ebf150735a0248a8b44084470249f, type: 3}
+  summonCount: 3
+  dogSpacing: 5
+  occupiedSpacing: 3
+  summonInterval: 1
+  cooldownRounds: 2
+  gridManager: {fileID: 1996419300}
+--- !u!114 &556471854
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 556471845}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5eebce6b1f64dd1811b81ad910c6d56, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AttackBuffAction
+  postActionDelay: 0.5
+  attackBonus: 2
+  cooldownRounds: 2
 --- !u!1 &557168890
 GameObject:
   m_ObjectHideFlags: 0

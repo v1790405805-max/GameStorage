@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -80,18 +81,79 @@ public class MonsterIdentitySystem : MonoBehaviour
     public void RegisterMonster(MonsterIdentityManager monster)
     {
         if (monster == null) return;
-        if (string.IsNullOrEmpty(monster.monsterId))
+
+        SynchronizeFactionCounter(monster.monsterId, monster.faction);
+
+        if (string.IsNullOrEmpty(monster.monsterId) ||
+            IsMonsterIdInUse(monster.monsterId, monster))
         {
             monster.monsterId = GenerateMonsterId(monster.faction);
         }
+
         allMonsters.Add(monster);
+    }
+
+    private void SynchronizeFactionCounter(
+        string monsterId,
+        MonsterIdentityManager.MonsterFaction faction)
+    {
+        if (string.IsNullOrEmpty(monsterId))
+        {
+            return;
+        }
+
+        string prefix = $"{faction}_";
+        if (!monsterId.StartsWith(prefix, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        if (!int.TryParse(monsterId.Substring(prefix.Length), out int number) || number <= 0)
+        {
+            return;
+        }
+
+        if (!factionCounters.TryGetValue(faction, out int current) || number > current)
+        {
+            factionCounters[faction] = number;
+        }
     }
 
     private string GenerateMonsterId(MonsterIdentityManager.MonsterFaction faction)
     {
         if (!factionCounters.ContainsKey(faction)) factionCounters[faction] = 0;
-        factionCounters[faction]++;
-        return $"{faction}_{factionCounters[faction]}";
+
+        while (true)
+        {
+            factionCounters[faction]++;
+            string candidateId = $"{faction}_{factionCounters[faction]}";
+            if (!IsMonsterIdInUse(candidateId, null))
+            {
+                return candidateId;
+            }
+        }
+    }
+
+    private bool IsMonsterIdInUse(string monsterId, MonsterIdentityManager ignoredMonster)
+    {
+        if (string.IsNullOrEmpty(monsterId))
+        {
+            return false;
+        }
+
+        foreach (MonsterIdentityManager monster in allMonsters)
+        {
+            if (monster == null ||
+                monster == ignoredMonster ||
+                !string.Equals(monster.monsterId, monsterId, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     public void UnregisterMonster(MonsterIdentityManager monster)
