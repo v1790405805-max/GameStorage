@@ -152,11 +152,10 @@ public class MonsterMoveAction : MonsterActionBase
             return;
         }
 
-        List<CellManager> path = MonsterPathfinding.FindPath(
-            gridManager,
-            selfIdentity,
+        List<CellManager> path = FindMovementPath(
             monsterCell,
-            destinationCell);
+            destinationCell,
+            includeTargetCellInBlockedCheck: true);
 
         if (path == null || path.Count <= 1)
         {
@@ -165,6 +164,12 @@ public class MonsterMoveAction : MonsterActionBase
         }
 
         int actualSteps = Mathf.Min(Mobility, path.Count - 1);
+        if (actualSteps <= 0)
+        {
+            moveCoroutine = StartCoroutine(StationaryTurnRoutine(monsterCell, null));
+            return;
+        }
+
         List<CellManager> actualPath = path.GetRange(0, actualSteps + 1);
 
         SetMoveAnimationState(true);
@@ -183,11 +188,10 @@ public class MonsterMoveAction : MonsterActionBase
             return;
         }
 
-        List<CellManager> path = MonsterPathfinding.FindPath(
-            gridManager,
-            selfIdentity,
+        List<CellManager> path = FindMovementPath(
             monsterCell,
-            target.Cell);
+            target.Cell,
+            includeTargetCellInBlockedCheck: false);
 
         if (path == null || path.Count <= 1)
         {
@@ -195,7 +199,10 @@ public class MonsterMoveAction : MonsterActionBase
             return;
         }
 
-        int targetIndexInPath = path.Count - 2;
+        bool pathReachesTarget = path[path.Count - 1] == target.Cell;
+        int targetIndexInPath = pathReachesTarget
+            ? path.Count - 2
+            : path.Count - 1;
         if (targetIndexInPath <= 0)
         {
             moveCoroutine = StartCoroutine(StationaryTurnRoutine(monsterCell, target.Cell));
@@ -227,7 +234,8 @@ public class MonsterMoveAction : MonsterActionBase
                 includePlayer,
                 out target,
                 out distance,
-                out _))
+                out _,
+                ignoreUnitBlockers: true))
         {
             return true;
         }
@@ -240,7 +248,70 @@ public class MonsterMoveAction : MonsterActionBase
                 false,
                 out target,
                 out distance,
-                out _);
+                out _,
+                ignoreUnitBlockers: true);
+        }
+
+        return false;
+    }
+
+    private List<CellManager> FindMovementPath(
+        CellManager startCell,
+        CellManager targetCell,
+        bool includeTargetCellInBlockedCheck)
+    {
+        // Other units are temporary traffic, not terrain that makes the target unreachable.
+        // Plan the ideal route first, then use a blocker-aware route if execution would stop.
+        List<CellManager> preferredPath = MonsterPathfinding.FindPath(
+            gridManager,
+            selfIdentity,
+            startCell,
+            targetCell,
+            ignoreUnitBlockers: true);
+
+        if (preferredPath == null || preferredPath.Count <= 1)
+        {
+            return preferredPath;
+        }
+
+        if (!HasBlockedStep(
+                preferredPath,
+                includeTargetCellInBlockedCheck))
+        {
+            return preferredPath;
+        }
+
+        List<CellManager> blockedAwarePath =
+            MonsterPathfinding.FindPathToClosestReachableCell(
+                gridManager,
+                selfIdentity,
+                startCell,
+                targetCell);
+
+        return blockedAwarePath != null && blockedAwarePath.Count > 0
+            ? blockedAwarePath
+            : preferredPath;
+    }
+
+    private bool HasBlockedStep(
+        List<CellManager> path,
+        bool includeTargetCellInBlockedCheck)
+    {
+        if (path == null || path.Count <= 1)
+        {
+            return false;
+        }
+
+        int lastIndex = includeTargetCellInBlockedCheck
+            ? path.Count - 1
+            : path.Count - 2;
+
+        for (int i = 1; i <= lastIndex; i++)
+        {
+            if (IsCellBlockedForMonster(path[i]))
+            {
+                return true;
+            }
         }
 
         return false;

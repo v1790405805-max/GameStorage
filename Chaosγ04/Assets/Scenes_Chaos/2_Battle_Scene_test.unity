@@ -47537,6 +47537,19 @@ MonoBehaviour:
   hostileFactions: 6
   canTraverseSpecialTerrain: 0
   hostileFactionsInitialized: 1
+--- !u!114 &556471852
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 556471845}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f7c4d1e8a9b4c2d9e6f1a3b5c7d8e90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HateChange_WhenDogLeaderAttacked
+  playerBaselineHate: 999
 --- !u!1 &557168890
 GameObject:
   m_ObjectHideFlags: 0
@@ -81600,6 +81613,19 @@ MonoBehaviour:
   hostileFactions: 6
   canTraverseSpecialTerrain: 0
   hostileFactionsInitialized: 1
+--- !u!114 &983314788
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 983314781}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f7c4d1e8a9b4c2d9e6f1a3b5c7d8e90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HateChange_WhenDogLeaderAttacked
+  playerBaselineHate: 999
 --- !u!21 &985240514
 Material:
   serializedVersion: 8
@@ -92367,6 +92393,19 @@ MonoBehaviour:
   hostileFactions: 6
   canTraverseSpecialTerrain: 0
   hostileFactionsInitialized: 1
+--- !u!114 &1096482204
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1096482197}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f7c4d1e8a9b4c2d9e6f1a3b5c7d8e90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HateChange_WhenDogLeaderAttacked
+  playerBaselineHate: 999
 --- !u!21 &1098235686
 Material:
   serializedVersion: 8
@@ -161922,6 +161961,19 @@ MonoBehaviour:
   hostileFactions: 6
   canTraverseSpecialTerrain: 0
   hostileFactionsInitialized: 1
+--- !u!114 &1949179986
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1949179979}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f7c4d1e8a9b4c2d9e6f1a3b5c7d8e90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HateChange_WhenDogLeaderAttacked
+  playerBaselineHate: 999
 --- !u!21 &1949309987
 Material:
   serializedVersion: 8
@@ -192444,58 +192496,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c3ab56b206854114e8794ab72cedd792, type: 3}
---- !u!114 &556471852
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 556471845}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2f7c4d1e8a9b4c2d9e6f1a3b5c7d8e90, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::HateChange_WhenDogLeaderAttacked
-  playerBaselineHate: 999
---- !u!114 &983314788
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 983314781}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2f7c4d1e8a9b4c2d9e6f1a3b5c7d8e90, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::HateChange_WhenDogLeaderAttacked
-  playerBaselineHate: 999
---- !u!114 &1096482204
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1096482197}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2f7c4d1e8a9b4c2d9e6f1a3b5c7d8e90, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::HateChange_WhenDogLeaderAttacked
-  playerBaselineHate: 999
---- !u!114 &1949179986
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1949179979}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2f7c4d1e8a9b4c2d9e6f1a3b5c7d8e90, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::HateChange_WhenDogLeaderAttacked
-  playerBaselineHate: 999
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -187,13 +187,57 @@ public static class MonsterPathfinding
     /// <summary>
     /// A* on individual cells. Layers more than one level apart are not connected.
     /// Occupied start/target cells are allowed so paths can end on a hostile creature's cell.
+    /// Set <paramref name="ignoreUnitBlockers"/> to true when planning an ideal route toward
+    /// a target: other units no longer block the route, while terrain and layer rules still apply.
     /// </summary>
     public static List<CellManager> FindPath(
         GridManager gridManager,
         MonsterIdentityManager movingMonster,
         CellManager startCell,
         CellManager targetCell,
+        MonsterIdentityManager ignoredMonster = null,
+        bool ignoreUnitBlockers = false)
+    {
+        return FindPathInternal(
+            gridManager,
+            movingMonster,
+            startCell,
+            targetCell,
+            ignoredMonster,
+            ignoreUnitBlockers,
+            allowPartialPath: false);
+    }
+
+    /// <summary>
+    /// Finds the shortest route to the target while respecting unit occupancy. When the target
+    /// cannot be reached, returns the shortest path to the reachable cell that is closest to it.
+    /// This is the movement fallback that prevents a monster from freezing behind a blocker.
+    /// </summary>
+    public static List<CellManager> FindPathToClosestReachableCell(
+        GridManager gridManager,
+        MonsterIdentityManager movingMonster,
+        CellManager startCell,
+        CellManager targetCell,
         MonsterIdentityManager ignoredMonster = null)
+    {
+        return FindPathInternal(
+            gridManager,
+            movingMonster,
+            startCell,
+            targetCell,
+            ignoredMonster,
+            ignoreUnitBlockers: false,
+            allowPartialPath: true);
+    }
+
+    private static List<CellManager> FindPathInternal(
+        GridManager gridManager,
+        MonsterIdentityManager movingMonster,
+        CellManager startCell,
+        CellManager targetCell,
+        MonsterIdentityManager ignoredMonster,
+        bool ignoreUnitBlockers,
+        bool allowPartialPath)
     {
         if (gridManager == null || startCell == null || targetCell == null)
         {
@@ -216,6 +260,8 @@ public static class MonsterPathfinding
         nodeLookup[startCell] = startNode;
 
         var (targetX, targetZ) = gridManager.GetCellGridPosition(targetCell);
+        startNode.hCost = Heuristic(gridManager, startCell, targetX, targetZ);
+        PathNode bestApproachNode = startNode;
 
         while (openSet.Count > 0)
         {
@@ -235,6 +281,12 @@ public static class MonsterPathfinding
             if (currentNode.cell == targetCell)
             {
                 return RetracePath(startNode, currentNode);
+            }
+
+            if (allowPartialPath &&
+                IsBetterApproachNode(gridManager, currentNode, bestApproachNode))
+            {
+                bestApproachNode = currentNode;
             }
 
             var (currentX, currentZ) = gridManager.GetCellGridPosition(currentNode.cell);
@@ -268,7 +320,8 @@ public static class MonsterPathfinding
                             neighbor,
                             startCell,
                             targetCell,
-                            ignoredMonster))
+                            ignoredMonster,
+                            ignoreUnitBlockers))
                     {
                         continue;
                     }
@@ -288,10 +341,9 @@ public static class MonsterPathfinding
                         continue;
                     }
 
-                    var (neighborX, neighborZ) = gridManager.GetCellGridPosition(neighbor);
                     neighborNode.gCost = newCostToNeighbor;
                     neighborNode.hCost =
-                        Mathf.Abs(neighborX - targetX) + Mathf.Abs(neighborZ - targetZ);
+                        Heuristic(gridManager, neighbor, targetX, targetZ);
                     neighborNode.parent = currentNode;
 
                     if (!openSet.Contains(neighborNode))
@@ -300,6 +352,13 @@ public static class MonsterPathfinding
                     }
                 }
             }
+        }
+
+        if (allowPartialPath &&
+            bestApproachNode != null &&
+            bestApproachNode.cell != startCell)
+        {
+            return RetracePath(startNode, bestApproachNode);
         }
 
         return null;
@@ -313,14 +372,16 @@ public static class MonsterPathfinding
         MonsterIdentityManager movingMonster,
         CellManager startCell,
         CellManager targetCell,
-        MonsterIdentityManager ignoredMonster = null)
+        MonsterIdentityManager ignoredMonster = null,
+        bool ignoreUnitBlockers = false)
     {
         List<CellManager> path = FindPath(
             gridManager,
             movingMonster,
             startCell,
             targetCell,
-            ignoredMonster);
+            ignoredMonster,
+            ignoreUnitBlockers);
         return path == null ? int.MaxValue : path.Count - 1;
     }
 
@@ -399,7 +460,8 @@ public static class MonsterPathfinding
         CellManager cell,
         CellManager startCell,
         CellManager targetCell,
-        MonsterIdentityManager ignoredMonster)
+        MonsterIdentityManager ignoredMonster,
+        bool ignoreUnitBlockers)
     {
         if (cell == startCell || cell == targetCell)
         {
@@ -409,6 +471,11 @@ public static class MonsterPathfinding
         if (cell == null || !cell.CanMonsterTraverse(movingMonster))
         {
             return true;
+        }
+
+        if (ignoreUnitBlockers)
+        {
+            return false;
         }
 
         if (cell.IsPlayerInside)
@@ -430,6 +497,53 @@ public static class MonsterPathfinding
         }
 
         return false;
+    }
+
+    private static int Heuristic(
+        GridManager gridManager,
+        CellManager cell,
+        int targetX,
+        int targetZ)
+    {
+        var (cellX, cellZ) = gridManager.GetCellGridPosition(cell);
+        return Mathf.Abs(cellX - targetX) + Mathf.Abs(cellZ - targetZ);
+    }
+
+    private static bool IsBetterApproachNode(
+        GridManager gridManager,
+        PathNode candidate,
+        PathNode currentBest)
+    {
+        if (candidate == null)
+        {
+            return false;
+        }
+
+        if (currentBest == null)
+        {
+            return true;
+        }
+
+        if (candidate.hCost != currentBest.hCost)
+        {
+            return candidate.hCost < currentBest.hCost;
+        }
+
+        if (candidate.gCost != currentBest.gCost)
+        {
+            return candidate.gCost < currentBest.gCost;
+        }
+
+        var (candidateX, candidateZ) =
+            gridManager.GetCellGridPosition(candidate.cell);
+        var (bestX, bestZ) =
+            gridManager.GetCellGridPosition(currentBest.cell);
+        if (candidateX != bestX)
+        {
+            return candidateX < bestX;
+        }
+
+        return candidateZ < bestZ;
     }
 
     private static bool HasOtherActiveMonster(

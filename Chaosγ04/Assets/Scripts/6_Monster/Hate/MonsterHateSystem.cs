@@ -169,7 +169,8 @@ public sealed class MonsterHateSystem : MonoBehaviour
         bool includePlayer,
         out MonsterTarget selectedTarget,
         out int selectedDistance,
-        out int selectedHate)
+        out int selectedHate,
+        bool ignoreUnitBlockers = false)
     {
         selectedTarget = null;
         selectedDistance = int.MaxValue;
@@ -202,7 +203,8 @@ public sealed class MonsterHateSystem : MonoBehaviour
                 gridManager,
                 selfIdentity,
                 selfCell,
-                target.Cell);
+                target.Cell,
+                ignoreUnitBlockers: ignoreUnitBlockers);
 
             if (distance == int.MaxValue || distance > maxPathDistance)
             {
