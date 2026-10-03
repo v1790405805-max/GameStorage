@@ -217,6 +217,11 @@ public class CombatStatsManager : MonoBehaviour
     {
         currentHP = Mathf.Max(0, currentHP - amount);
         TriggerStatsChanged();
+
+        // 自伤同样触发受击闪红反馈
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        playerObj?.GetComponent<UniversalHitFlash>()?.TriggerFlash();
+
         if (currentHP <= 0)
         {
             Debug.Log("[CombatStatsManager] 玩家生命值归零，触发死亡逻辑。");
@@ -432,6 +437,10 @@ public class CombatStatsManager : MonoBehaviour
         {
             currentHP = Mathf.Max(0, currentHP - remainingDamage);
             Debug.Log($"[CombatStatsManager] 玩家受到 {remainingDamage} 点伤害，剩余HP: {currentHP}");
+
+            // 触发主角受击闪红反馈
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+            playerObj?.GetComponent<UniversalHitFlash>()?.TriggerFlash();
         }
 
         TriggerStatsChanged();

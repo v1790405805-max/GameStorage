@@ -271,8 +271,7 @@ public class CardManager : MonoBehaviour
         bool hasExtraEffects = card.extraEffects != null && card.extraEffects.Count > 0;
         bool cardHasAbility = AbilityCore.HasAbilityEffect(card);
 
-        // 卡牌表现由动画与特效系统协同调度：
-        // CardVFXCore 会智能判断：攻击特效自动等待动画击发，非攻击特效即时播放
+        // 卡牌表现由动画与特效系统协同调度
         CardAnimationCore.PlayAll(card, targetGrid);
         CardVFXCore.PlayAll(card, targetGrid);
         AbilityCore.NotifyCardPlayed(card, targetGrid);
@@ -331,7 +330,7 @@ public class CardManager : MonoBehaviour
             }
         }
 
-        // 2. 攻击效果
+        // 2. 攻击效果（动画击中帧兑现扣血与受击爆点）
         if (card.effectFlags.HasFlag(CardEffectType.Attack))
         {
             HashSet<Vector2Int> attackTargetGrids =
@@ -345,17 +344,30 @@ public class CardManager : MonoBehaviour
                 List<MonsterIdentityManager> monsters =
                     new List<MonsterIdentityManager>(MonsterIdentitySystem.Instance.GetAllMonsters());
 
-                foreach (MonsterIdentityManager monster in monsters)
+                // 挂起到主角 OnHit 动画关键帧执行
+                PlayerCombatReceiver.ExecuteOnHit(() =>
                 {
-                    if (monster == null) continue;
-
-                    var (mx, mz) = gridMgr.GetGridPosition(monster.transform.position);
-                    if (attackTargetGrids.Contains(new Vector2Int(mx, mz)))
+                    foreach (MonsterIdentityManager monster in monsters)
                     {
-                        MonsterStats stats = monster.GetComponent<MonsterStats>();
-                        if (stats != null) stats.TakeDamage(card.damage);
+                        if (monster == null) continue;
+
+                        var (mx, mz) = gridMgr.GetGridPosition(monster.transform.position);
+                        if (attackTargetGrids.Contains(new Vector2Int(mx, mz)))
+                        {
+                            // 扣血并触发怪物自身平滑闪红
+                            MonsterStats stats = monster.GetComponent<MonsterStats>();
+                            if (stats != null) stats.TakeDamage(card.damage);
+
+                            // 👉 根据当前打出的卡牌，在怪物胸口生成专属爆点特效
+                            if (card.hitVFXPrefab != null)
+                            {
+                                Vector3 spawnPos = monster.transform.position + card.hitVFXOffset;
+                                GameObject vfx = Instantiate(card.hitVFXPrefab, spawnPos, Quaternion.identity);
+                                Destroy(vfx, 0.5f);
+                            }
+                        }
                     }
-                }
+                });
             }
         }
 
@@ -365,7 +377,7 @@ public class CardManager : MonoBehaviour
             combatStats.AddBlock(card.block);
         }
 
-        // 4. 生命值变化 (例如：回血技能)
+        // 4. 生命值变化
         if (card.effectFlags.HasFlag(CardEffectType.Health) && card.healthChange != 0)
         {
             if (card.healthChange > 0)

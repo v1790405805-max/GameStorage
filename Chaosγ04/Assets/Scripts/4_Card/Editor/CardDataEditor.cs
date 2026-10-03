@@ -18,6 +18,10 @@ public class CardDataEditor : Editor
     private SerializedProperty animationEffects;
     private SerializedProperty vfxEffects;
 
+    // 命中受击表现
+    private SerializedProperty hitVFXPrefab;
+    private SerializedProperty hitVFXOffset;
+
     // 效果数值
     private SerializedProperty moveDistance;
     private SerializedProperty damage;
@@ -49,6 +53,9 @@ public class CardDataEditor : Editor
         extraEffects = serializedObject.FindProperty("extraEffects");
         animationEffects = serializedObject.FindProperty("animationEffects");
         vfxEffects = serializedObject.FindProperty("vfxEffects");
+
+        hitVFXPrefab = serializedObject.FindProperty("hitVFXPrefab");
+        hitVFXOffset = serializedObject.FindProperty("hitVFXOffset");
 
         moveDistance = serializedObject.FindProperty("moveDistance");
         damage = serializedObject.FindProperty("damage");
@@ -86,7 +93,6 @@ public class CardDataEditor : Editor
 
         EditorGUI.BeginChangeCheck();
         EditorGUILayout.PropertyField(effectFlags, new GUIContent("Effect Flags"));
-        // 监控 Flag 修改，确保勾选/取消时 UI 能立即响应
         if (EditorGUI.EndChangeCheck())
         {
             serializedObject.ApplyModifiedProperties();
@@ -94,9 +100,7 @@ public class CardDataEditor : Editor
 
         EditorGUILayout.Space(8f);
 
-
         // ── 3. 效果数值（按开关动态显示）─────────────────────────
-        // 关键修复：使用 intValue 代替 enumValueFlag，确保值能正确读取和提交
         CardEffectType flags = (CardEffectType)effectFlags.intValue;
 
         if (flags != CardEffectType.None)
@@ -120,7 +124,6 @@ public class CardDataEditor : Editor
         EditorGUILayout.PropertyField(rangeType, new GUIContent("Range Type"));
 
         RangeType currentRangeType = (RangeType)rangeType.enumValueIndex;
-        // 仅非 Point 类型需要显示 rangeDistance
         if (currentRangeType != RangeType.Point)
             EditorGUILayout.PropertyField(rangeDistance, new GUIContent("Range Distance"));
 
@@ -157,12 +160,18 @@ public class CardDataEditor : Editor
 
         EditorGUILayout.Space(8f);
 
+        // ── 4.6 命中受击表现 (定制化爆点) ──────────────────────────
+        EditorGUILayout.LabelField("命中受击表现 (差异化定制)", EditorStyles.boldLabel);
+        EditorGUILayout.PropertyField(hitVFXPrefab, new GUIContent("Hit VFX Prefab", "卡牌命中目标时在目标身上生成的受击爆点预制体（如切痕、爆炸等）"));
+        EditorGUILayout.PropertyField(hitVFXOffset, new GUIContent("Hit VFX Offset", "受击特效在目标身上的局部高度偏移，通常 Y 设为 0.5 左右（对齐胸口）"));
+
+        EditorGUILayout.Space(8f);
+
         // ── 5. Grid 渲染样式 ───────────────────────────────────────
         EditorGUILayout.LabelField("Grid 渲染样式", EditorStyles.boldLabel);
         EditorGUILayout.PropertyField(gridStyle, new GUIContent("Grid Style",
             "拖拽此卡牌时使用的 Grid 高亮样式资产（GridStyleData）。\n留空则不显示范围高亮。"));
 
-        // 样式未赋值时给出提示
         if (gridStyle.objectReferenceValue == null)
         {
             EditorGUILayout.HelpBox("未指定 Grid Style，拖拽此卡牌时将不显示 Grid 范围高亮。", MessageType.Warning);

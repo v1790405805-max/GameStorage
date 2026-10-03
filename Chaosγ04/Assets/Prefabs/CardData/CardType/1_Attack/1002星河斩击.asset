@@ -37,7 +37,10 @@ MonoBehaviour:
     effectTypeName: PlayerAttackAnimation, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
   vfxEffects:
-  - effectScript: {fileID: 11500000, guid: 63653cd68eb54eb2b6350d6050332bdb, type: 3}
-    effectTypeName: StabVFX, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - effectScript: {fileID: 11500000, guid: bb03db44bc084077ae85aa9186fbe516, type: 3}
+    effectTypeName: SlashVFX, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+  hitVFXPrefab: {fileID: 3782734080634790471, guid: 8d76d5284bb79154db7d08b61a80a4c3, type: 3}
+  hitVFXOffset: {x: 0, y: 0.5, z: 0}
   gridStyle: {fileID: 11400000, guid: 88afb53f10edd8244949d4b08ce8e10e, type: 2}
   description: "\u9020\u621015\u70B9\u4F24\u5BB3\uFF0C\u672C\u56DE\u5408\u6BCF\u6D88\u80175\u884C\u52A8\u529B\uFF0CCost\u51CF1"

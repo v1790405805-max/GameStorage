@@ -1,8 +1,10 @@
+using System.Collections;
 using UnityEngine;
 
 /// <summary>
 /// Monster attack action. The attack target is selected by MonsterHateSystem and may be
 /// the player or any other hostile-faction monster. Leave decisions suppress this action.
+/// 已接入动画 Hit 关键帧事件同步结算与后摇控制。
 /// </summary>
 public class MonsterAttackAction : MonsterActionBase
 {
@@ -15,10 +17,22 @@ public class MonsterAttackAction : MonsterActionBase
     [Header("动画参数配置")]
     public string attackTriggerName = "Attack";
 
+    [Header("打击节奏与保底配置")]
+    [Tooltip("若动画未配置 Hit 事件，超时多少秒后自动保底扣血（防卡死）")]
+    [SerializeField] private float hitDelayFallback = 0.35f;
+
+    [Tooltip("击中判定后，等待收招动作播放完毕的时长（秒），之后结束怪物行动")]
+    [SerializeField] private float postAttackDuration = 0.25f;
+
     private MonsterIdentityManager selfIdentity;
     private MonsterHateSystem hateSystem;
     private MonsterStats monsterStats;
     private bool suppressedForTurn;
+
+    // 运行时状态
+    private MonsterTarget currentAttackTarget;
+    private bool hasDealtDamage;
+    private Coroutine attackRoutine;
 
     public int AttackRange => monsterStats != null ? monsterStats.attackRange : 0;
     public int AttackDamage => monsterStats != null ? monsterStats.attackDamage : 0;
@@ -29,6 +43,28 @@ public class MonsterAttackAction : MonsterActionBase
         monsterStats = GetComponent<MonsterStats>();
         hateSystem = MonsterHateSystem.EnsureOn(selfIdentity);
         EnsureGridManager();
+        EnsureEventForwarder();
+    }
+
+    private void OnDisable()
+    {
+        StopAttackRoutine();
+    }
+
+    /// <summary>
+    /// 确保带有 Animator 的子物体上挂有事件转发器，捕获动画帧抛出的 Hit
+    /// </summary>
+    private void EnsureEventForwarder()
+    {
+        if (monsterAnimator != null)
+        {
+            MonsterAnimationEventForwarder forwarder = monsterAnimator.GetComponent<MonsterAnimationEventForwarder>();
+            if (forwarder == null)
+            {
+                forwarder = monsterAnimator.gameObject.AddComponent<MonsterAnimationEventForwarder>();
+            }
+            forwarder.attackAction = this;
+        }
     }
 
     public override bool CanExecute(MonsterActionContext context)
@@ -55,6 +91,7 @@ public class MonsterAttackAction : MonsterActionBase
 
     public override void OnSkipped()
     {
+        StopAttackRoutine();
         if (monsterAnimator != null)
         {
             monsterAnimator.ResetTrigger(Animator.StringToHash(attackTriggerName));
@@ -66,6 +103,7 @@ public class MonsterAttackAction : MonsterActionBase
         EnsureGridManager();
         EnsureHateSystem();
         EnsureMonsterStats();
+        EnsureEventForwarder();
 
         if (suppressedForTurn)
         {
@@ -88,9 +126,64 @@ public class MonsterAttackAction : MonsterActionBase
             return;
         }
 
+        // 记录目标并启动打击时序协程
+        currentAttackTarget = target;
+        hasDealtDamage = false;
+
         PlayAttackAnimation();
-        ResolveAttackDamage(target);
+
+        StopAttackRoutine();
+        attackRoutine = StartCoroutine(AttackSequenceRoutine());
+    }
+
+    private IEnumerator AttackSequenceRoutine()
+    {
+        // 等待动画中的 Hit 事件触发，若超时则通过 fallback 自动保底执行
+        yield return new WaitForSeconds(hitDelayFallback);
+
+        if (!hasDealtDamage)
+        {
+            Debug.LogWarning($"[{name}] 未在预定时长内收到 Hit 动画事件，触发保底伤害结算！");
+            ExecuteHitDamage();
+        }
+
+        // 等待怪物把挥刀收招后摇播放完毕，再让行动结束
+        yield return new WaitForSeconds(postAttackDuration);
+
         CompleteAction();
+        attackRoutine = null;
+    }
+
+    /// <summary>
+    /// 【核心事件响应】动画播放到击中帧时调用
+    /// </summary>
+    public void OnAnimationHit()
+    {
+        if (!hasDealtDamage)
+        {
+            ExecuteHitDamage();
+        }
+    }
+
+    // 兼容可能直接在根节点触发的同名动画事件
+    public void Hit() => OnAnimationHit();
+
+    private void ExecuteHitDamage()
+    {
+        hasDealtDamage = true;
+        if (currentAttackTarget != null)
+        {
+            ResolveAttackDamage(currentAttackTarget);
+        }
+    }
+
+    private void StopAttackRoutine()
+    {
+        if (attackRoutine != null)
+        {
+            StopCoroutine(attackRoutine);
+            attackRoutine = null;
+        }
     }
 
     public void SetSuppressedForTurn(bool suppressed)
@@ -101,6 +194,7 @@ public class MonsterAttackAction : MonsterActionBase
     public void ResetTurnState()
     {
         suppressedForTurn = false;
+        StopAttackRoutine();
         if (monsterAnimator != null)
         {
             monsterAnimator.ResetTrigger(Animator.StringToHash(attackTriggerName));
@@ -229,10 +323,31 @@ public class MonsterAttackAction : MonsterActionBase
     public override void CancelAction()
     {
         base.CancelAction();
+        StopAttackRoutine();
 
         if (monsterAnimator != null)
         {
             monsterAnimator.ResetTrigger(Animator.StringToHash(attackTriggerName));
         }
+    }
+}
+
+/// <summary>
+/// 辅助事件转发器：运行时自动附加在子物体 Animator 上，接收 Unity Animation Event 并通知主动作脚本
+/// </summary>
+public class MonsterAnimationEventForwarder : MonoBehaviour
+{
+    [HideInInspector] public MonsterAttackAction attackAction;
+
+    // 匹配动画切片中的 "Hit" 帧事件
+    public void Hit()
+    {
+        attackAction?.OnAnimationHit();
+    }
+
+    // 兼容可能使用的 "OnHit"
+    public void OnHit()
+    {
+        attackAction?.OnAnimationHit();
     }
 }

@@ -23,11 +23,15 @@ public class MonsterStats : MonoBehaviour, IDamageable
     public static event Action<MonsterIdentityManager> PlayerAttackedMonster;
 
     private MonsterHateSystem hateSystem;
+    private UniversalHitFlash hitFlash;
 
     private void Awake()
     {
         // 游戏一开始，立即给当前血量赋最大值
         currentHp = maxHp;
+
+        // 自动获取挂在怪物身上的受击闪红组件
+        hitFlash = GetComponent<UniversalHitFlash>();
     }
 
     private void Start()
@@ -74,6 +78,9 @@ public class MonsterStats : MonoBehaviour, IDamageable
         {
             currentHp = Mathf.Max(0, currentHp - remainingDamage);
             Debug.Log($"[{gameObject.name}] 受到了 {remainingDamage} 点伤害，剩余HP: {currentHp}");
+
+            // 触发平滑受击闪红
+            hitFlash?.TriggerFlash();
 
             // 只有玩家造成的伤害才计入玩家 RunData
             if (playerAttributed && RunDataManager.Instance != null)

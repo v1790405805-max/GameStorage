@@ -36,5 +36,7 @@ MonoBehaviour:
   vfxEffects:
   - effectScript: {fileID: 11500000, guid: 63653cd68eb54eb2b6350d6050332bdb, type: 3}
     effectTypeName: StabVFX, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  hitVFXPrefab: {fileID: 3782734080634790471, guid: 8d76d5284bb79154db7d08b61a80a4c3, type: 3}
+  hitVFXOffset: {x: 0, y: 0.5, z: 0}
   gridStyle: {fileID: 11400000, guid: 88afb53f10edd8244949d4b08ce8e10e, type: 2}
   description: "\u9009\u5B9A3\u683C\u8303\u56F4\u5185\u7684\u654C\u4EBA\u8FDB\u884C\u653B\u51FB\uFF0C\u9020\u62104\u70B9\u4F24\u5BB3X\u6B21"

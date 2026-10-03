@@ -120,6 +120,13 @@ public class CardData : ScriptableObject
     [Tooltip("按顺序拖拽 CardVFXCore 子类脚本（.cs）挂载此卡牌的特效表现")]
     public List<CardPresentationEffectReference> vfxEffects = new List<CardPresentationEffectReference>();
 
+    [Header("命中受击表现 (按招式差异化定制)")]
+    [Tooltip("卡牌命中目标时在目标身上生成的受击爆点预制体（如刺击切痕、爆炸等）")]
+    public GameObject hitVFXPrefab;
+
+    [Tooltip("受击特效在目标身上的局部高度偏移，通常 Y 设为 0.5 左右（对齐怪物胸口）")]
+    public Vector3 hitVFXOffset = new Vector3(0f, 0.5f, 0f);
+
     [Tooltip("拖拽此卡牌时使用的 Grid 高亮样式资产（GridStyleData）。\n留空则不显示范围高亮。")]
     public GridStyleData gridStyle;
 
@@ -208,6 +215,11 @@ public class CardData : ScriptableObject
         clone.targetSelectMode = targetSelectMode;
         clone.gridStyle = gridStyle;
         clone.description = description;
+
+        // 深拷贝受击特效引用与偏移量
+        clone.hitVFXPrefab = hitVFXPrefab;
+        clone.hitVFXOffset = hitVFXOffset;
+
         return clone;
     }
 }
