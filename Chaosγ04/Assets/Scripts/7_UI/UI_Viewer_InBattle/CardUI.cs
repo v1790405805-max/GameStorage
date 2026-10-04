@@ -28,6 +28,22 @@ public class CardUI : MonoBehaviour,
     public TextMeshProUGUI nameText;
     public TextMeshProUGUI descText;
 
+    [Header("卡牌类型视觉配置")]
+    [Tooltip("随卡牌类型改变颜色的底图/边框/标头 Image 组件（留空则不生效）")]
+    public Image cardTypeImage;
+    [Tooltip("攻击卡颜色 (默认暗红)")]
+    public Color attackColor = new Color(0.9f, 0.35f, 0.35f, 1f);
+    [Tooltip("技能卡颜色 (默认冷蓝)")]
+    public Color skillColor = new Color(0.35f, 0.65f, 0.95f, 1f);
+    [Tooltip("位移卡颜色 (默认青绿)")]
+    public Color movementColor = new Color(0.35f, 0.9f, 0.65f, 1f);
+    [Tooltip("特殊卡颜色 (默认星辰紫)")]
+    public Color specialColor = new Color(0.7f, 0.45f, 0.95f, 1f);
+    [Tooltip("能力卡颜色 (默认金黄)")]
+    public Color abilityColor = new Color(0.95f, 0.75f, 0.3f, 1f);
+    [Tooltip("默认/未识别类型颜色")]
+    public Color defaultTypeColor = Color.white;
+
     [Header("视觉交互组件")]
     [Tooltip("拖入卡牌的边框高亮物体上的 Image 组件")]
     public Image highlightBorderImage;
@@ -100,6 +116,39 @@ public class CardUI : MonoBehaviour,
         RefreshCostDisplay();
         if (nameText != null) nameText.text = data.cardName;
         if (descText != null) descText.text = data.description;
+
+        // 根据卡牌类型动态换色
+        if (data != null)
+        {
+            UpdateCardTypeColor(data.type);
+        }
+    }
+
+    private void UpdateCardTypeColor(CardType type)
+    {
+        if (cardTypeImage == null) return;
+
+        switch (type)
+        {
+            case CardType.Attack:
+                cardTypeImage.color = attackColor;
+                break;
+            case CardType.Skill:
+                cardTypeImage.color = skillColor;
+                break;
+            case CardType.Movement:
+                cardTypeImage.color = movementColor;
+                break;
+            case CardType.Special:
+                cardTypeImage.color = specialColor;
+                break;
+            case CardType.Ability:
+                cardTypeImage.color = abilityColor;
+                break;
+            default:
+                cardTypeImage.color = defaultTypeColor;
+                break;
+        }
     }
 
     // --- 1. 纯鼠标悬停效果 ---

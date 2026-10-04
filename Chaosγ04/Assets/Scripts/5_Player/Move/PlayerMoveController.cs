@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.EventSystems; // 引入 UI 事件系统
 
 [RequireComponent(typeof(LineRenderer))]
 public class PlayerMoveController : MonoBehaviour, ITurnStateListener
@@ -172,7 +173,6 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
     {
         if (playerTransform == null) yield break;
 
-        // 【关键改动】将 null 作为 reachableSet 传给 FindPathAStarCells，解除只能在 AP 点击范围内走的限制
         List<CellManager> path = MoveSystem.FindPathAStarCells(startCell, endCell, null, visualManager.GridManager);
         if (path == null || path.Count <= 1)
         {
@@ -227,7 +227,6 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         isMoving = false;
         if (playerAnimator != null) playerAnimator.SetBool("Move", false);
 
-        // 移动完成后，自动唤出朝向选择按钮
         TriggerOrientationUI();
     }
 
@@ -244,6 +243,18 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         }
 
         if (Camera.main == null || Mouse.current == null) return;
+
+        // 👉 核心改动：检测鼠标是否悬停在 UGUI 元素上方，若是则阻断地块交互
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+        {
+            ClearPath();
+            if (Mouse.current.leftButton.wasReleasedThisFrame)
+            {
+                pendingPressCell = null;
+                pressStartTime = -1f;
+            }
+            return;
+        }
 
         Vector2 mousePosition = Mouse.current.position.ReadValue();
         Ray ray = Camera.main.ScreenPointToRay(mousePosition);
@@ -270,7 +281,6 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
 
                 if (visualManager.IsPlayerOnCell(cellUnderMouse))
                 {
-                    // 按下玩家格：先挂起，不立即显示范围；等抬起时区分短按点击/长按
                     pendingPressCell = cellUnderMouse;
                     pressStartTime = Time.time;
                 }
@@ -294,7 +304,6 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
             }
         }
 
-        // 抬起判定：短按 + 朝向按钮未显示 + 松开时仍停留在该角色格 → 触发“点击角色显示范围”
         if (Mouse.current.leftButton.wasReleasedThisFrame && pendingPressCell != null)
         {
             bool isShortPress = Time.time - pressStartTime < ClickHoldThreshold;
@@ -354,13 +363,8 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         visualManager.SetReachablePatternColors(reachableGridSet, clickedCell, playerMoveStyle, isRuntime: true);
     }
 
-    /// <summary>
-    /// 清除当前点击状态（范围渲染、悬停上下文、路径指示）。
-    /// 供本类内部与 PlayerOrientationController（长按唤出朝向按钮时）调用。
-    /// </summary>
     public void ClearClickedGrid()
     {
-        // 取消正在进行的按下判定，避免清除后残留的抬起事件再触发点击
         pendingPressCell = null;
         pressStartTime = -1f;
 
@@ -412,9 +416,6 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         }
     }
 
-    /// <summary>
-    /// 玩家自主点击地块移动的常规协程（需要扣除 AP）
-    /// </summary>
     private IEnumerator MovePlayerAlongPathRoutine(CellManager startCell, CellManager endCell)
     {
         if (playerTransform == null) yield break;
@@ -480,13 +481,9 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         isMoving = false;
         if (playerAnimator != null) playerAnimator.SetBool("Move", false);
 
-        // 移动完成后，自动唤出朝向选择按钮
         TriggerOrientationUI();
     }
 
-    /// <summary>
-    /// 安全调用 PlayerOrientationController 弹出朝向 UI 界面
-    /// </summary>
     private void TriggerOrientationUI()
     {
         if (PlayerOrientationController.Instance != null)
