@@ -278,9 +278,18 @@ public class TurnManager : MonoBehaviour
             monsterMgr.OnSequenceFinished += finishHandler;
             monsterMgr.OnTurnActivated();
 
-            yield return new WaitUntil(() => isFinished);
+            yield return new WaitUntil(
+                () => isFinished ||
+                      monsterMgr == null ||
+                      !monsterMgr.gameObject.activeInHierarchy);
+
+            if (!isFinished && monsterMgr != null)
+            {
+                monsterMgr.OnSequenceFinished -= finishHandler;
+            }
         }
 
+        enemyBehaviours.RemoveAll(monsterManager => monsterManager == null);
         enemyTurnCoroutine = null;
         SetTurn(TurnState.Player);
     }
@@ -320,7 +329,17 @@ public class TurnManager : MonoBehaviour
 
     public void UnregisterPlayerBehaviour(MonoBehaviour behaviour) => playerBehaviours.Remove(behaviour);
 
-    public void UnregisterEnemyBehaviour(MonsterActionManager behaviour) => enemyBehaviours.Remove(behaviour);
+    public void UnregisterEnemyBehaviour(MonsterActionManager behaviour)
+    {
+        if (behaviour == null) return;
+
+        int index = enemyBehaviours.IndexOf(behaviour);
+        if (index >= 0)
+        {
+            // 保留空位，避免敌方回合协程迭代期间删除元素导致后续怪物被跳过。
+            enemyBehaviours[index] = null;
+        }
+    }
 
     public void RestoreRoundCount(int savedRound)
     {

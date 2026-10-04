@@ -14,6 +14,91 @@ public struct MonsterSaveData
 }
 
 [Serializable]
+public class MonsterStateSnapshot
+{
+    public string monsterId;
+    public MonsterIdentityManager.MonsterFaction faction;
+    public Vector3 position;
+    public Quaternion rotation;
+    public bool activeSelf;
+    public int maxHp;
+    public int currentHp;
+    public int currentBlock;
+    public int mobility;
+    public int attackRange;
+    public int attackDamage;
+
+    public static MonsterStateSnapshot Capture(MonsterIdentityManager monster)
+    {
+        MonsterStateSnapshot snapshot = new MonsterStateSnapshot();
+        if (monster == null)
+        {
+            return snapshot;
+        }
+
+        snapshot.monsterId = monster.monsterId;
+        snapshot.faction = monster.faction;
+        snapshot.position = monster.transform.position;
+        snapshot.rotation = monster.transform.rotation;
+        snapshot.activeSelf = monster.gameObject.activeSelf;
+
+        MonsterStats stats = monster.GetComponentInChildren<MonsterStats>(true);
+        if (stats != null)
+        {
+            snapshot.maxHp = stats.maxHp;
+            snapshot.currentHp = stats.currentHp;
+            snapshot.currentBlock = stats.currentBlock;
+            snapshot.mobility = stats.mobility;
+            snapshot.attackRange = stats.attackRange;
+            snapshot.attackDamage = stats.attackDamage;
+        }
+
+        return snapshot;
+    }
+
+    public void ApplyTo(MonsterIdentityManager monster)
+    {
+        if (monster == null)
+        {
+            return;
+        }
+
+        Transform monsterTransform = monster.transform;
+        monsterTransform.SetPositionAndRotation(position, rotation);
+
+        MonsterStats stats = monster.GetComponentInChildren<MonsterStats>(true);
+        if (stats != null)
+        {
+            stats.maxHp = maxHp;
+            stats.currentHp = currentHp;
+            stats.currentBlock = currentBlock;
+            stats.mobility = mobility;
+            stats.attackRange = attackRange;
+            stats.attackDamage = attackDamage;
+        }
+
+        monster.gameObject.SetActive(activeSelf);
+
+        if (activeSelf)
+        {
+            MonsterInfoUI infoUI = monster.GetComponentInChildren<MonsterInfoUI>(true);
+            if (infoUI != null)
+            {
+                int maxHpForUi = stats != null ? stats.maxHp : maxHp;
+                int currentHpForUi = stats != null ? stats.currentHp : currentHp;
+                infoUI.UpdateHpDisplay(currentHpForUi, maxHpForUi);
+                infoUI.HideDamagePreview();
+            }
+        }
+    }
+
+    public MonsterStateSnapshot Clone()
+    {
+        return (MonsterStateSnapshot)MemberwiseClone();
+    }
+}
+
+[Serializable]
 public class TurnStartSnapshotData
 {
     // ==========================================
@@ -34,9 +119,7 @@ public class TurnStartSnapshotData
     public Quaternion playerRotation;
     public float horizontal;
     public float vertical;
-    public List<string> enemyIds = new List<string>();
-    public List<Vector3> enemyPositions = new List<Vector3>();
-    public List<Quaternion> enemyRotations = new List<Quaternion>();
+    public List<MonsterStateSnapshot> monsters = new List<MonsterStateSnapshot>();
 }
 
 /// <summary>

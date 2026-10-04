@@ -41,14 +41,9 @@ public class SLManager : MonoBehaviour, ITurnStateListener
     [Header("快照 - 位置状态（仅供 Inspector 预览）")]
     [SerializeField] private Vector3 snapshotPlayerPosition;
     [SerializeField] private Quaternion snapshotPlayerRotation;
-    [SerializeField] private List<Transform> snapshotEnemyRefs = new List<Transform>();
-    [SerializeField] private List<Vector3> snapshotEnemyPositions = new List<Vector3>();
-    [SerializeField] private List<Quaternion> snapshotEnemyRotations = new List<Quaternion>();
 
-    // 【新增】怪物完整数值与状态快照
-    [SerializeField] private List<int> snapshotEnemyHPs = new List<int>();
-    [SerializeField] private List<int> snapshotEnemyBlocks = new List<int>();
-    [SerializeField] private List<bool> snapshotEnemyActiveStates = new List<bool>();
+    [Header("快照 - 怪物完整状态（仅供 Inspector 预览）")]
+    [SerializeField] private List<MonsterStateSnapshot> snapshotMonsters = new List<MonsterStateSnapshot>();
 
     private void Awake()
     {
@@ -110,7 +105,7 @@ public class SLManager : MonoBehaviour, ITurnStateListener
         hasSnapshot = true;
         if (logDebugInfo)
         {
-            Debug.Log($"[SLManager] 已记录回合快照 | 手牌数:{snapshotHand.Count} 抽牌堆:{snapshotDrawPile.Count}");
+            Debug.Log($"[SLManager] 已记录回合快照 | 手牌数:{snapshotHand.Count} 抽牌堆:{snapshotDrawPile.Count} 怪物数:{snapshotMonsters.Count}");
         }
     }
 
@@ -165,36 +160,15 @@ public class SLManager : MonoBehaviour, ITurnStateListener
 
     private void CaptureEnemyStates()
     {
-        snapshotEnemyRefs.Clear();
-        snapshotEnemyPositions.Clear();
-        snapshotEnemyRotations.Clear();
-        snapshotEnemyHPs.Clear();
-        snapshotEnemyBlocks.Clear();
-        snapshotEnemyActiveStates.Clear();
+        snapshotMonsters.Clear();
 
-        GameObject[] monsterObjs = GameObject.FindGameObjectsWithTag("Monster");
-        foreach (GameObject monster in monsterObjs)
+        MonsterIdentityManager[] monsters =
+            FindObjectsByType<MonsterIdentityManager>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+        foreach (MonsterIdentityManager monster in monsters)
         {
             if (monster == null) continue;
-            Transform root = monster.transform.root;
-            if (snapshotEnemyRefs.Contains(root)) continue;
-
-            snapshotEnemyRefs.Add(root);
-            snapshotEnemyPositions.Add(root.position);
-            snapshotEnemyRotations.Add(root.rotation);
-            snapshotEnemyActiveStates.Add(root.gameObject.activeSelf);
-
-            MonsterStats stats = root.GetComponentInChildren<MonsterStats>();
-            if (stats != null)
-            {
-                snapshotEnemyHPs.Add(stats.currentHp);
-                snapshotEnemyBlocks.Add(stats.currentBlock);
-            }
-            else
-            {
-                snapshotEnemyHPs.Add(0);
-                snapshotEnemyBlocks.Add(0);
-            }
+            snapshotMonsters.Add(MonsterStateSnapshot.Capture(monster));
         }
     }
 
@@ -217,17 +191,7 @@ public class SLManager : MonoBehaviour, ITurnStateListener
         data.playerRotation = snapshotPlayerRotation;
         data.horizontal = snapshotHorizontal;
         data.vertical = snapshotVertical;
-
-        for (int i = 0; i < snapshotEnemyRefs.Count; i++)
-        {
-            Transform enemy = snapshotEnemyRefs[i];
-            if (enemy == null) continue;
-            MonsterIdentityManager identity = enemy.GetComponentInChildren<MonsterIdentityManager>();
-            string id = identity != null ? identity.monsterId : enemy.name;
-            data.enemyIds.Add(id);
-            data.enemyPositions.Add(snapshotEnemyPositions[i]);
-            data.enemyRotations.Add(snapshotEnemyRotations[i]);
-        }
+        data.monsters = CloneMonsterSnapshotList(snapshotMonsters);
         return data;
     }
 
@@ -251,43 +215,7 @@ public class SLManager : MonoBehaviour, ITurnStateListener
         snapshotPlayerRotation = data.playerRotation;
         snapshotHorizontal = data.horizontal;
         snapshotVertical = data.vertical;
-
-        snapshotEnemyRefs.Clear();
-        snapshotEnemyPositions.Clear();
-        snapshotEnemyRotations.Clear();
-        snapshotEnemyHPs.Clear();
-        snapshotEnemyBlocks.Clear();
-        snapshotEnemyActiveStates.Clear();
-
-        GameObject[] monsterObjs = GameObject.FindGameObjectsWithTag("Monster");
-        foreach (GameObject monster in monsterObjs)
-        {
-            if (monster == null) continue;
-            MonsterIdentityManager identity = monster.GetComponentInChildren<MonsterIdentityManager>();
-            if (identity == null) continue;
-            int idx = data.enemyIds.IndexOf(identity.monsterId);
-            if (idx < 0) continue;
-
-            Transform root = monster.transform.root;
-            if (snapshotEnemyRefs.Contains(root)) continue;
-
-            snapshotEnemyRefs.Add(root);
-            snapshotEnemyPositions.Add(data.enemyPositions[idx]);
-            snapshotEnemyRotations.Add(data.enemyRotations[idx]);
-            snapshotEnemyActiveStates.Add(true);
-
-            MonsterStats stats = root.GetComponentInChildren<MonsterStats>();
-            if (stats != null)
-            {
-                snapshotEnemyHPs.Add(stats.currentHp);
-                snapshotEnemyBlocks.Add(stats.currentBlock);
-            }
-            else
-            {
-                snapshotEnemyHPs.Add(0);
-                snapshotEnemyBlocks.Add(0);
-            }
-        }
+        snapshotMonsters = CloneMonsterSnapshotList(data.monsters);
 
         if (TurnManager.Instance != null)
         {
@@ -374,34 +302,60 @@ public class SLManager : MonoBehaviour, ITurnStateListener
 
     private void RestoreEnemyStates()
     {
-        for (int i = 0; i < snapshotEnemyRefs.Count; i++)
+        MonsterIdentityManager[] currentMonsters =
+            FindObjectsByType<MonsterIdentityManager>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+        Dictionary<string, MonsterIdentityManager> currentById =
+            new Dictionary<string, MonsterIdentityManager>();
+
+        foreach (MonsterIdentityManager monster in currentMonsters)
         {
-            Transform enemy = snapshotEnemyRefs[i];
-            if (enemy == null) continue;
+            if (monster == null || string.IsNullOrEmpty(monster.monsterId)) continue;
+            currentById[monster.monsterId] = monster;
+        }
 
-            if (i < snapshotEnemyActiveStates.Count)
+        HashSet<MonsterIdentityManager> handledMonsters =
+            new HashSet<MonsterIdentityManager>();
+
+        foreach (MonsterStateSnapshot snapshot in snapshotMonsters)
+        {
+            if (snapshot == null || string.IsNullOrEmpty(snapshot.monsterId)) continue;
+
+            if (currentById.TryGetValue(snapshot.monsterId, out MonsterIdentityManager monster))
             {
-                enemy.gameObject.SetActive(snapshotEnemyActiveStates[i]);
+                snapshot.ApplyTo(monster);
+                handledMonsters.Add(monster);
             }
-
-            if (i < snapshotEnemyPositions.Count) enemy.position = snapshotEnemyPositions[i];
-            if (i < snapshotEnemyRotations.Count) enemy.rotation = snapshotEnemyRotations[i];
-
-            MonsterStats stats = enemy.GetComponentInChildren<MonsterStats>();
-            if (stats != null)
+            else
             {
-                if (i < snapshotEnemyHPs.Count) stats.currentHp = snapshotEnemyHPs[i];
-                if (i < snapshotEnemyBlocks.Count) stats.currentBlock = snapshotEnemyBlocks[i];
-
-                // 通知 UI 强制刷新
-                MonsterInfoUI infoUI = enemy.GetComponentInChildren<MonsterInfoUI>();
-                if (infoUI != null)
-                {
-                    infoUI.UpdateHpDisplay(stats.currentHp, stats.maxHp);
-                    infoUI.HideDamagePreview();
-                }
+                Debug.LogWarning($"[SLManager] 找不到怪物 {snapshot.monsterId}，无法恢复该怪物的回合开始状态。");
             }
         }
+
+        foreach (MonsterIdentityManager monster in currentMonsters)
+        {
+            if (monster == null || handledMonsters.Contains(monster)) continue;
+
+            // 本回合开始时不存在的怪物（例如之后新召唤的怪），直接移除。
+            monster.gameObject.SetActive(false);
+            Destroy(monster.gameObject);
+        }
+    }
+
+    private List<MonsterStateSnapshot> CloneMonsterSnapshotList(List<MonsterStateSnapshot> source)
+    {
+        List<MonsterStateSnapshot> result = new List<MonsterStateSnapshot>();
+        if (source == null) return result;
+
+        foreach (MonsterStateSnapshot snapshot in source)
+        {
+            if (snapshot != null)
+            {
+                result.Add(snapshot.Clone());
+            }
+        }
+
+        return result;
     }
 
     public void ClearSnapshot()
@@ -416,11 +370,6 @@ public class SLManager : MonoBehaviour, ITurnStateListener
         snapshotDiscardPile.Clear();
         snapshotExhaustPile.Clear();
         snapshotSpecialCards.Clear();
-        snapshotEnemyRefs.Clear();
-        snapshotEnemyPositions.Clear();
-        snapshotEnemyRotations.Clear();
-        snapshotEnemyHPs.Clear();
-        snapshotEnemyBlocks.Clear();
-        snapshotEnemyActiveStates.Clear();
+        snapshotMonsters.Clear();
     }
 }

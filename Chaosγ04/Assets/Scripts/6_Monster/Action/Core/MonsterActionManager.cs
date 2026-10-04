@@ -72,6 +72,10 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
 
     private void OnDisable()
     {
+        // 怪物可能在动作序列执行中被击杀并 SetActive(false)。
+        // 此时必须主动结束序列并通知等待方，否则 TurnManager 会一直等待 OnSequenceFinished。
+        StopSequence();
+
         TerminationRequested -= HandleTerminationRequested;
 
         if (TurnManager.Instance != null)
