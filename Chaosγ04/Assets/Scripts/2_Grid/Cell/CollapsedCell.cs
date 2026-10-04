@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 /// <summary>
-/// 塌陷格（CollapsedCell）：任意生物（玩家或怪物）进入本格后，从当前回合开始计算，
+/// 塌陷格（CollapsedCell）：玩家进入本格后，从当前回合开始计算，
 /// 本格会在"下一个回合结束时"下沉一层：
 /// - 若本格下方还有更低层的格子：本格下落至该下方格的层高、名字改为该下方格的名字，并禁用该下方格；
 /// - 若本格下方没有更低层格子：本格直接落到 L1 层高（网格基准面），名字后缀改为 _L1。
@@ -20,12 +21,15 @@ public class CollapsedCell : MonoBehaviour
     public GridManager gridManager;
 
     [Header("下沉规则")]
-    [Tooltip("生物进入本格后，经过多少个回合结束时下沉（1 = 下一个回合结束时）")]
+    [Tooltip("玩家进入本格后，经过多少个回合结束时下沉（1 = 下一个回合结束时）")]
     public int sinkDelayRounds = 1;
 
     [Header("下沉联动")]
-    [Tooltip("跟随本格保持相同 Y 坐标并一起下沉的物体（X/Z 保持不变）")]
-    public GameObject followTarget;
+    [Tooltip("跟随本格保持相同 Y 坐标并一起下沉的物体，可配置多个（X/Z 保持不变）")]
+    [SerializeField] private List<GameObject> followTargets = new List<GameObject>();
+
+    [FormerlySerializedAs("followTarget")]
+    [SerializeField, HideInInspector] private GameObject legacyFollowTarget;
 
     /// <summary>预定下沉的回合数（-1 = 未武装）。回合数即 TurnManager.currentRoundCount。</summary>
     private int sinkRound = -1;
@@ -36,6 +40,12 @@ public class CollapsedCell : MonoBehaviour
     private void Awake()
     {
         selfCellManager = GetComponent<CellManager>();
+        MigrateLegacyFollowTarget();
+    }
+
+    private void OnValidate()
+    {
+        MigrateLegacyFollowTarget();
     }
 
     private void Start()
@@ -72,23 +82,17 @@ public class CollapsedCell : MonoBehaviour
     }
 
     // ==================================================================
-    // 触发检测：任意生物进入 → 武装倒计时（已武装不重置；离开不取消）
+    // 触发检测：仅玩家进入 → 武装倒计时（已武装不重置；离开不取消）
     // ==================================================================
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other == null || !IsCreature(other))
+        if (other == null || !other.CompareTag("Player"))
         {
             return;
         }
 
         ArmIfNeeded();
-    }
-
-    private bool IsCreature(Collider other)
-    {
-        return other.CompareTag("Player")
-            || other.GetComponentInParent<MonsterIdentityManager>() != null;
     }
 
     private void ArmIfNeeded()
@@ -189,11 +193,41 @@ public class CollapsedCell : MonoBehaviour
         }
 
         // 联动物体与本格保持相同 Y 坐标，一起下沉（X/Z 保持不变）
-        if (followTarget != null)
+        MoveFollowTargetsToCurrentHeight();
+    }
+
+    private void MigrateLegacyFollowTarget()
+    {
+        if (followTargets == null)
         {
-            Vector3 followPos = followTarget.transform.position;
+            followTargets = new List<GameObject>();
+        }
+
+        if (legacyFollowTarget == null)
+        {
+            return;
+        }
+
+        if (!followTargets.Contains(legacyFollowTarget))
+        {
+            followTargets.Add(legacyFollowTarget);
+        }
+
+        legacyFollowTarget = null;
+    }
+
+    private void MoveFollowTargetsToCurrentHeight()
+    {
+        foreach (GameObject target in followTargets)
+        {
+            if (target == null)
+            {
+                continue;
+            }
+
+            Vector3 followPos = target.transform.position;
             followPos.y = transform.position.y;
-            followTarget.transform.position = followPos;
+            target.transform.position = followPos;
         }
     }
 
@@ -270,7 +304,7 @@ public class CollapsedCell : MonoBehaviour
 /// CollapsedCell 的回合监听器：挂在格子下的子物体上，注册进 TurnManager 的玩家行为列表。
 /// 注册进该列表的组件在敌方回合会被 TurnManager 禁用（SetGroupState），
 /// 因此监听器只负责转发回合回调；CollapsedCell 本体保持启用，
-/// 以便在敌方回合期间也能持续接收 Trigger 事件（怪物踩入也能武装）。
+/// 以便持续接收玩家触发事件。
 /// OnTurnDeactivated 在玩家点击"结束回合"时触发，此时结算下沉（不等待敌方回合）。
 /// </summary>
 public class CollapsedCellTurnListener : MonoBehaviour, ITurnStateListener

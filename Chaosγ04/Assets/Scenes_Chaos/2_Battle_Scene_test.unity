@@ -6094,6 +6094,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 4650372740735073039, guid: e2273d1c04b83c540b95d1d6c463f6fb, type: 3}
       insertIndex: -1
       addedObject: {fileID: 71203225}
+    - targetCorrespondingSourceObject: {fileID: 4650372740735073039, guid: e2273d1c04b83c540b95d1d6c463f6fb, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 71203229}
   m_SourcePrefab: {fileID: 100100000, guid: e2273d1c04b83c540b95d1d6c463f6fb, type: 3}
 --- !u!4 &71203223 stripped
 Transform:
@@ -6129,6 +6132,23 @@ MonoBehaviour:
   - {fileID: 1191664713}
   - {fileID: 608119225}
   - {fileID: 1900518006}
+--- !u!114 &71203229
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 71203224}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d558827b059c695428371729bba0a891, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CollapsedCell
+  gridManager: {fileID: 1996419300}
+  sinkDelayRounds: 0
+  followTargets:
+  - {fileID: 1791125974}
+  legacyFollowTarget: {fileID: 0}
 --- !u!1 &72515843
 GameObject:
   m_ObjectHideFlags: 0
@@ -9961,6 +9981,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 4650372740735073039, guid: e2273d1c04b83c540b95d1d6c463f6fb, type: 3}
       insertIndex: -1
       addedObject: {fileID: 114733306}
+    - targetCorrespondingSourceObject: {fileID: 4650372740735073039, guid: e2273d1c04b83c540b95d1d6c463f6fb, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 114733310}
   m_SourcePrefab: {fileID: 100100000, guid: e2273d1c04b83c540b95d1d6c463f6fb, type: 3}
 --- !u!4 &114733304 stripped
 Transform:
@@ -9996,6 +10019,23 @@ MonoBehaviour:
   - {fileID: 134898383}
   - {fileID: 1468020930}
   - {fileID: 1131633040}
+--- !u!114 &114733310
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 114733305}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d558827b059c695428371729bba0a891, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CollapsedCell
+  gridManager: {fileID: 1996419300}
+  sinkDelayRounds: 0
+  followTargets:
+  - {fileID: 390653459}
+  legacyFollowTarget: {fileID: 0}
 --- !u!1 &117003007
 GameObject:
   m_ObjectHideFlags: 0
@@ -47521,12 +47561,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 372538766d6a9d945947f15a2169bfaf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterStats
-  maxHp: 15
+  maxHp: 30
   currentHp: 0
   currentBlock: 0
   mobility: 2
   attackRange: 1
-  attackDamage: 8
+  attackDamage: 10
 --- !u!114 &556471851
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -97055,6 +97095,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 4650372740735073039, guid: e2273d1c04b83c540b95d1d6c463f6fb, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1149739958}
+    - targetCorrespondingSourceObject: {fileID: 4650372740735073039, guid: e2273d1c04b83c540b95d1d6c463f6fb, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1149739962}
   m_SourcePrefab: {fileID: 100100000, guid: e2273d1c04b83c540b95d1d6c463f6fb, type: 3}
 --- !u!4 &1149739956 stripped
 Transform:
@@ -97090,6 +97133,24 @@ MonoBehaviour:
   - {fileID: 752436967}
   - {fileID: 356204945}
   - {fileID: 927305189}
+--- !u!114 &1149739962
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1149739957}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d558827b059c695428371729bba0a891, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CollapsedCell
+  gridManager: {fileID: 1996419300}
+  sinkDelayRounds: 0
+  followTargets:
+  - {fileID: 1448218077}
+  - {fileID: 741911990}
+  legacyFollowTarget: {fileID: 0}
 --- !u!1 &1158020240 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2525733915729019158, guid: b4a733dba4ed3bd40aac32be2418e61d, type: 3}
@@ -110553,6 +110614,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 4650372740735073039, guid: e2273d1c04b83c540b95d1d6c463f6fb, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1294052100}
+    - targetCorrespondingSourceObject: {fileID: 4650372740735073039, guid: e2273d1c04b83c540b95d1d6c463f6fb, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1294052104}
   m_SourcePrefab: {fileID: 100100000, guid: e2273d1c04b83c540b95d1d6c463f6fb, type: 3}
 --- !u!4 &1294052098 stripped
 Transform:
@@ -110588,6 +110652,24 @@ MonoBehaviour:
   - {fileID: 677686021}
   - {fileID: 1920827082}
   - {fileID: 557168892}
+--- !u!114 &1294052104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1294052099}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d558827b059c695428371729bba0a891, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CollapsedCell
+  gridManager: {fileID: 1996419300}
+  sinkDelayRounds: 0
+  followTargets:
+  - {fileID: 1462065734}
+  - {fileID: 1682728690}
+  legacyFollowTarget: {fileID: 0}
 --- !u!21 &1294225263
 Material:
   serializedVersion: 8
@@ -141439,6 +141521,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 4650372740735073039, guid: e2273d1c04b83c540b95d1d6c463f6fb, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1710260076}
+    - targetCorrespondingSourceObject: {fileID: 4650372740735073039, guid: e2273d1c04b83c540b95d1d6c463f6fb, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1710260080}
   m_SourcePrefab: {fileID: 100100000, guid: e2273d1c04b83c540b95d1d6c463f6fb, type: 3}
 --- !u!4 &1710260074 stripped
 Transform:
@@ -141474,6 +141559,23 @@ MonoBehaviour:
   - {fileID: 1993262266}
   - {fileID: 2004195065}
   - {fileID: 2069796370}
+--- !u!114 &1710260080
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1710260075}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d558827b059c695428371729bba0a891, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CollapsedCell
+  gridManager: {fileID: 1996419300}
+  sinkDelayRounds: 0
+  followTargets:
+  - {fileID: 271874321}
+  legacyFollowTarget: {fileID: 0}
 --- !u!21 &1712008363
 Material:
   serializedVersion: 8
