@@ -5130,9 +5130,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 178741956}
+      - m_Target: {fileID: 1569729688}
         m_TargetAssemblyTypeName: TurnManager, Assembly-CSharp
-        m_MethodName: 
+        m_MethodName: OnEndRoundButtonPressed
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
