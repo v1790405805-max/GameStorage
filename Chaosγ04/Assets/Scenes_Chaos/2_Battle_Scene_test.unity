@@ -34158,6 +34158,8 @@ MonoBehaviour:
   gridManager: {fileID: 1996419300}
   monsterAnimator: {fileID: 3143698802893842853}
   attackTriggerName: Attack
+  hitDelayFallback: 0.35
+  postAttackDuration: 0.25
 --- !u!4 &384918149
 Transform:
   m_ObjectHideFlags: 0
@@ -47468,6 +47470,8 @@ MonoBehaviour:
   gridManager: {fileID: 1996419300}
   monsterAnimator: {fileID: 7080626493093617588}
   attackTriggerName: Tear
+  hitDelayFallback: 0.35
+  postAttackDuration: 0.25
 --- !u!4 &556471848
 Transform:
   m_ObjectHideFlags: 0
@@ -81579,6 +81583,8 @@ MonoBehaviour:
   gridManager: {fileID: 1996419300}
   monsterAnimator: {fileID: 1232584861}
   attackTriggerName: Tear
+  hitDelayFallback: 0.35
+  postAttackDuration: 0.25
 --- !u!4 &983314784
 Transform:
   m_ObjectHideFlags: 0
@@ -92359,6 +92365,8 @@ MonoBehaviour:
   gridManager: {fileID: 1996419300}
   monsterAnimator: {fileID: 1048001019}
   attackTriggerName: Tear
+  hitDelayFallback: 0.35
+  postAttackDuration: 0.25
 --- !u!4 &1096482200
 Transform:
   m_ObjectHideFlags: 0
@@ -131780,12 +131788,7 @@ MonoBehaviour:
   snapshotSpecialCards: []
   snapshotPlayerPosition: {x: 0, y: 0, z: 0}
   snapshotPlayerRotation: {x: 0, y: 0, z: 0, w: 0}
-  snapshotEnemyRefs: []
-  snapshotEnemyPositions: []
-  snapshotEnemyRotations: []
-  snapshotEnemyHPs: 
-  snapshotEnemyBlocks: 
-  snapshotEnemyActiveStates: 
+  snapshotMonsters: []
 --- !u!21 &1570494627
 Material:
   serializedVersion: 8
@@ -154460,7 +154463,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ed0ddf64e6d4aafa70fbbf1729286b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DefenseCounterAttack
-  counterDamage: 10
+  counterDamage: 6
   attackImpactDelay: 0.2
   counterRange: 1
   attackTriggerName: Attack
@@ -161927,6 +161930,8 @@ MonoBehaviour:
   gridManager: {fileID: 1996419300}
   monsterAnimator: {fileID: 176702011}
   attackTriggerName: Tear
+  hitDelayFallback: 0.35
+  postAttackDuration: 0.25
 --- !u!4 &1949179982
 Transform:
   m_ObjectHideFlags: 0

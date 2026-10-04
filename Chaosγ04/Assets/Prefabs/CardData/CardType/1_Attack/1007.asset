@@ -16,14 +16,14 @@ MonoBehaviour:
   cardName: 
   type: 1
   cost: 1
-  effectFlags: 2
+  effectFlags: 66
   moveDistance: 0
   damage: 9
   block: 0
   healthChange: 0
   energyChange: 0
   actionPointChange: 0
-  drawAmount: 0
+  drawAmount: 2
   discardAmount: 0
   rangeType: 1
   rangeDistance: 1
