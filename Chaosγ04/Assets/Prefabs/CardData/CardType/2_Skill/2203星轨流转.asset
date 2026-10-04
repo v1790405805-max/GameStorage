@@ -33,6 +33,11 @@ MonoBehaviour:
     effectTypeName: TraceBackEffect, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
   animationEffects: []
-  vfxEffects: []
+  vfxEffects:
+  - effectScript: {fileID: 11500000, guid: 49d304d41c16fcc43967f4c6ac156051, type: 3}
+    effectTypeName: MagicVFX, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+  hitVFXPrefab: {fileID: 0}
+  hitVFXOffset: {x: 0, y: 0.5, z: 0}
   gridStyle: {fileID: 11400000, guid: 853c237319753544088890199db33ed8, type: 2}
   description: "\u4ECE\u73B0\u5728\u89D2\u8272\u6240\u5904\u7684\u5355\u5143\u683C\u5F00\u59CB\uFF0C\u5F80\u524D\u8BA1\u7B97\u7B2C7\u4E2A\u79FB\u52A8\u7ECF\u8FC7\u7684\u5355\u5143\u683C\uFF0C\u82E5\u8BE5\u5355\u5143\u683C\u6CA1\u6709\u654C\u4EBA\u963B\u6321\uFF0C\u77AC\u79FB\u81F3\u6B64\uFF0C\u5BF9\u843D\u70B9\u76844\u683C\u5341\u5B57\u8303\u56F4\u9020\u62109\u70B9\u4F24\u5BB3"

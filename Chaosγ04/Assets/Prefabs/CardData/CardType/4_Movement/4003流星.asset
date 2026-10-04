@@ -33,6 +33,11 @@ MonoBehaviour:
     effectTypeName: TeleportEffect, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
   animationEffects: []
-  vfxEffects: []
+  vfxEffects:
+  - effectScript: {fileID: 11500000, guid: b3a9ac4edf976ec49bc9e540d4e633c8, type: 3}
+    effectTypeName: AstralTeleportVFX, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+  hitVFXPrefab: {fileID: 0}
+  hitVFXOffset: {x: 0, y: 0.5, z: 0}
   gridStyle: {fileID: 11400000, guid: c7730a9b49b1f8244b410ce1e2e6542b, type: 2}
   description: "\u4EE5\u81EA\u8EAB\u4E3A\u4E2D\u5FC3\uFF0C\u79FB\u52A8\u52305\u683C\u5341\u5B57\u8303\u56F4\u5185\u7684\u4EFB\u610F\u4F4D\u7F6E"

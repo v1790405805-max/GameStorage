@@ -29,6 +29,9 @@ MonoBehaviour:
   rangeDistance: 1
   targetSelectMode: 1
   extraEffects:
+  - effectScript: {fileID: 11500000, guid: d06c2e8e69778cc4f9e9fe25ec97a55e, type: 3}
+    effectTypeName: TeleportEffect, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
   - effectScript: {fileID: 11500000, guid: 893aea49840dd7845a5b3eead64c9566, type: 3}
     effectTypeName: LungeEffect, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
@@ -39,6 +42,9 @@ MonoBehaviour:
   vfxEffects:
   - effectScript: {fileID: 11500000, guid: 63653cd68eb54eb2b6350d6050332bdb, type: 3}
     effectTypeName: StabVFX, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - effectScript: {fileID: 11500000, guid: b3a9ac4edf976ec49bc9e540d4e633c8, type: 3}
+    effectTypeName: AstralTeleportVFX, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
   hitVFXPrefab: {fileID: 3782734080634790471, guid: 8d76d5284bb79154db7d08b61a80a4c3, type: 3}
   hitVFXOffset: {x: 0, y: 0.5, z: 0}
   gridStyle: {fileID: 11400000, guid: 88afb53f10edd8244949d4b08ce8e10e, type: 2}

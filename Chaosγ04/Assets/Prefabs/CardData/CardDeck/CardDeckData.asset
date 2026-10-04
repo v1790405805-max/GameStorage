@@ -31,10 +31,11 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 44d98036ce1993c40ba7e638699588ce, type: 2}
   - {fileID: 11400000, guid: 367e395738820f44fad9739c761dbb08, type: 2}
   - {fileID: 11400000, guid: 231f7b72e07de0646ac58cfb6ff6f991, type: 2}
-  - {fileID: 11400000, guid: a85d92f173b381749bfb5235c978e22e, type: 2}
-  - {fileID: 11400000, guid: ed2646e1dfce18c4dbd371060af12b8a, type: 2}
-  - {fileID: 11400000, guid: 03a033f1e4fcb474e80d6c359521b204, type: 2}
-  - {fileID: 11400000, guid: 4421a91b07c040c4c8e7f94c0ec19768, type: 2}
+  - {fileID: 11400000, guid: e3fe4ee910668894eb3006b36b20a3d1, type: 2}
+  - {fileID: 11400000, guid: e3fe4ee910668894eb3006b36b20a3d1, type: 2}
+  - {fileID: 11400000, guid: e3fe4ee910668894eb3006b36b20a3d1, type: 2}
+  - {fileID: 11400000, guid: e3fe4ee910668894eb3006b36b20a3d1, type: 2}
+  - {fileID: 11400000, guid: e3fe4ee910668894eb3006b36b20a3d1, type: 2}
   allAvailableCards:
   - {fileID: 11400000, guid: e58311db0490d4140b218c62513ecf1d, type: 2}
   - {fileID: 11400000, guid: 1b7b83ec27a04f54d8ebc94a08f2b609, type: 2}
