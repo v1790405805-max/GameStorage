@@ -90,6 +90,7 @@ GameObject:
   - component: {fileID: 6352800342333631967}
   - component: {fileID: 4390963832661378914}
   - component: {fileID: 9083901082785582511}
+  - component: {fileID: 934049697378249700}
   m_Layer: 0
   m_Name: Dog_Base
   m_TagString: Untagged
@@ -184,6 +185,8 @@ MonoBehaviour:
   gridManager: {fileID: 0}
   monsterAnimator: {fileID: 2602231858005930479}
   attackTriggerName: Tear
+  hitDelayFallback: 0.35
+  postAttackDuration: 0.25
 --- !u!114 &4390963832661378914
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -215,6 +218,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HateChange_WhenDogLeaderAttacked
   playerBaselineHate: 999
+--- !u!114 &934049697378249700
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 934049697378249724}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f92509caf7be49e4bb2bebdcfa201b2c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BaseHateManager
+  factionHateEntries:
+  - faction: 2
+    hate: 6
 --- !u!1 &2078076092616418682
 GameObject:
   m_ObjectHideFlags: 0

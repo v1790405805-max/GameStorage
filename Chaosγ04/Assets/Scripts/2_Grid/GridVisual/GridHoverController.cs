@@ -11,9 +11,26 @@ public enum GridHoverInteractionMode
 /// <summary>
 /// 统一管理 Grid 格子悬停高亮的控制器。
 /// </summary>
+[DefaultExecutionOrder(-100)]
 public class GridHoverController : MonoBehaviour
 {
     public static GridHoverController Instance { get; private set; }
+
+    /// <summary>
+    /// 当前悬停解析出的格子。优先返回射线命中的具体层，无法取得具体层时回退到该列顶层。
+    /// </summary>
+    public CellManager CurrentHoverCell
+    {
+        get
+        {
+            if (currentHoverGrid.x < 0 || currentHoverGrid.y < 0)
+            {
+                return null;
+            }
+
+            return ResolveHoverCell(currentHoverGrid);
+        }
+    }
 
     [Header("依赖引用（留空则自动查找）")]
     [SerializeField] private GridManager gridManager;

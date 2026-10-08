@@ -18,7 +18,7 @@ MonoBehaviour:
   cost: 1
   effectFlags: 66
   moveDistance: 0
-  damage: 4
+  damage: 6
   block: 0
   healthChange: 0
   energyChange: 0
@@ -33,7 +33,7 @@ MonoBehaviour:
     effectTypeName: TeleportEffect, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
   - effectScript: {fileID: 11500000, guid: 893aea49840dd7845a5b3eead64c9566, type: 3}
-    effectTypeName: LungeEffect, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+    effectTypeName: DashbehindEffect, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
   animationEffects:
   - effectScript: {fileID: 11500000, guid: 9bcaff3e235941c0a561299ba5120919, type: 3}

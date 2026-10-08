@@ -26,10 +26,6 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
     public float pathHeightOffset = 0.01f;
     public float pathWidth = 0.06f;
 
-    [Header("点击射线检测")]
-    [Tooltip("点击/悬停使用的射线 LayerMask。默认自动使用 GridManager.cellLayer（格子层），可在 Inspector 中调整")]
-    [SerializeField] private LayerMask clickLayerMask = 0;
-
     private bool isMoving = false;
     public bool IsMoving => isMoving;
 
@@ -43,6 +39,9 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
     private float pressStartTime = -1f;
 
     public bool IsUsingCard { get; set; } = false;
+
+    private PointerEventData cachedPointerEventData;
+    private readonly List<RaycastResult> uiRaycastResults = new List<RaycastResult>();
 
     public int CurrentActionPoint
     {
@@ -74,9 +73,6 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
             visualManager = GetComponent<GridVisualManager>() ?? FindFirstObjectByType<GridVisualManager>();
         if (pathLineRenderer == null)
             pathLineRenderer = GetComponent<LineRenderer>();
-
-        if (clickLayerMask.value == 0 && visualManager != null && visualManager.GridManager != null)
-            clickLayerMask = 1 << visualManager.GridManager.cellLayer;
 
         ConfigureLineRenderer();
     }
@@ -242,10 +238,10 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
             return;
         }
 
-        if (Camera.main == null || Mouse.current == null) return;
+        if (Mouse.current == null) return;
 
-        // 👉 核心改动：检测鼠标是否悬停在 UGUI 元素上方，若是则阻断地块交互
-        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+        // 只让屏幕空间 UI 阻断地块交互；怪物血条等 World Space UI 不应挡住移动操作。
+        if (IsPointerOverBlockingUI())
         {
             ClearPath();
             if (Mouse.current.leftButton.wasReleasedThisFrame)
@@ -256,28 +252,17 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
             return;
         }
 
-        Vector2 mousePosition = Mouse.current.position.ReadValue();
-        Ray ray = Camera.main.ScreenPointToRay(mousePosition);
-
-        bool hasHit = Physics.Raycast(ray, out RaycastHit hit, 1000f, clickLayerMask.value);
-        int hoverX = -1, hoverZ = -1;
-
-        if (hasHit)
-        {
-            Vector3 logicPosition = hit.point - visualManager.GridManager.cellOffset;
-            visualManager.GridManager.EnsureGridSystemInitialized();
-            (hoverX, hoverZ) = visualManager.GridManager.GetGridPosition(logicPosition);
-        }
-
-        bool isValidHover = visualManager.GridManager.IsValidGridPosition(hoverX, hoverZ);
+        GridHoverController hoverController = GridHoverController.Instance;
+        CellManager hoverCell = hoverController != null
+            ? hoverController.CurrentHoverCell
+            : null;
+        bool isValidHover = hoverCell != null;
 
         if (Mouse.current.leftButton.wasPressedThisFrame)
         {
             if (isValidHover)
             {
-                CellManager cellUnderMouse = hasHit && hit.collider != null
-                    ? hit.collider.GetComponentInParent<CellManager>()
-                    : visualManager.GridManager.GetCellManagerAt(hoverX, hoverZ);
+                CellManager cellUnderMouse = hoverCell;
 
                 if (visualManager.IsPlayerOnCell(cellUnderMouse))
                 {
@@ -310,9 +295,9 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
             bool menuVisible = PlayerOrientationController.Instance != null
                 && PlayerOrientationController.Instance.ButtonsVisible;
 
-            CellManager releaseCell = hasHit && hit.collider != null
-                ? hit.collider.GetComponentInParent<CellManager>()
-                : visualManager.GridManager.GetCellManagerAt(hoverX, hoverZ);
+            CellManager releaseCell = hoverController != null
+                ? hoverController.CurrentHoverCell
+                : null;
             bool releasedOnPlayerCell = releaseCell != null
                 && releaseCell == pendingPressCell
                 && visualManager.IsPlayerOnCell(releaseCell);
@@ -330,10 +315,7 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
 
         if (isValidHover)
         {
-            CellManager hoverCell = hasHit && hit.collider != null
-                ? hit.collider.GetComponentInParent<CellManager>()
-                : visualManager.GridManager.GetCellManagerAt(hoverX, hoverZ);
-            bool inRange = hoverCell != null && reachableGridSet.Contains(hoverCell);
+            bool inRange = reachableGridSet.Contains(hoverCell);
             if (inRange && hoverCell != currentClickedCell)
                 DrawPathToTarget(currentClickedCell, hoverCell);
             else
@@ -343,6 +325,42 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         {
             ClearPath();
         }
+    }
+
+    private bool IsPointerOverBlockingUI()
+    {
+        if (EventSystem.current == null || Mouse.current == null)
+        {
+            return false;
+        }
+
+        if (cachedPointerEventData == null)
+        {
+            cachedPointerEventData = new PointerEventData(EventSystem.current);
+        }
+
+        cachedPointerEventData.position = Mouse.current.position.ReadValue();
+        uiRaycastResults.Clear();
+        EventSystem.current.RaycastAll(cachedPointerEventData, uiRaycastResults);
+
+        foreach (RaycastResult result in uiRaycastResults)
+        {
+            GameObject hitObject = result.gameObject;
+            if (hitObject == null)
+            {
+                continue;
+            }
+
+            Canvas canvas = hitObject.GetComponentInParent<Canvas>();
+            if (canvas != null && canvas.renderMode == RenderMode.WorldSpace)
+            {
+                continue;
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     private void SetClickedGrid(int x, int z, CellManager clickedCell)

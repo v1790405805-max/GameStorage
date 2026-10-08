@@ -51688,6 +51688,7 @@ GameObject:
   - component: {fileID: 556471847}
   - component: {fileID: 556471850}
   - component: {fileID: 556471852}
+  - component: {fileID: 556471855}
   m_Layer: 0
   m_Name: Dog_Leader
   m_TagString: Untagged
@@ -51855,6 +51856,21 @@ MonoBehaviour:
   postActionDelay: 0.5
   attackBonus: 2
   cooldownRounds: 3
+--- !u!114 &556471855
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 556471845}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f92509caf7be49e4bb2bebdcfa201b2c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BaseHateManager
+  factionHateEntries:
+  - faction: 2
+    hate: 6
 --- !u!1 &558465270
 GameObject:
   m_ObjectHideFlags: 0
@@ -92327,6 +92343,7 @@ GameObject:
   - component: {fileID: 983314783}
   - component: {fileID: 983314786}
   - component: {fileID: 983314788}
+  - component: {fileID: 983314790}
   m_Layer: 0
   m_Name: Dog_1
   m_TagString: Untagged
@@ -92454,6 +92471,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HateChange_WhenDogLeaderAttacked
   playerBaselineHate: 999
+--- !u!114 &983314790
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 983314781}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f92509caf7be49e4bb2bebdcfa201b2c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BaseHateManager
+  factionHateEntries:
+  - faction: 2
+    hate: 6
 --- !u!21 &985149659
 Material:
   serializedVersion: 8
@@ -101862,6 +101894,7 @@ GameObject:
   - component: {fileID: 1096482199}
   - component: {fileID: 1096482202}
   - component: {fileID: 1096482204}
+  - component: {fileID: 1096482206}
   m_Layer: 0
   m_Name: Dog_2
   m_TagString: Untagged
@@ -101989,6 +102022,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HateChange_WhenDogLeaderAttacked
   playerBaselineHate: 999
+--- !u!114 &1096482206
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1096482197}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f92509caf7be49e4bb2bebdcfa201b2c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BaseHateManager
+  factionHateEntries:
+  - faction: 2
+    hate: 6
 --- !u!1001 &1096509854
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -174159,9 +174207,6 @@ MonoBehaviour:
   pathLineRenderer: {fileID: 1860863963}
   pathHeightOffset: 0.01
   pathWidth: 0.06
-  clickLayerMask:
-    serializedVersion: 2
-    m_Bits: 0
 --- !u!114 &1860863965
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -183198,6 +183243,7 @@ GameObject:
   - component: {fileID: 1949179981}
   - component: {fileID: 1949179984}
   - component: {fileID: 1949179986}
+  - component: {fileID: 1949179987}
   m_Layer: 0
   m_Name: Dog_3
   m_TagString: Untagged
@@ -183325,6 +183371,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HateChange_WhenDogLeaderAttacked
   playerBaselineHate: 999
+--- !u!114 &1949179987
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1949179979}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f92509caf7be49e4bb2bebdcfa201b2c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BaseHateManager
+  factionHateEntries:
+  - faction: 2
+    hate: 6
 --- !u!1 &1950645518
 GameObject:
   m_ObjectHideFlags: 0

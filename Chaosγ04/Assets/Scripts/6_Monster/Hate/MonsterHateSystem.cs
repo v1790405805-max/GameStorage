@@ -80,11 +80,13 @@ public sealed class MonsterHateSystem : MonoBehaviour
     private readonly Dictionary<string, int> baselineHateScores = new Dictionary<string, int>();
     private readonly Dictionary<string, int> hitHateScores = new Dictionary<string, int>();
     private MonsterIdentityManager selfIdentity;
+    private BaseHateManager baseHateManager;
     private bool baselineApplied;
 
     private void Awake()
     {
         selfIdentity = GetComponent<MonsterIdentityManager>();
+        baseHateManager = GetComponent<BaseHateManager>();
     }
 
     public static MonsterHateSystem EnsureOn(MonsterIdentityManager monster)
@@ -348,11 +350,11 @@ public sealed class MonsterHateSystem : MonoBehaviour
         switch (distance)
         {
             case 1:
-                return 3;
+                return 10;
             case 2:
-                return 2;
+                return 5;
             case 3:
-                return 1;
+                return 2;
             default:
                 return 0;
         }
@@ -365,13 +367,17 @@ public sealed class MonsterHateSystem : MonoBehaviour
             return;
         }
 
-        baselineApplied = true;
+        if (baseHateManager == null)
+        {
+            baseHateManager = GetComponent<BaseHateManager>();
+        }
 
-        // The Dog faction represents the hyenas in the current faction setup.
-        if (selfIdentity.faction != MonsterIdentityManager.MonsterFaction.Dog)
+        if (baseHateManager == null)
         {
             return;
         }
+
+        baselineApplied = true;
 
         MonsterIdentitySystem monsterSystem = MonsterIdentitySystem.Instance;
         if (monsterSystem == null)
@@ -383,9 +389,22 @@ public sealed class MonsterHateSystem : MonoBehaviour
         {
             if (other != null &&
                 other != selfIdentity &&
-                other.faction == MonsterIdentityManager.MonsterFaction.Crocodile)
+                selfIdentity.IsHostileTo(other))
             {
-                AddBaselineHate(GetMonsterKey(other), 8);
+                int baselineHate = baseHateManager.GetHate(other.faction);
+                if (baselineHate != 0)
+                {
+                    AddBaselineHate(GetMonsterKey(other), baselineHate);
+                }
+            }
+        }
+
+        if (selfIdentity.IsHostileToPlayer())
+        {
+            int playerBaselineHate = baseHateManager.GetPlayerHate();
+            if (playerBaselineHate != 0)
+            {
+                AddBaselineHate(PlayerTargetKey, playerBaselineHate);
             }
         }
     }
