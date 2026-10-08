@@ -51,7 +51,8 @@ public class PushEffect : CardEffectCore
             return false;
         }
 
-        MonsterIdentityManager targetMonster = FindMonsterAtGrid(gridManager, targetGrid);
+        MonsterIdentityManager targetMonster =
+            FindMonsterAtGrid(gridManager, targetGrid, includeInactive: true);
         if (targetMonster == null)
         {
             Debug.Log($"[PushEffect] No living enemy was found at target cell [{targetGrid}].");
@@ -131,7 +132,10 @@ public class PushEffect : CardEffectCore
             : new Vector2Int(0, dy > 0 ? 1 : -1);
     }
 
-    private static MonsterIdentityManager FindMonsterAtGrid(GridManager gridManager, Vector2Int grid)
+    private static MonsterIdentityManager FindMonsterAtGrid(
+        GridManager gridManager,
+        Vector2Int grid,
+        bool includeInactive = false)
     {
         if (MonsterIdentitySystem.Instance != null)
         {
@@ -166,6 +170,33 @@ public class PushEffect : CardEffectCore
             }
         }
 
+        if (!includeInactive)
+        {
+            return null;
+        }
+
+        // Die() deactivates the monster before PushEffect runs in scenes without
+        // PlayerCombatReceiver. The inactive target still occupies its original
+        // grid position and must participate in the push/refund decision.
+        MonsterIdentityManager[] inactiveMonsters =
+            Object.FindObjectsByType<MonsterIdentityManager>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None);
+
+        foreach (MonsterIdentityManager monster in inactiveMonsters)
+        {
+            if (monster == null || monster.gameObject.activeInHierarchy)
+            {
+                continue;
+            }
+
+            var (x, z) = gridManager.GetGridPosition(monster.transform.position);
+            if (x == grid.x && z == grid.y)
+            {
+                return monster;
+            }
+        }
+
         return null;
     }
 
@@ -190,7 +221,28 @@ public class PushEffect : CardEffectCore
             }
         }
 
-        return gridManager.GetCellManagerAt(grid.x, grid.y);
+        CellManager nearestCell = null;
+        float nearestVerticalDistance = float.MaxValue;
+
+        foreach (CellManager cell in gridManager.GetCellManagersInColumn(grid.x, grid.y))
+        {
+            if (cell == null)
+            {
+                continue;
+            }
+
+            float verticalDistance = Mathf.Abs(
+                cell.transform.position.y - monster.transform.position.y);
+            if (verticalDistance < nearestVerticalDistance)
+            {
+                nearestVerticalDistance = verticalDistance;
+                nearestCell = cell;
+            }
+        }
+
+        return nearestCell != null
+            ? nearestCell
+            : gridManager.GetCellManagerAt(grid.x, grid.y);
     }
 
     private static CellManager FindMovableCell(

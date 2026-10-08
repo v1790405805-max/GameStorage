@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 在地图未占用的普通地形上随机召唤 Dog。
+/// 在指定地格周围的小区域内，随机选择地图未占用的普通地形召唤 Dog。
 /// 地格间距采用 XZ 平面上的曼哈顿距离，同列不同层视为距离 0。
 /// </summary>
 [DisallowMultipleComponent]
@@ -16,6 +16,10 @@ public sealed class SummonDogAction : MonsterActionBase
     [Header("召唤规则")]
     [Tooltip("本 Action 每次召唤的 Dog 数量。")]
     [SerializeField, Min(1)] private int summonCount = 3;
+    [Tooltip("召唤中心地格；留空时自动使用当前怪物所在的地格。")]
+    [SerializeField] private CellManager summonCenterCell;
+    [Tooltip("召唤候选地格与召唤中心在 XZ 平面上的最大曼哈顿距离（格）。")]
+    [SerializeField, Min(0)] private int summonRadius = 2;
     [Tooltip("每只 Dog 之间的最小曼哈顿距离（格）。")]
     [SerializeField, Min(0)] private int dogSpacing = 5;
     [Tooltip("召唤位置与每个已占用地格之间需要保持的最小曼哈顿距离（格）。")]
@@ -33,6 +37,7 @@ public sealed class SummonDogAction : MonsterActionBase
 
     private Coroutine summonCoroutine;
     private int lastTriggeredRound = int.MinValue;
+    private MonsterIdentityManager selfIdentity;
 
     public bool IsOnCooldown
     {
@@ -81,12 +86,22 @@ public sealed class SummonDogAction : MonsterActionBase
 
         gridManager.EnsureGridSystemInitialized();
 
-        List<CellManager> spawnCells = SelectSpawnCells();
+        CellManager centerCell = ResolveSummonCenterCell();
+        if (centerCell == null)
+        {
+            Debug.LogWarning(
+                $"[{name}] 无法确定召唤中心地格，已跳过本次召唤。");
+            CompleteAction();
+            return;
+        }
+
+        List<CellManager> spawnCells = SelectSpawnCells(centerCell);
         if (spawnCells.Count < summonCount)
         {
             Debug.LogWarning(
                 $"[{name}] 没有足够的合法地格召唤 {summonCount} 只 Dog。" +
-                $"Dog 之间的最小间距为 {dogSpacing} 格，与已占用地格的最小间距为 {occupiedSpacing} 格。");
+                $"召唤范围为召唤中心周围 {summonRadius} 格，Dog 之间的最小间距为 {dogSpacing} 格，" +
+                $"与已占用地格的最小间距为 {occupiedSpacing} 格。");
             CompleteAction();
             return;
         }
@@ -163,7 +178,7 @@ public sealed class SummonDogAction : MonsterActionBase
         TurnManager.Instance.RegisterEnemyBehaviour(dogActionManager);
     }
 
-    private List<CellManager> SelectSpawnCells()
+    private List<CellManager> SelectSpawnCells(CellManager centerCell)
     {
         List<CellManager> allCells = GetAllCells();
         List<CellManager> occupiedCells = new List<CellManager>();
@@ -180,6 +195,11 @@ public sealed class SummonDogAction : MonsterActionBase
         foreach (CellManager cell in allCells)
         {
             if (!IsAvailableCell(cell))
+            {
+                continue;
+            }
+
+            if (!IsWithinSummonRadius(cell, centerCell))
             {
                 continue;
             }
@@ -201,6 +221,11 @@ public sealed class SummonDogAction : MonsterActionBase
         }
 
         return new List<CellManager>();
+    }
+
+    private bool IsWithinSummonRadius(CellManager cell, CellManager centerCell)
+    {
+        return GetGridDistance(cell, centerCell) <= summonRadius;
     }
 
     private List<CellManager> GetAllCells()
@@ -330,6 +355,26 @@ public sealed class SummonDogAction : MonsterActionBase
         {
             gridManager = FindFirstObjectByType<GridManager>();
         }
+
+        if (selfIdentity == null)
+        {
+            selfIdentity = GetComponent<MonsterIdentityManager>();
+        }
+    }
+
+    private CellManager ResolveSummonCenterCell()
+    {
+        if (summonCenterCell != null)
+        {
+            return summonCenterCell;
+        }
+
+        if (selfIdentity == null || gridManager == null)
+        {
+            return null;
+        }
+
+        return MonsterPathfinding.FindMonsterCell(gridManager, selfIdentity);
     }
 
     private static int GetCurrentRound()
