@@ -160649,6 +160649,7 @@ MonoBehaviour:
   pathLineRenderer: {fileID: 1860863963}
   pathHeightOffset: 0.01
   pathWidth: 0.06
+  movePreviewPrefab: {fileID: 7604940984857917978, guid: e9d679f1ade477c46abe18bc396a8858, type: 3}
 --- !u!114 &1860863965
 MonoBehaviour:
   m_ObjectHideFlags: 0

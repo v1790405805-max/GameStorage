@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -26,6 +27,11 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
     public float pathHeightOffset = 0.01f;
     public float pathWidth = 0.06f;
 
+    [Header("移动悬停预览")]
+    [Tooltip("鼠标悬停在可移动格上时显示的玩家预览预制体")]
+    [SerializeField] private GameObject movePreviewPrefab;
+    private const float MovePreviewHeightOffset = 0.653f;
+
     private bool isMoving = false;
     public bool IsMoving => isMoving;
 
@@ -33,6 +39,18 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
     private CellManager currentClickedCell;
     private Vector2Int playerGridPos = new Vector2Int(-1, -1);
     private HashSet<CellManager> reachableGridSet = new HashSet<CellManager>();
+    private HashSet<CellManager> pendingMoveAllowedCells;
+    private List<CellManager> pendingMovePath;
+    private HashSet<CellManager> pendingMovePathCells;
+    private bool hasPendingMoveFacing = false;
+    private GameObject movePreviewInstance;
+    private Animator movePreviewAnimator;
+    private SpriteRenderer movePreviewSpriteRenderer;
+    private SpriteRenderer playerSpriteRenderer;
+    private CellManager movePreviewCell;
+
+    private static readonly int HorizontalHash = Animator.StringToHash("Horizontal");
+    private static readonly int VerticalHash = Animator.StringToHash("Vertical");
 
     // 【长按/短按判定】按下玩家格时先挂起，抬起时区分“短按点击（显示范围）”与“长按（显示朝向按钮）”
     private CellManager pendingPressCell;
@@ -103,10 +121,13 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         {
             pendingPressCell = null;
             pressStartTime = -1f;
+            HideMovePreview();
             if (currentClickedCell != null)
                 ClearClickedGrid();
             return;
         }
+
+        SyncMovePreviewDirection();
 
         if (Application.isPlaying && visualManager != null && visualManager.GridManager != null)
             HandleGridInteraction();
@@ -118,6 +139,8 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
     {
         pendingPressCell = null;
         pressStartTime = -1f;
+        CancelPendingMoveFacing();
+        HideMovePreview();
         if (currentClickedCell != null)
             ClearClickedGrid();
         ClearPath();
@@ -125,9 +148,21 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
 
     public void ForceClearHoverState()
     {
+        HideMovePreview();
         ClearPath();
         if (GridHoverController.Instance != null)
             GridHoverController.Instance.ForceRestoreHover();
+    }
+
+    private void LateUpdate()
+    {
+        SyncMovePreviewSprite();
+    }
+
+    private void OnDestroy()
+    {
+        if (movePreviewInstance != null)
+            Destroy(movePreviewInstance);
     }
 
     public void SyncGridPosition(Vector2Int gridPos)
@@ -222,8 +257,6 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
 
         isMoving = false;
         if (playerAnimator != null) playerAnimator.SetBool("Move", false);
-
-        TriggerOrientationUI();
     }
 
     // ===================================================================
@@ -232,8 +265,12 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
 
     private void HandleGridInteraction()
     {
+        if (hasPendingMoveFacing)
+            return;
+
         if (IsUsingCard || isMoving)
         {
+            HideMovePreview();
             ClearPath();
             return;
         }
@@ -243,6 +280,7 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         // 只让屏幕空间 UI 阻断地块交互；怪物血条等 World Space UI 不应挡住移动操作。
         if (IsPointerOverBlockingUI())
         {
+            HideMovePreview();
             ClearPath();
             if (Mouse.current.leftButton.wasReleasedThisFrame)
             {
@@ -276,7 +314,10 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
                     else if (cellUnderMouse.HasMonsterInside)
                         Debug.Log("[PlayerMoveController] 目标格有怪物，无法进入！");
                     else
-                        StartCoroutine(MovePlayerAlongPathRoutine(currentClickedCell, cellUnderMouse));
+                    {
+                        BeginMoveFacingSelection(currentClickedCell, cellUnderMouse);
+                        return;
+                    }
                 }
                 else
                 {
@@ -317,14 +358,47 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         {
             bool inRange = reachableGridSet.Contains(hoverCell);
             if (inRange && hoverCell != currentClickedCell)
+            {
                 DrawPathToTarget(currentClickedCell, hoverCell);
+                ShowMovePreview(hoverCell);
+            }
             else
+            {
                 ClearPath();
+                HideMovePreview();
+            }
         }
         else
         {
             ClearPath();
+            HideMovePreview();
         }
+    }
+
+    private void BeginMoveFacingSelection(CellManager startCell, CellManager endCell)
+    {
+        if (startCell == null || endCell == null)
+            return;
+
+        if (PlayerOrientationController.Instance != null)
+        {
+            List<CellManager> path = MoveSystem.FindPathAStarCells(
+                startCell,
+                endCell,
+                reachableGridSet,
+                visualManager.GridManager);
+            if (path == null || path.Count <= 1)
+                return;
+
+            pendingMoveAllowedCells = new HashSet<CellManager>(reachableGridSet);
+            pendingMovePath = path;
+            pendingMovePathCells = new HashSet<CellManager>(path);
+            hasPendingMoveFacing = true;
+            PlayerOrientationController.Instance.EnterMoveFacingMode(startCell, endCell);
+            return;
+        }
+
+        StartCoroutine(MovePlayerAlongPathRoutine(startCell, endCell, reachableGridSet));
     }
 
     private bool IsPointerOverBlockingUI()
@@ -365,6 +439,7 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
 
     private void SetClickedGrid(int x, int z, CellManager clickedCell)
     {
+        HideMovePreview();
         visualManager.ResetAllCellsVisuals();
         currentClickedGrid = new Vector2Int(x, z);
         currentClickedCell = clickedCell;
@@ -385,6 +460,7 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
     {
         pendingPressCell = null;
         pressStartTime = -1f;
+        HideMovePreview();
 
         visualManager.ResetAllCellsVisuals();
         currentClickedGrid = new Vector2Int(-1, -1);
@@ -393,7 +469,10 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         ClearPath();
 
         if (GridHoverController.Instance != null)
+        {
+            GridHoverController.Instance.ClearHoverLockedCells();
             GridHoverController.Instance.ClearContext();
+        }
     }
 
     private void ConfigureLineRenderer()
@@ -415,10 +494,99 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         if (pathLineRenderer != null) pathLineRenderer.positionCount = 0;
     }
 
+    private void ShowMovePreview(CellManager targetCell)
+    {
+        if (movePreviewPrefab == null || targetCell == null)
+        {
+            HideMovePreview();
+            return;
+        }
+
+        if (movePreviewInstance == null)
+        {
+            movePreviewInstance = Instantiate(movePreviewPrefab);
+            movePreviewInstance.name = $"{movePreviewPrefab.name} (Runtime Preview)";
+            movePreviewAnimator = movePreviewInstance.GetComponentInChildren<Animator>(true);
+            movePreviewSpriteRenderer = movePreviewInstance.GetComponentInChildren<SpriteRenderer>(true);
+            movePreviewInstance.SetActive(false);
+        }
+
+        if (movePreviewCell == targetCell && movePreviewInstance.activeSelf)
+        {
+            SyncMovePreviewDirection();
+            return;
+        }
+
+        bool wasActive = movePreviewInstance.activeSelf;
+        movePreviewCell = targetCell;
+        Vector3 previewPosition = targetCell.transform.position;
+        previewPosition.y = targetCell.transform.position.y + MovePreviewHeightOffset;
+        movePreviewInstance.transform.position = previewPosition;
+        movePreviewInstance.SetActive(true);
+
+        if (!wasActive && movePreviewAnimator != null)
+        {
+            movePreviewAnimator.Rebind();
+            movePreviewAnimator.Update(0f);
+        }
+
+        SyncMovePreviewDirection();
+    }
+
+    private void SyncMovePreviewDirection()
+    {
+        if (movePreviewInstance == null || !movePreviewInstance.activeSelf || movePreviewAnimator == null)
+            return;
+
+        if (playerAnimator == null && playerTransform != null)
+            playerAnimator = playerTransform.GetComponentInChildren<Animator>();
+        if (playerAnimator == null)
+            return;
+
+        movePreviewAnimator.SetFloat(HorizontalHash, playerAnimator.GetFloat(HorizontalHash));
+        movePreviewAnimator.SetFloat(VerticalHash, playerAnimator.GetFloat(VerticalHash));
+        movePreviewAnimator.Update(0f);
+        SyncMovePreviewSprite();
+    }
+
+    private void SyncMovePreviewSprite()
+    {
+        if (movePreviewInstance == null || !movePreviewInstance.activeSelf || movePreviewSpriteRenderer == null)
+            return;
+
+        if (playerSpriteRenderer == null)
+        {
+            if (playerAnimator != null)
+                playerSpriteRenderer = playerAnimator.GetComponent<SpriteRenderer>()
+                    ?? playerAnimator.GetComponentInChildren<SpriteRenderer>(true);
+            if (playerSpriteRenderer == null && playerTransform != null)
+                playerSpriteRenderer = playerTransform.GetComponentInChildren<SpriteRenderer>(true);
+        }
+
+        if (playerSpriteRenderer == null)
+            return;
+
+        movePreviewSpriteRenderer.sprite = playerSpriteRenderer.sprite;
+        movePreviewSpriteRenderer.flipX = playerSpriteRenderer.flipX;
+        movePreviewSpriteRenderer.flipY = playerSpriteRenderer.flipY;
+    }
+
+    private void HideMovePreview()
+    {
+        movePreviewCell = null;
+        if (movePreviewInstance != null)
+            movePreviewInstance.SetActive(false);
+    }
+
     private void DrawPathToTarget(CellManager startCell, CellManager endCell)
     {
-        if (pathLineRenderer == null) return;
         List<CellManager> path = MoveSystem.FindPathAStarCells(startCell, endCell, reachableGridSet, visualManager.GridManager);
+        DrawPath(path);
+    }
+
+    private void DrawPath(List<CellManager> path)
+    {
+        if (pathLineRenderer == null) return;
         if (path == null || path.Count == 0) { ClearPath(); return; }
 
         pathLineRenderer.positionCount = path.Count;
@@ -434,18 +602,95 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         }
     }
 
-    private IEnumerator MovePlayerAlongPathRoutine(CellManager startCell, CellManager endCell)
+    /// <summary>
+    /// 位移朝向选择完成后执行移动，并通过回调通知 PlayerOrientationController 应用最终朝向。
+    /// </summary>
+    public void MovePlayerAlongPathAfterOrientation(
+        CellManager startCell,
+        CellManager endCell,
+        Action<bool> onFinished)
     {
-        if (playerTransform == null) yield break;
+        if (!hasPendingMoveFacing)
+        {
+            onFinished?.Invoke(false);
+            return;
+        }
 
-        List<CellManager> path = MoveSystem.FindPathAStarCells(startCell, endCell, reachableGridSet, visualManager.GridManager);
-        if (path == null || path.Count <= 1) yield break;
+        HashSet<CellManager> allowedCells = pendingMoveAllowedCells;
+        ClearPendingMoveFacing();
+        StartCoroutine(MovePlayerAlongPathRoutine(startCell, endCell, allowedCells, onFinished));
+    }
+
+    public void CancelPendingMoveFacing()
+    {
+        bool hadPendingMove = hasPendingMoveFacing;
+        ClearPendingMoveFacing();
+        if (hadPendingMove)
+            ClearClickedGrid();
+    }
+
+    public void PrepareMoveFacingPreview(CellManager targetCell)
+    {
+        if (targetCell == null)
+            return;
+
+        ClearClickedGrid();
+        DrawPath(pendingMovePath);
+
+        if (pendingMovePathCells != null && pendingMovePathCells.Count > 0)
+        {
+            CellManager startCell = pendingMovePath != null && pendingMovePath.Count > 0
+                ? pendingMovePath[0]
+                : null;
+            visualManager.SetReachablePatternColors(
+                pendingMovePathCells,
+                startCell,
+                playerMoveStyle,
+                isRuntime: true);
+
+            if (GridHoverController.Instance != null)
+                GridHoverController.Instance.SetHoverLockedCells(pendingMovePathCells);
+        }
+
+        ShowMovePreview(targetCell);
+    }
+
+    private void ClearPendingMoveFacing()
+    {
+        pendingMoveAllowedCells = null;
+        pendingMovePath = null;
+        pendingMovePathCells = null;
+        hasPendingMoveFacing = false;
+
+        if (GridHoverController.Instance != null)
+            GridHoverController.Instance.ClearHoverLockedCells();
+    }
+
+    private IEnumerator MovePlayerAlongPathRoutine(
+        CellManager startCell,
+        CellManager endCell,
+        HashSet<CellManager> allowedCells,
+        Action<bool> onFinished = null)
+    {
+        if (playerTransform == null)
+        {
+            onFinished?.Invoke(false);
+            yield break;
+        }
+
+        List<CellManager> path = MoveSystem.FindPathAStarCells(startCell, endCell, allowedCells, visualManager.GridManager);
+        if (path == null || path.Count <= 1)
+        {
+            onFinished?.Invoke(false);
+            yield break;
+        }
 
         int stepCount = path.Count - 1;
 
         if (CombatStatsManager.Instance != null && !CombatStatsManager.Instance.HasEnoughActionPoint(stepCount))
         {
             Debug.LogWarning($"[PlayerMoveController] ActionPoint 不足！需要 {stepCount} 点，当前只有 {CombatStatsManager.Instance.currentActionPoint} 点！");
+            onFinished?.Invoke(false);
             yield break;
         }
 
@@ -499,14 +744,6 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         isMoving = false;
         if (playerAnimator != null) playerAnimator.SetBool("Move", false);
 
-        TriggerOrientationUI();
-    }
-
-    private void TriggerOrientationUI()
-    {
-        if (PlayerOrientationController.Instance != null)
-        {
-            PlayerOrientationController.Instance.ShowButtons();
-        }
+        onFinished?.Invoke(true);
     }
 }

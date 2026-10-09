@@ -62,6 +62,7 @@ public class GridHoverController : MonoBehaviour
     private bool quarterCircleRangeHighlightActive = false;
     private HashSet<CellManager> activeQuarterCircleTargetSet = new HashSet<CellManager>();
     private GridHoverInteractionMode interactionMode = GridHoverInteractionMode.Normal;
+    private readonly HashSet<CellManager> hoverLockedCells = new HashSet<CellManager>();
 
     // ------------------------------------------------------------------
     // 内部悬停状态
@@ -192,6 +193,27 @@ public class GridHoverController : MonoBehaviour
         ClearHoverHighlight();
     }
 
+    /// <summary>
+    /// 锁定指定格子的悬停视觉，锁定期间这些格子的颜色不会被悬停逻辑覆盖或还原。
+    /// </summary>
+    public void SetHoverLockedCells(IEnumerable<CellManager> cells)
+    {
+        hoverLockedCells.Clear();
+        if (cells == null)
+            return;
+
+        foreach (CellManager cell in cells)
+        {
+            if (cell != null)
+                hoverLockedCells.Add(cell);
+        }
+    }
+
+    public void ClearHoverLockedCells()
+    {
+        hoverLockedCells.Clear();
+    }
+
     // ===================================================================
     // 内部悬停处理
     // ===================================================================
@@ -271,7 +293,7 @@ public class GridHoverController : MonoBehaviour
         if (!gridManager.IsValidGridPosition(grid.x, grid.y)) return;
         CellManager cell = ResolveHoverCell(grid);
         if (cell == null) return;
-        if (cell.SuppressesHoverHighlight) return;
+        if (cell.SuppressesHoverHighlight || hoverLockedCells.Contains(cell)) return;
 
         cell.SetCellColor(visualManager.cellSelectedColor, isRuntime: true);
         cell.SetLineColor(visualManager.lineSelectedColor);
@@ -282,6 +304,7 @@ public class GridHoverController : MonoBehaviour
         if (!gridManager.IsValidGridPosition(grid.x, grid.y)) return;
         CellManager cell = ResolveHoverCell(grid);
         if (cell == null) return;
+        if (hoverLockedCells.Contains(cell)) return;
 
         cell.SetCellColor(gridManager.cellNormalColor, isRuntime: true);
         cell.SetLineColor(gridManager.lineNormalColor);
@@ -297,7 +320,7 @@ public class GridHoverController : MonoBehaviour
 
         CellManager cell = ResolveHoverCell(grid);
         if (cell == null) return;
-        if (cell.SuppressesHoverHighlight) return;
+        if (cell.SuppressesHoverHighlight || hoverLockedCells.Contains(cell)) return;
 
         // 非 Point 模式时，角色所在格不响应悬停；Point 模式下允许响应角色格悬停。
         if (!isPointType && IsCharacterCell(cell)) return;
@@ -340,6 +363,7 @@ public class GridHoverController : MonoBehaviour
 
         CellManager cell = ResolveHoverCell(grid);
         if (cell == null) return;
+        if (hoverLockedCells.Contains(cell)) return;
 
         if (!isPointType && IsCharacterCell(cell)) return;
 

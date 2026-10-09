@@ -175317,6 +175317,7 @@ MonoBehaviour:
   pathLineRenderer: {fileID: 1860863963}
   pathHeightOffset: 0.01
   pathWidth: 0.06
+  movePreviewPrefab: {fileID: 7604940984857917978, guid: e9d679f1ade477c46abe18bc396a8858, type: 3}
 --- !u!114 &1860863965
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -175331,14 +175332,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerOrientationController
   visualManager: {fileID: 1996419303}
   playerMoveController: {fileID: 1860863964}
-  characterAnimator: {fileID: 82650083}
+  characterAnimator: {fileID: 0}
   buttonFront: {fileID: 1283018611}
   buttonBack: {fileID: 161659242}
   buttonLeft: {fileID: 1628216418}
   buttonRight: {fileID: 1537580480}
+  orientationButtonsRoot: {fileID: 1728595448}
   playerOrientationStyle: {fileID: 11400000, guid: bc557c7d66aef3b4fbbfd48134542fb9, type: 2}
   longPressDuration: 0.5
   hideButtonDelay: 0.2
+  postMoveFacingDelay: 0.15
   clickLayerMask:
     serializedVersion: 2
     m_Bits: 0

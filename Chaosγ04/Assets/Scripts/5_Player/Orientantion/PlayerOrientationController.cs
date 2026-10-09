@@ -7,10 +7,16 @@ using UnityEngine.InputSystem;
 
 /// <summary>
 /// 长按玩家角色 → 显示 4 个操作 Button；常态隐藏；点击其他任意处（格子 / 其它 UI）→ 隐藏。
-/// 优化：长按触发按钮时，会主动通知 PlayerMoveController 清除当前显示的移动范围。
+/// 位移朝向模式：确认目标格后显示按钮，选择方向后执行位移，并在位移结束时应用所选朝向。
 /// </summary>
 public class PlayerOrientationController : MonoBehaviour
 {
+    private enum OrientationMode
+    {
+        ManualAdjustment,
+        MoveFacing
+    }
+
     [Header("视觉管理器引用")]
     [SerializeField] private GridVisualManager visualManager;
 
@@ -25,6 +31,8 @@ public class PlayerOrientationController : MonoBehaviour
     [SerializeField] private Button buttonBack;
     [SerializeField] private Button buttonLeft;
     [SerializeField] private Button buttonRight;
+    [Tooltip("四个方向按钮的共同父节点；留空时自动取第一个按钮的父节点")]
+    [SerializeField] private Transform orientationButtonsRoot;
 
     [Header("玩家朝向样式")]
     [Tooltip("长按显示朝向按钮时，角色周围格子使用的专属高亮样式资产（GridStyleData）")]
@@ -40,6 +48,11 @@ public class PlayerOrientationController : MonoBehaviour
     [Min(0f)]
     [SerializeField] private float hideButtonDelay = 1f;
 
+    [Header("位移后转向")]
+    [Tooltip("到达目标格后，延迟该时长再应用位移所选朝向（秒）")]
+    [Min(0f)]
+    [SerializeField] private float postMoveFacingDelay = 0.2f;
+
     [Header("点击射线检测")]
     [Tooltip("点击射线 LayerMask，默认自动使用 GridManager.cellLayer（格子层）")]
     [SerializeField] private LayerMask clickLayerMask = 0;
@@ -48,6 +61,17 @@ public class PlayerOrientationController : MonoBehaviour
     private float pressStartTime = -1f;
     private bool longPressTriggered = false;
     private bool directionButtonInputLocked = false;
+    private OrientationMode activeMode = OrientationMode.ManualAdjustment;
+    private CellManager pendingMoveStartCell;
+    private CellManager pendingMoveEndCell;
+    private bool moveInProgress = false;
+    private int moveFacingModeEnteredFrame = -1;
+    private Vector3 buttonsRootLocalPosition;
+    private Quaternion buttonsRootLocalRotation;
+    private Vector3 buttonsRootLocalScale;
+    private bool hasCapturedButtonsRootPose = false;
+    private Coroutine hideButtonsRoutine;
+    private Coroutine postMoveFacingRoutine;
 
     private PointerEventData cachedPointerEventData;
     private readonly List<RaycastResult> uiRaycastResults = new List<RaycastResult>();
@@ -82,6 +106,8 @@ public class PlayerOrientationController : MonoBehaviour
         if (clickLayerMask.value == 0 && visualManager != null && visualManager.GridManager != null)
             clickLayerMask = 1 << visualManager.GridManager.cellLayer;
 
+        ResolveOrientationButtonsRoot();
+        CaptureOrientationButtonsRootPose();
         RegisterButtonEvents();
     }
 
@@ -109,13 +135,60 @@ public class PlayerOrientationController : MonoBehaviour
         if (directionButtonInputLocked) return;
 
         directionButtonInputLocked = true;
+
+        if (activeMode == OrientationMode.MoveFacing)
+        {
+            HandleMoveFacingButtonClicked(horizontal, vertical);
+            return;
+        }
+
         SetDirectionParameters(horizontal, vertical);
-        StartCoroutine(HideButtonsAfterDelay());
+        if (hideButtonsRoutine != null)
+            StopCoroutine(hideButtonsRoutine);
+        hideButtonsRoutine = StartCoroutine(HideButtonsAfterDelay());
+    }
+
+    private void HandleMoveFacingButtonClicked(float horizontal, float vertical)
+    {
+        if (moveInProgress ||
+            playerMoveController == null ||
+            pendingMoveStartCell == null ||
+            pendingMoveEndCell == null)
+        {
+            HideButtons();
+            return;
+        }
+
+        CellManager startCell = pendingMoveStartCell;
+        CellManager endCell = pendingMoveEndCell;
+        moveInProgress = true;
+
+        HideButtons();
+        playerMoveController.MovePlayerAlongPathAfterOrientation(startCell, endCell, success =>
+        {
+            moveInProgress = false;
+            if (success)
+            {
+                if (postMoveFacingRoutine != null)
+                    StopCoroutine(postMoveFacingRoutine);
+                postMoveFacingRoutine = StartCoroutine(ApplyMoveFacingAfterDelay(horizontal, vertical));
+            }
+        });
+    }
+
+    private IEnumerator ApplyMoveFacingAfterDelay(float horizontal, float vertical)
+    {
+        if (postMoveFacingDelay > 0f)
+            yield return new WaitForSeconds(postMoveFacingDelay);
+
+        postMoveFacingRoutine = null;
+        SetDirectionParameters(horizontal, vertical);
     }
 
     private IEnumerator HideButtonsAfterDelay()
     {
         yield return new WaitForSeconds(hideButtonDelay);
+        hideButtonsRoutine = null;
         HideButtons();
     }
 
@@ -155,6 +228,21 @@ public class PlayerOrientationController : MonoBehaviour
             return;
         }
 
+        if (playerMoveController != null && playerMoveController.IsMoving)
+        {
+            HideButtons();
+            pressStartTime = -1f;
+            return;
+        }
+
+        // 进入位移朝向模式的那次点击与 PlayerMoveController 共用同一帧输入，避免被误判为“点击了其他位置”。
+        if (moveFacingModeEnteredFrame == Time.frameCount)
+        {
+            pressStartTime = -1f;
+            longPressTriggered = false;
+            return;
+        }
+
         if (Camera.main == null || Mouse.current == null || visualManager == null || visualManager.GridManager == null)
             return;
 
@@ -163,6 +251,7 @@ public class PlayerOrientationController : MonoBehaviour
         if (!leftDown && !Mouse.current.leftButton.wasPressedThisFrame && !Mouse.current.leftButton.wasReleasedThisFrame)
             return;
 
+        bool moveFacingActive = activeMode == OrientationMode.MoveFacing;
         bool overAnyUI, overOurButtons;
         RaycastUI(out overAnyUI, out overOurButtons);
 
@@ -170,7 +259,7 @@ public class PlayerOrientationController : MonoBehaviour
         {
             // 点在自己的按钮上：不做任何处理（交给 Button 的 onClick）
             // 点在其它 UI（手牌、结束回合等）：视为“点击其他地方”，收起按钮
-            if (!overOurButtons)
+            if (!overOurButtons && !moveFacingActive)
                 HideButtons();
             pressStartTime = -1f;
             return;
@@ -196,7 +285,8 @@ public class PlayerOrientationController : MonoBehaviour
             else
             {
                 // 点击其他地方：收起按钮（移动范围仍由 PlayerMoveController 清除）
-                HideButtons();
+                if (!moveFacingActive)
+                    HideButtons();
                 pressStartTime = -1f;
             }
         }
@@ -270,10 +360,56 @@ public class PlayerOrientationController : MonoBehaviour
 
     public void ShowButtons()
     {
-        // 长按唤出朝向按钮时，主动清除 PlayerMoveController 的移动范围与路径指示，
-        // 确保渲染范围、光标 hover 上下文以及路径 LineRenderer 均彻底清空
+        activeMode = OrientationMode.ManualAdjustment;
+        moveFacingModeEnteredFrame = -1;
+        ClearPendingMove();
+        StopPostMoveFacingRoutine();
+        if (hideButtonsRoutine != null)
+        {
+            StopCoroutine(hideButtonsRoutine);
+            hideButtonsRoutine = null;
+        }
         if (playerMoveController != null)
-            playerMoveController.ClearClickedGrid();
+            playerMoveController.CancelPendingMoveFacing();
+        RestoreOrientationButtonsRootPose();
+        ShowButtonsInternal();
+    }
+
+    /// <summary>
+    /// 玩家确认移动目标格后进入位移朝向状态，选择方向前不发生位移。
+    /// </summary>
+    public void EnterMoveFacingMode(CellManager startCell, CellManager endCell)
+    {
+        if (moveInProgress || startCell == null || endCell == null)
+            return;
+
+        activeMode = OrientationMode.MoveFacing;
+        pendingMoveStartCell = startCell;
+        pendingMoveEndCell = endCell;
+        moveFacingModeEnteredFrame = Time.frameCount;
+        StopPostMoveFacingRoutine();
+        if (hideButtonsRoutine != null)
+        {
+            StopCoroutine(hideButtonsRoutine);
+            hideButtonsRoutine = null;
+        }
+        ShowButtonsInternal();
+    }
+
+    private void ShowButtonsInternal()
+    {
+        if (playerMoveController != null)
+        {
+            if (activeMode == OrientationMode.MoveFacing)
+                playerMoveController.PrepareMoveFacingPreview(pendingMoveEndCell);
+            else
+                playerMoveController.ClearClickedGrid();
+        }
+
+        if (activeMode == OrientationMode.MoveFacing && pendingMoveEndCell != null)
+            PositionOrientationButtonsAt(pendingMoveEndCell.transform.position);
+        else
+            RestoreOrientationButtonsRootPose();
 
         // 同步 Inspector 中 GridVisualManager 的“当前激活样式”只读显示
         if (visualManager != null && playerOrientationStyle != null)
@@ -289,13 +425,80 @@ public class PlayerOrientationController : MonoBehaviour
     public void HideButtons()
     {
         bool wasVisible = buttonsVisible;
+        bool cancelPendingMove = activeMode == OrientationMode.MoveFacing && !moveInProgress;
         SetButtonsActive(false);
         buttonsVisible = false;
         directionButtonInputLocked = false;
+        activeMode = OrientationMode.ManualAdjustment;
+        moveFacingModeEnteredFrame = -1;
+        ClearPendingMove();
+        StopPostMoveFacingRoutine();
+        RestoreOrientationButtonsRootPose();
+
+        if (cancelPendingMove && playerMoveController != null)
+            playerMoveController.CancelPendingMoveFacing();
 
         // 确实从显示状态退出时才还原格子样式（避免非玩家回合每帧调用导致无谓重置）
         if (wasVisible && visualManager != null)
             visualManager.ResetAllCellsVisuals();
+    }
+
+    private void ClearPendingMove()
+    {
+        pendingMoveStartCell = null;
+        pendingMoveEndCell = null;
+    }
+
+    private void StopPostMoveFacingRoutine()
+    {
+        if (postMoveFacingRoutine == null)
+            return;
+
+        StopCoroutine(postMoveFacingRoutine);
+        postMoveFacingRoutine = null;
+    }
+
+    private void ResolveOrientationButtonsRoot()
+    {
+        if (orientationButtonsRoot != null)
+            return;
+
+        if (buttonFront != null)
+            orientationButtonsRoot = buttonFront.transform.parent;
+        else if (buttonBack != null)
+            orientationButtonsRoot = buttonBack.transform.parent;
+        else if (buttonLeft != null)
+            orientationButtonsRoot = buttonLeft.transform.parent;
+        else if (buttonRight != null)
+            orientationButtonsRoot = buttonRight.transform.parent;
+    }
+
+    private void CaptureOrientationButtonsRootPose()
+    {
+        if (orientationButtonsRoot == null)
+            return;
+
+        buttonsRootLocalPosition = orientationButtonsRoot.localPosition;
+        buttonsRootLocalRotation = orientationButtonsRoot.localRotation;
+        buttonsRootLocalScale = orientationButtonsRoot.localScale;
+        hasCapturedButtonsRootPose = true;
+    }
+
+    private void RestoreOrientationButtonsRootPose()
+    {
+        if (orientationButtonsRoot == null || !hasCapturedButtonsRootPose)
+            return;
+
+        orientationButtonsRoot.localPosition = buttonsRootLocalPosition;
+        orientationButtonsRoot.localRotation = buttonsRootLocalRotation;
+        orientationButtonsRoot.localScale = buttonsRootLocalScale;
+    }
+
+    private void PositionOrientationButtonsAt(Vector3 worldPosition)
+    {
+        ResolveOrientationButtonsRoot();
+        if (orientationButtonsRoot != null)
+            orientationButtonsRoot.position = worldPosition;
     }
 
     private void SetButtonsActive(bool active)
@@ -324,12 +527,14 @@ public class PlayerOrientationController : MonoBehaviour
         if (playerOrientationStyle == null || visualManager == null || visualManager.GridManager == null)
             return;
 
-        CellManager playerCell = GetPlayerCell();
-        if (playerCell == null) return;
+        CellManager styleCell = activeMode == OrientationMode.MoveFacing && pendingMoveEndCell != null
+            ? pendingMoveEndCell
+            : GetPlayerCell();
+        if (styleCell == null) return;
 
         // 点状渲染：只涂角色格本身（Point 类型下非角色格不参与高亮）。
-        playerCell.SetCellColor(playerOrientationStyle.characterCellColor, Application.isPlaying);
-        playerCell.SetLineColor(playerOrientationStyle.characterLineColor);
+        styleCell.SetCellColor(playerOrientationStyle.characterCellColor, Application.isPlaying);
+        styleCell.SetLineColor(playerOrientationStyle.characterLineColor);
     }
 
     private CellManager GetPlayerCell()
