@@ -58,6 +58,11 @@ public sealed class SummonDogAction : MonsterActionBase
     {
         ResolveReferences();
 
+        if (WhenDogLairDestroyed.IsDestroyed)
+        {
+            return false;
+        }
+
         if (gridManager == null || dogPrefab == null)
         {
             return false;
@@ -136,10 +141,19 @@ public sealed class SummonDogAction : MonsterActionBase
         }
 
         lastTriggeredRound = GetCurrentRound();
-        summonCoroutine = null;
 
         // 等待物理系统处理新生成单位的触发器碰撞体，再结束本 Action。
         yield return new WaitForFixedUpdate();
+
+        // SummonDogAction 会请求终止其他动作，导致 MonsterActionManager
+        // 在 OnActionFinished 后提前 break，从而跳过统一的 PostActionDelay。
+        // 因此这里由 Action 自己等待这段延迟，避免召唤后立即进入下一个行动。
+        if (PostActionDelay > 0f)
+        {
+            yield return new WaitForSeconds(PostActionDelay);
+        }
+
+        summonCoroutine = null;
         CompleteAction();
     }
 

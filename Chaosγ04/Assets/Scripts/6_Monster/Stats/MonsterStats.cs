@@ -34,6 +34,11 @@ public class MonsterStats : MonoBehaviour, IDamageable
         hitFlash = GetComponent<UniversalHitFlash>();
     }
 
+    private void OnEnable()
+    {
+        WhenDogLairDestroyed.EnsureOn(gameObject);
+    }
+
     private void Start()
     {
         // 在 Start 里刷新一次头顶 UI 显示
@@ -129,6 +134,8 @@ public class MonsterStats : MonoBehaviour, IDamageable
     private void Die(bool playerAttributed)
     {
         Debug.Log($"[{gameObject.name}] 死亡！");
+
+        WhenDogLairDestroyed.MarkDestroyed(gameObject);
 
         // 只有玩家造成的击杀才计入玩家 RunData
         if (playerAttributed && RunDataManager.Instance != null)
