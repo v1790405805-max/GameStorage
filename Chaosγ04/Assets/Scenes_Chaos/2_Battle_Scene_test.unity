@@ -18370,15 +18370,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStatsUI
   hpSlider: {fileID: 1282357558}
   hpText: {fileID: 235419133}
+  hpFormat: '{0} / {1}'
   armorSlider: {fileID: 194117149}
   armorText: {fileID: 971020890}
+  armorFormat: '{0}'
   maxArmorVisual: 50
   energySlider: {fileID: 1770247075}
   energyText: {fileID: 1551134197}
+  energyFormat: '{0} / {1}'
   actionPointSlider: {fileID: 852490310}
   actionPointText: {fileID: 948879989}
+  actionPointFormat: '{0} / {1}'
   actionPointCountSlider: {fileID: 0}
   actionPointCountText: {fileID: 0}
+  actionPointCountFormat: '{0}'
   maxActionPointCountVisual: 50
 --- !u!114 &178741959
 MonoBehaviour:
@@ -18394,8 +18399,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleUIManager
   drawPileText: {fileID: 919121766}
   discardPileText: {fileID: 1744986594}
-  energyText: {fileID: 0}
-  actionPointText: {fileID: 0}
 --- !u!114 &178741960
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -47596,8 +47599,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 504023482}
-  - component: {fileID: 504023484}
   - component: {fileID: 504023483}
+  - component: {fileID: 504023484}
   m_Layer: 5
   m_Name: HandArea
   m_TagString: Untagged
@@ -47621,7 +47624,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 100}
   m_SizeDelta: {x: 0, y: 400}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &504023483
@@ -47647,23 +47650,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 504023481}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 30649d3a9faa99c48a7b1166b86bf2a0, type: 3}
+  m_Script: {fileID: 11500000, guid: 84619232fe3f56a4d8450e26ce7b3a18, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.HorizontalLayoutGroup
-  m_Padding:
-    m_Left: 0
-    m_Right: 0
-    m_Top: 0
-    m_Bottom: 0
-  m_ChildAlignment: 7
-  m_Spacing: 20
-  m_ChildForceExpandWidth: 0
-  m_ChildForceExpandHeight: 0
-  m_ChildControlWidth: 0
-  m_ChildControlHeight: 0
-  m_ChildScaleWidth: 0
-  m_ChildScaleHeight: 0
-  m_ReverseArrangement: 0
+  m_EditorClassIdentifier: Assembly-CSharp::HandCardArcLayout
+  cardSpacing: 160
+  maxTotalWidth: 850
+  curveHeightFactor: 15
+  angleStep: 3.5
+  arrangeDuration: 0.25
+  arrangeEase: 9
 --- !u!1 &504112447
 GameObject:
   m_ObjectHideFlags: 0
