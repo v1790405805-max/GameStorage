@@ -64,6 +64,7 @@ public class CardUI : MonoBehaviour,
 
     private CardData currentCardData;
     private Vector3 originalLocalPos;
+    private Vector3 originalLocalRot; // 弧形基准旋转角
     private Vector3 originalScale;
     private RectTransform rectTransform;
     private bool isDragging = false;
@@ -71,6 +72,7 @@ public class CardUI : MonoBehaviour,
     private Camera uiCamera;
 
     public CardData CurrentCardData => currentCardData;
+    public bool IsDragging => isDragging;
 
     private void Awake()
     {
@@ -80,6 +82,7 @@ public class CardUI : MonoBehaviour,
     private void Start()
     {
         originalLocalPos = transform.localPosition;
+        originalLocalRot = transform.localEulerAngles;
         originalScale = transform.localScale;
 
         Canvas parentCanvas = GetComponentInParent<Canvas>();
@@ -117,11 +120,19 @@ public class CardUI : MonoBehaviour,
         if (nameText != null) nameText.text = data.cardName;
         if (descText != null) descText.text = data.description;
 
-        // 根据卡牌类型动态换色
         if (data != null)
         {
             UpdateCardTypeColor(data.type);
         }
+    }
+
+    /// <summary>
+    /// 由 HandCardArcLayout 布局组件调用：更新卡牌在弧线上的归位基准位置与旋转
+    /// </summary>
+    public void UpdateHomeTransform(Vector3 pos, Vector3 rot)
+    {
+        originalLocalPos = pos;
+        originalLocalRot = rot;
     }
 
     private void UpdateCardTypeColor(CardType type)
@@ -151,7 +162,7 @@ public class CardUI : MonoBehaviour,
         }
     }
 
-    // --- 1. 纯鼠标悬停效果 ---
+    // --- 1. 鼠标悬停阅牌效果 ---
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (isDisplayOnly || isDragging || (currentlySelectedCard != null && currentlySelectedCard != this))
@@ -159,7 +170,11 @@ public class CardUI : MonoBehaviour,
 
         UpdateHighlightState(true);
         transform.DOKill();
-        transform.DOScale(originalScale * 1.1f, tweenDuration).SetEase(Ease.OutBack);
+
+        // 悬停时：放大、回正旋转、向上微浮 35 像素，增强阅读舒适度
+        transform.DOScale(originalScale * 1.15f, tweenDuration).SetEase(Ease.OutBack);
+        transform.DOLocalRotate(Vector3.zero, tweenDuration).SetEase(Ease.OutBack);
+        transform.DOLocalMove(originalLocalPos + new Vector3(0f, 35f, 0f), tweenDuration).SetEase(Ease.OutBack);
     }
 
     public void OnPointerExit(PointerEventData eventData)
@@ -168,18 +183,21 @@ public class CardUI : MonoBehaviour,
 
         UpdateHighlightState(false);
         transform.DOKill();
+
+        // 鼠标移出：平滑弹回弧线初始位置与倾角
         transform.DOScale(originalScale, tweenDuration).SetEase(Ease.OutCubic);
+        transform.DOLocalMove(originalLocalPos, tweenDuration).SetEase(Ease.OutCubic);
+        transform.DOLocalRotate(originalLocalRot, tweenDuration).SetEase(Ease.OutCubic);
     }
 
     // --- 2. 拖拽交互 ---
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (isDisplayOnly || isSelectingMode) return; // 选牌模式：禁止拖拽出牌
+        if (isDisplayOnly || isSelectingMode) return;
 
         currentlySelectedCard = this;
         isDragging = true;
         hasShifted = false;
-        originalLocalPos = transform.localPosition;
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -215,7 +233,6 @@ public class CardUI : MonoBehaviour,
             uiCamera
         );
 
-        // 移出手牌区并触发了预选，通知控制器处理后续逻辑
         if (isOutsideHandArea && hasShifted)
         {
             if (CardDragController.Instance != null)
@@ -238,17 +255,19 @@ public class CardUI : MonoBehaviour,
         }
     }
 
-    // --- 3. 逻辑控制与动画 ---
+    // --- 3. 动画与逻辑状态控制 ---
     private void TriggerShiftUp()
     {
         hasShifted = true;
         Vector3 targetPos = originalLocalPos + new Vector3(0, offsetY, 0);
         UpdateHighlightState(true);
         transform.DOKill();
+
+        // 预选出牌时，卡牌回正角度并放大抬升
         transform.DOLocalMove(targetPos, tweenDuration).SetEase(Ease.OutBack);
+        transform.DOLocalRotate(Vector3.zero, tweenDuration).SetEase(Ease.OutBack);
         transform.DOScale(originalScale * shiftedScaleMultiplier, tweenDuration).SetEase(Ease.OutBack);
 
-        // 移出手牌区，通知控制器开启地图范围高亮
         if (CardDragController.Instance != null)
         {
             CardDragController.Instance.OnCardDragging(currentCardData);
@@ -259,10 +278,12 @@ public class CardUI : MonoBehaviour,
     {
         hasShifted = false;
         transform.DOKill();
-        transform.DOLocalMove(originalLocalPos, tweenDuration).SetEase(Ease.OutCubic);
-        transform.DOScale(originalScale * 1.1f, tweenDuration).SetEase(Ease.OutCubic);
 
-        // 移回手牌区，清空地图高亮
+        // 取消预选拉回：恢复弧度位置、旋转及悬停放大倍率
+        transform.DOLocalMove(originalLocalPos, tweenDuration).SetEase(Ease.OutCubic);
+        transform.DOLocalRotate(originalLocalRot, tweenDuration).SetEase(Ease.OutCubic);
+        transform.DOScale(originalScale * 1.15f, tweenDuration).SetEase(Ease.OutCubic);
+
         if (CardDragController.Instance != null)
         {
             CardDragController.Instance.OnCardDragEnd();
@@ -274,10 +295,12 @@ public class CardUI : MonoBehaviour,
         hasShifted = false;
         UpdateHighlightState(false);
         transform.DOKill();
+
+        // 彻底复位至弧线初始状态
         transform.DOLocalMove(originalLocalPos, tweenDuration).SetEase(Ease.OutCubic);
+        transform.DOLocalRotate(originalLocalRot, tweenDuration).SetEase(Ease.OutCubic);
         transform.DOScale(originalScale, tweenDuration).SetEase(Ease.OutCubic);
 
-        // 复位时清空地图高亮
         if (CardDragController.Instance != null)
         {
             CardDragController.Instance.OnCardDragEnd();
@@ -296,7 +319,6 @@ public class CardUI : MonoBehaviour,
 
         if (currentCardData != null && CombatStatsManager.Instance != null)
         {
-            // 选牌模式（回合结束时选牌）：使用独立悬停色，不按费用判绿/红
             if (isSelectingMode)
             {
                 highlightBorderImage.color = selectingHoverColor;
