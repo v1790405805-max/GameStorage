@@ -8,8 +8,32 @@ using UnityEngine;
 /// 地形或单位，并且允许玩家落脚。验证失败时卡牌不能使用，避免前面的
 /// TeleportEffect 先把玩家传送到敌方所在格后，再因突进失败留下重叠状态。
 /// </summary>
-public class DashbehindEffect : CardEffectCore
+public class DashBehindEffect : CardEffectCore
 {
+    public static bool IsAttachedTo(CardData card)
+    {
+        if (card == null || card.extraEffects == null)
+        {
+            return false;
+        }
+
+        foreach (ExtraCardEffect extra in card.extraEffects)
+        {
+            if (string.IsNullOrEmpty(extra.effectTypeName))
+            {
+                continue;
+            }
+
+            System.Type effectType = System.Type.GetType(extra.effectTypeName);
+            if (effectType == typeof(DashBehindEffect))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public override bool CanPlay(CardData card, Vector2Int targetGrid)
     {
         if (card == null || !card.effectFlags.HasFlag(CardEffectType.Attack))
@@ -33,7 +57,7 @@ public class DashbehindEffect : CardEffectCore
             return true;
         }
 
-        return TryGetBehindCell(
+        return TryGetLandingCell(
             gridManager,
             startGrid,
             targetGrid,
@@ -46,21 +70,21 @@ public class DashbehindEffect : CardEffectCore
     {
         if (card == null || !card.effectFlags.HasFlag(CardEffectType.Attack))
         {
-            Debug.LogWarning($"[DashbehindEffect] 卡牌 [{card?.cardName}] 未勾选 Attack，效果不生效。");
+            Debug.LogWarning($"[DashBehindEffect] 卡牌 [{card?.cardName}] 未勾选 Attack，效果不生效。");
             return false;
         }
 
         GridManager gridManager = Object.FindFirstObjectByType<GridManager>();
         if (gridManager == null)
         {
-            Debug.LogError("[DashbehindEffect] 未找到 GridManager。");
+            Debug.LogError("[DashBehindEffect] 未找到 GridManager。");
             return false;
         }
 
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player == null)
         {
-            Debug.LogError("[DashbehindEffect] 未找到 Tag 为 Player 的对象。");
+            Debug.LogError("[DashBehindEffect] 未找到 Tag 为 Player 的对象。");
             return false;
         }
 
@@ -75,13 +99,13 @@ public class DashbehindEffect : CardEffectCore
             startGrid = GetGridPosition(gridManager, player.transform.position);
         }
 
-        if (!TryGetBehindCell(
+        if (!TryGetLandingCell(
                 gridManager,
                 startGrid,
                 targetGrid,
                 requireTargetMonster: false,
-                out Vector2Int behindGrid,
-                out CellManager behindCell))
+                out Vector2Int landingGrid,
+                out CellManager landingCell))
         {
             // TeleportEffect 可能已经把玩家放进目标格；这里兜底恢复到出牌前位置，
             // 避免任何运行时状态变化导致玩家与敌方单位重叠。
@@ -103,12 +127,12 @@ public class DashbehindEffect : CardEffectCore
             }
 
             Debug.LogWarning(
-                $"[DashbehindEffect] 目标格 [{targetGrid}] 身后没有合法落点，无法突进。");
+                $"[DashBehindEffect] 目标格 [{targetGrid}] 身后没有合法落点，无法突进。");
             return false;
         }
 
         Transform playerRoot = player.transform.root;
-        Vector3 targetPos = behindCell.transform.position;
+        Vector3 targetPos = landingCell.transform.position;
         targetPos.x -= gridManager.cellOffset.x;
         targetPos.z -= gridManager.cellOffset.z;
         playerRoot.position = targetPos;
@@ -116,24 +140,24 @@ public class DashbehindEffect : CardEffectCore
         PlayerMoveController moveController = Object.FindFirstObjectByType<PlayerMoveController>();
         if (moveController != null)
         {
-            moveController.SyncGridPosition(behindGrid);
+            moveController.SyncGridPosition(landingGrid);
         }
 
         Debug.Log(
-            $"[DashbehindEffect] 玩家突进至目标格 [{targetGrid}] 身后的 [{behindGrid}]。");
+            $"[DashBehindEffect] 玩家突进至目标格 [{targetGrid}] 身后的 [{landingGrid}]。");
         return true;
     }
 
-    private static bool TryGetBehindCell(
+    public static bool TryGetLandingCell(
         GridManager gridManager,
         Vector2Int startGrid,
         Vector2Int targetGrid,
         bool requireTargetMonster,
-        out Vector2Int behindGrid,
-        out CellManager behindCell)
+        out Vector2Int landingGrid,
+        out CellManager landingCell)
     {
-        behindGrid = new Vector2Int(-1, -1);
-        behindCell = null;
+        landingGrid = new Vector2Int(-1, -1);
+        landingCell = null;
 
         if (gridManager == null ||
             startGrid.x < 0 ||
@@ -170,9 +194,9 @@ public class DashbehindEffect : CardEffectCore
             return false;
         }
 
-        behindGrid = targetGrid + direction;
-        behindCell = FindBehindCell(gridManager, targetCell, behindGrid);
-        if (behindCell == null)
+        landingGrid = targetGrid + direction;
+        landingCell = FindLandingCell(gridManager, targetCell, landingGrid);
+        if (landingCell == null)
         {
             return false;
         }
@@ -195,10 +219,10 @@ public class DashbehindEffect : CardEffectCore
         return null;
     }
 
-    private static CellManager FindBehindCell(
+    private static CellManager FindLandingCell(
         GridManager gridManager,
         CellManager targetCell,
-        Vector2Int behindGrid)
+        Vector2Int landingGrid)
     {
         if (gridManager == null || targetCell == null)
         {
@@ -211,7 +235,7 @@ public class DashbehindEffect : CardEffectCore
         int nearestLayerDifference = int.MaxValue;
 
         foreach (CellManager candidate in
-                 gridManager.GetCellManagersInColumn(behindGrid.x, behindGrid.y))
+                 gridManager.GetCellManagersInColumn(landingGrid.x, landingGrid.y))
         {
             if (candidate == null)
             {

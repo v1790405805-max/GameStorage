@@ -478,8 +478,21 @@ public class PlayerOrientationController : MonoBehaviour
 
     public void HideButtons()
     {
+        HideButtonsInternal(cancelPendingMove: true);
+    }
+
+    /// <summary>
+    /// 右键取消方向选择时，只收起按钮，由 PlayerMoveController 恢复目标格选择状态。
+    /// </summary>
+    public void CloseMoveFacingSelection()
+    {
+        HideButtonsInternal(cancelPendingMove: false);
+    }
+
+    private void HideButtonsInternal(bool cancelPendingMove)
+    {
         bool wasVisible = buttonsVisible;
-        bool cancelPendingMove = activeMode == OrientationMode.MoveFacing && !moveInProgress;
+        bool wasMoveFacing = activeMode == OrientationMode.MoveFacing && !moveInProgress;
         SetButtonsActive(false);
         buttonsVisible = false;
         directionButtonInputLocked = false;
@@ -489,7 +502,7 @@ public class PlayerOrientationController : MonoBehaviour
         StopPostMoveFacingRoutine();
         RestoreOrientationButtonsRootPose();
 
-        if (cancelPendingMove && playerMoveController != null)
+        if (cancelPendingMove && wasMoveFacing && playerMoveController != null)
             playerMoveController.CancelPendingMoveFacing();
 
         // 确实从显示状态退出时才还原格子样式（避免非玩家回合每帧调用导致无谓重置）

@@ -327,9 +327,6 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
 
     private void HandleGridInteraction()
     {
-        if (hasPendingMoveFacing)
-            return;
-
         if (IsUsingCard || isMoving)
         {
             HideMovePreview();
@@ -338,6 +335,24 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         }
 
         if (Mouse.current == null) return;
+
+        if (Mouse.current.rightButton.wasPressedThisFrame)
+        {
+            if (hasPendingMoveFacing)
+            {
+                CancelMoveFacingSelectionToTargetSelection();
+                return;
+            }
+
+            if (currentClickedCell != null)
+            {
+                ClearClickedGrid();
+                return;
+            }
+        }
+
+        if (hasPendingMoveFacing)
+            return;
 
         // 只让屏幕空间 UI 阻断地块交互；怪物血条等 World Space UI 不应挡住移动操作。
         if (IsPointerOverBlockingUI())
@@ -643,6 +658,32 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         ClearPendingMoveFacing();
         if (hadPendingMove)
             ClearClickedGrid();
+    }
+
+    /// <summary>
+    /// 右键取消方向选择，但保留移动模式，重新回到目标格选择状态。
+    /// </summary>
+    private void CancelMoveFacingSelectionToTargetSelection()
+    {
+        CellManager startCell = pendingMovePath != null && pendingMovePath.Count > 0
+            ? pendingMovePath[0]
+            : currentClickedCell;
+
+        ClearPendingMoveFacing();
+        HideMovePreview();
+        ClearPath();
+
+        if (PlayerOrientationController.Instance != null)
+            PlayerOrientationController.Instance.CloseMoveFacingSelection();
+
+        if (startCell == null)
+        {
+            ClearClickedGrid();
+            return;
+        }
+
+        var (startX, startZ) = visualManager.GridManager.GetCellGridPosition(startCell);
+        SetClickedGrid(startX, startZ, startCell);
     }
 
     public void PrepareMoveFacingPreview(CellManager targetCell)

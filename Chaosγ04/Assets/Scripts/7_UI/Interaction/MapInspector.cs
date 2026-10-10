@@ -7,38 +7,39 @@ using System.Collections;
 
 public class MapInspector : MonoBehaviour
 {
-    [Header("--- 1. ½»»¥ÓëÄ¿±êÉèÖÃ ---")]
-    [Tooltip("ÓÒ¼ü¾Û½¹¹¦ÄÜÊ¹ÓÃµÄ²ã¼¶£¬Çë¹´Ñ¡µØÍ¼¸ñ×ÓËùÔÚµÄ Layer")]
+    [Header("--- 1. äº¤äº’ä¸ç›®æ ‡è®¾ç½® ---")]
+    [Tooltip("å·¦é”®èšç„¦åŠŸèƒ½ä½¿ç”¨çš„å±‚çº§ï¼Œè¯·å‹¾é€‰åœ°å›¾æ ¼å­æ‰€åœ¨çš„ Layer")]
     public LayerMask mapLayerMask;
+    [SerializeField] private GridManager gridManager;
     public Key mapShortcutKey = Key.Space;
 
-    [Header("--- 2. UI Áª¶¯Óë¶¯»­²ÎÊı ---")]
+    [Header("--- 2. UI è”åŠ¨ä¸åŠ¨ç”»å‚æ•° ---")]
     public RectTransform handArea;
     public Transform handCollapsedTarget;
     public CanvasGroup nonEssentialHUD;
     public float collapsedCardSpacing = -60f;
-    [Tooltip("µØÍ¼Ä£Ê½ÏÂÊÖÅÆËõĞ¡µÄ±ÈÀı (Ä¬ÈÏ 0.5£¬¼´ËõĞ¡Ò»°ë)")]
-    public float collapsedHandScale = 0.5f; // ¡¾ĞÂÔö¡¿£ºÈÃÄã¿ÉÒÔÔÚÃæ°å×ÔÓÉµ÷½ÚËõĞ¡±ÈÀı
+    [Tooltip("åœ°å›¾æ¨¡å¼ä¸‹æ‰‹ç‰Œç¼©å°çš„æ¯”ä¾‹ (é»˜è®¤ 0.5ï¼Œå³ç¼©å°ä¸€åŠ)")]
+    public float collapsedHandScale = 0.5f;
 
-    [Header("--- 3. Ïà»úËõ·Å²ÎÊı (Õı½»Ïà»ú) ---")]
+    [Header("--- 3. ç›¸æœºç¼©æ”¾å‚æ•° (æ­£äº¤ç›¸æœº) ---")]
     public float battleCameraSize = 5f;
     public float mapInspectCameraSize = 10f;
 
-    [Header("--- 4. Ïà»úÍÏ×§Óë±ß½ç²ÎÊı ---")]
-    [Tooltip("Èç¹ûµã»÷±ßÔµ¸ñ×ÓÃ»·´Ó¦£¬Çë°ÑÏÂÃæµÄ Min ºÍ Max µ÷´ó£¡»òÕßÖ±½ÓÈ¡Ïû¹´Ñ¡´ËÏî²âÊÔ")]
+    [Header("--- 4. ç›¸æœºæ‹–æ‹½ä¸è¾¹ç•Œå‚æ•° ---")]
+    [Tooltip("å¦‚æœç‚¹å‡»è¾¹ç¼˜æ ¼å­æ²¡ååº”ï¼Œè¯·æŠŠä¸‹é¢çš„ Min å’Œ Max è°ƒå¤§ï¼æˆ–è€…ç›´æ¥å–æ¶ˆå‹¾é€‰æ­¤é¡¹æµ‹è¯•")]
     public bool enableBounds = true;
     public float minX = -30f, maxX = 30f;
     public float minY = -30f, maxY = 30f;
 
-    [Header("--- 5. ¾µÍ·½¹µã²ÎÊı ---")]
+    [Header("--- 5. é•œå¤´ç„¦ç‚¹å‚æ•° ---")]
     public Transform battleFocusTarget;
 
-    [Header("--- 6. µØÍ¼¹öÂÖËõ·Å²ÎÊı ---")]
+    [Header("--- 6. åœ°å›¾æ»šè½®ç¼©æ”¾å‚æ•° ---")]
     public float minMapOrthoSize = 3f;
     public float maxMapOrthoSize = 15f;
     public float scrollZoomSensitivity = 2f;
 
-    // ÄÚ²¿×´Ì¬»º´æ
+    // å†…éƒ¨çŠ¶æ€ç¼“å­˜
     private Vector2 originalHandPos;
     private Vector3 originalHandScale;
     private bool isMapMode = false;
@@ -46,11 +47,19 @@ public class MapInspector : MonoBehaviour
     private Vector3 dragOrigin;
     private Vector3 cameraOffset;
 
-    // UI ×é¼ş»º´æ
+    // UI ç»„ä»¶ç¼“å­˜
     private HorizontalLayoutGroup handLayoutGroup;
     private float originalSpacing;
     private CanvasGroup handCanvasGroup;
     private bool uiStateCached = false;
+
+    private void Awake()
+    {
+        if (gridManager == null)
+        {
+            gridManager = FindFirstObjectByType<GridManager>();
+        }
+    }
 
     IEnumerator Start()
     {
@@ -100,103 +109,74 @@ public class MapInspector : MonoBehaviour
 
         HandleCameraDrag();
         HandleMapScrollZoom();
-        HandleRightClickToFocus();
+        HandleLeftClickToFocus();
     }
 
     /// <summary>
-    /// ´¦ÀíÊó±êÓÒ¼üµã»÷£¬×Ô¶¯¾Û½¹µ½µã»÷µÄµØ¿é
+    /// å¤„ç†é¼ æ ‡å·¦é”®ç‚¹å‡»ï¼Œè‡ªåŠ¨èšç„¦åˆ°ç‚¹å‡»çš„åœ°å—
     /// </summary>
-    /// <summary>
-    /// ´¦ÀíÊó±êÓÒ¼üµã»÷£¬×Ô¶¯¾Û½¹µ½µã»÷µÄµØ¿é
-    /// </summary>
-    /// <summary>
-    /// ´¦ÀíÊó±êÓÒ¼üµã»÷£¬×Ô¶¯¾Û½¹µ½µã»÷µÄµØ¿é£¨Ê¹ÓÃ´¿Ïà¶Ô²îÖµËã·¨£¬³¹µ×¶Å¾øÏòÏÂÆ¯ÒÆ£©
-    /// </summary>
-    /// <summary>
-    /// ´¦ÀíÊó±êÓÒ¼üµã»÷£¬×Ô¶¯¾Û½¹µ½µã»÷µÄµØ¿é
-    /// </summary>
-    /// <summary>
-    /// ´¦ÀíÊó±êÓÒ¼üµã»÷£¬×Ô¶¯¾Û½¹µ½µã»÷µÄµØ¿é
-    /// </summary>
-    private void HandleRightClickToFocus()
+    private void HandleLeftClickToFocus()
     {
         if (Mouse.current == null || mainCamera == null) return;
 
-        if (Mouse.current.rightButton.wasPressedThisFrame)
+        if (!Mouse.current.leftButton.wasPressedThisFrame) return;
+
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
         {
-            // 1. ÅÅ²éÈÕÖ¾£ºÊÇ·ñ½ÓÊÕµ½ÁËÓÒ¼ü°´¼ü
-            Debug.Log("[MapInspector] 1. ³É¹¦°´ÏÂÊó±êÓÒ¼ü£¡");
-
-            // 2. ¼ì²éÊÇ·ñÓĞ UI ÕÚµ²
-            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
-            {
-                // Èç¹ûÄãÒÀÈ»ÏëÈÃÊÖÅÆÇøµ²×¡ÓÒ¼ü£¬µ«²»ÏëÈÃÈ«ÆÁÍ¸Ã÷ UI µ²×¡£¬¿ÉÒÔÔÚÕâÀï¹ıÂË
-                // ÔİÊ±´òÓ¡³öÀ´£¬¿´¿´µ½µ×ÊÇË­ÔÚµ²
-                Debug.LogWarning("[MapInspector] ¾¯¸æ£ºÓÒ¼ü±» UI À¹½ØÁË£¡Èç¹ûÊÇÍ¸Ã÷Ãæ°å£¬ÇëÈ¡Ïû¹´Ñ¡Æä Raycast Target£¡");
-
-                // ¡¾ºËĞÄĞŞ¸Ä¡¿£ºÈç¹û±»µ²ÁË£¬ÎÒÃÇÏÈÇ¿ĞĞÌø¹ı UI À¹½Ø¼ÌĞøÍùÏÂ×ß£¬²âÊÔÊÇ²»ÊÇ UI µÄ¹ø£¡
-                // return; // <-- ½«´ËĞĞ×¢ÊÍµô£¬³¹µ×²»ÈÃ UI ÍÌµôÓÒ¼ü£¡
-            }
-
-            Ray clickRay = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
-            Ray centerRay = mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
-
-            float targetHeight = 0f;
-            Vector3 clickWorldPos = Vector3.zero;
-            bool hitSuccess = false;
-
-            // 3. ÎïÀíÉäÏß¼ì²â
-            if (Physics.Raycast(clickRay, out RaycastHit hit, 1000f, mapLayerMask))
-            {
-                clickWorldPos = hit.point;
-                targetHeight = hit.point.y;
-                hitSuccess = true;
-                Debug.Log($"[MapInspector] 2. ÎïÀíÉäÏßÃüÖĞµØ¿é: {hit.collider.name}£¬Î»ÖÃ: {clickWorldPos}");
-            }
-            else
-            {
-                // ±£µ×ÊıÑ§Æ½Ãæ
-                Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
-                if (groundPlane.Raycast(clickRay, out float enter))
-                {
-                    clickWorldPos = clickRay.GetPoint(enter);
-                    targetHeight = 0f;
-                    hitSuccess = true;
-                    Debug.Log($"[MapInspector] 2. Î´ÃüÖĞÎïÀíCollider£¬Ê¹ÓÃ±£µ×Ë®Æ½Ãæ½»µã: {clickWorldPos}");
-                }
-            }
-
-            // 4. Ö´ĞĞ¾µÍ·Î»ÒÆ
-            if (hitSuccess)
-            {
-                Plane focusPlane = new Plane(Vector3.up, new Vector3(0f, targetHeight, 0f));
-                if (focusPlane.Raycast(centerRay, out float centerEnter))
-                {
-                    Vector3 centerWorldPos = centerRay.GetPoint(centerEnter);
-                    Vector3 delta = clickWorldPos - centerWorldPos;
-                    delta.y = 0f;
-
-                    Vector3 targetCamPos = mainCamera.transform.position + delta;
-
-                    if (enableBounds)
-                    {
-                        targetCamPos.x = Mathf.Clamp(targetCamPos.x, minX, maxX);
-                        targetCamPos.z = Mathf.Clamp(targetCamPos.z, minY, maxY);
-                    }
-
-                    Debug.Log($"[MapInspector] 3. ÕıÔÚÒÆ¶¯Ïà»ú£¬Î»ÒÆÁ¿ Delta: {delta}£¬Ä¿±êÎ»ÖÃ: {targetCamPos}");
-
-                    mainCamera.transform.DOKill();
-                    mainCamera.transform.DOMove(targetCamPos, 0.4f).SetEase(Ease.OutCubic);
-                }
-            }
+            return;
         }
+
+        Ray clickRay = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
+        Ray centerRay = mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+
+        int focusLayerMask = gridManager != null
+            ? 1 << gridManager.cellLayer
+            : mapLayerMask.value;
+
+        if (!Physics.Raycast(clickRay, out RaycastHit hit, 1000f, focusLayerMask))
+        {
+            Debug.Log("[MapInspector] Left click ignored: ray did not hit a cell.");
+            return;
+        }
+
+        CellManager hitCell = hit.collider != null
+            ? hit.collider.GetComponentInParent<CellManager>()
+            : null;
+
+        if (hitCell == null)
+        {
+            Debug.Log("[MapInspector] Left click ignored: hit collider is not a grid cell.");
+            return;
+        }
+
+        Vector3 clickWorldPos = hit.point;
+        float targetHeight = hit.point.y;
+
+        Plane focusPlane = new Plane(Vector3.up, new Vector3(0f, targetHeight, 0f));
+        if (!focusPlane.Raycast(centerRay, out float centerEnter)) return;
+
+        Vector3 centerWorldPos = centerRay.GetPoint(centerEnter);
+        Vector3 delta = clickWorldPos - centerWorldPos;
+        delta.y = 0f;
+
+        Vector3 targetCamPos = mainCamera.transform.position + delta;
+
+        if (enableBounds)
+        {
+            targetCamPos.x = Mathf.Clamp(targetCamPos.x, minX, maxX);
+            targetCamPos.z = Mathf.Clamp(targetCamPos.z, minY, maxY);
+        }
+
+        mainCamera.transform.DOKill();
+        mainCamera.transform.DOMove(targetCamPos, 0.4f).SetEase(Ease.OutCubic);
     }
+
     private void HandleCameraDrag()
     {
         if (Mouse.current == null || mainCamera == null) return;
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()) return;
 
+        // æ³¨æ„ï¼šç›®å‰æ‹–æ‹½ä½¿ç”¨çš„æ˜¯ä¸­é”® (middleButton)ã€‚å¦‚æœä½ å¸Œæœ›æ”¹æˆé¼ æ ‡å·¦é”®æ‹–æ‹½ï¼Œå¯ä»¥é¡ºä¾¿åœ¨è¿™é‡Œè°ƒæ•´ã€‚
         if (Mouse.current.middleButton.wasPressedThisFrame)
         {
             Ray ray = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
@@ -282,10 +262,6 @@ public class MapInspector : MonoBehaviour
             if (handArea != null && handCollapsedTarget != null)
             {
                 handArea.DOMove(handCollapsedTarget.position, 0.4f).SetEase(Ease.OutCubic);
-
-                // ==========================================
-                // ¡¾ĞŞ¸Ä¡¿£ºÊ¹ÓÃÃæ°åÖĞ¿Éµ÷½ÚµÄ collapsedHandScale ±äÁ¿
-                // ==========================================
                 handArea.DOScale(collapsedHandScale, 0.4f);
 
                 if (handCanvasGroup != null) handCanvasGroup.blocksRaycasts = false;

@@ -173,6 +173,42 @@ public class GridVisualManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 将指定格临时渲染为卡牌目标格样式。
+    /// </summary>
+    public void ApplyTargetCellStyle(CellManager cell, GridStyleData style)
+    {
+        if (cell == null || style == null) return;
+
+        cell.SetCellColor(style.targetCellColor, Application.isPlaying);
+        cell.SetLineColor(style.targetLineColor);
+    }
+
+    /// <summary>
+    /// 还原被临时覆盖的卡牌目标格；仍在当前范围内时恢复范围样式。
+    /// </summary>
+    public void RestoreCardRangeCell(
+        CellManager cell,
+        HashSet<CellManager> rangeSet,
+        GridStyleData style,
+        CellManager characterCell)
+    {
+        if (cell == null) return;
+
+        if (rangeSet != null && rangeSet.Contains(cell) && style != null)
+        {
+            bool isCharacter = cell == characterCell;
+            cell.SetCellColor(
+                isCharacter ? style.characterCellColor : style.cellClickedColor,
+                Application.isPlaying);
+            UpdateSingleCellBorderColor(cell, rangeSet, style, isCharacter);
+            return;
+        }
+
+        cell.SetCellColor(gridManager.cellNormalColor, Application.isPlaying);
+        cell.SetLineColor(gridManager.lineNormalColor);
+    }
+
     /// <summary>列级兼容重载：将列坐标集合映射为该列全部层格子后清除高亮。</summary>
     public void ClearRangeHighlight(HashSet<Vector2Int> rangeSet)
     {

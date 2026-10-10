@@ -27,6 +27,9 @@ public class CardDragController : MonoBehaviour
     /// <summary>当前卡牌允许作为最终落点的格子集合，用于移动预览与出牌判定。</summary>
     private readonly HashSet<CellManager> currentValidTargetGrids = new HashSet<CellManager>();
 
+    private CellManager dashBehindPreviewCell;
+    private GridStyleData dashBehindPreviewStyle;
+
     // ==================== 伤害悬停预览新增字段 ====================
     private CardData currentDraggingCard = null;
     private MonsterInfoUI currentHoveredMonsterUI = null;
@@ -72,6 +75,7 @@ public class CardDragController : MonoBehaviour
             return;
         }
 
+        ClearDashBehindPreview();
         IsDragging = true;
         currentDraggingCard = data;
 
@@ -130,6 +134,7 @@ public class CardDragController : MonoBehaviour
 
     public void OnCardDragEnd(bool keepMovementPreview = false)
     {
+        ClearDashBehindPreview();
         ClearCurrentHoverPreview();
         currentDraggingCard = null;
 
@@ -291,7 +296,18 @@ public class CardDragController : MonoBehaviour
     private void HandleMovementCardPreviewDuringDrag()
     {
         if (currentDraggingCard == null || movementController == null)
+        {
+            ClearDashBehindPreview();
             return;
+        }
+
+        if (DashBehindEffect.IsAttachedTo(currentDraggingCard))
+        {
+            HandleDashBehindCardPreviewDuringDrag();
+            return;
+        }
+
+        ClearDashBehindPreview();
 
         bool hasMovement =
             (currentDraggingCard.effectFlags & CardEffectType.Movement) != 0;
@@ -311,6 +327,79 @@ public class CardDragController : MonoBehaviour
             movementController.ShowCardMovementPreview(hoveredCell, this);
         else
             movementController.HideCardMovementPreview(this);
+    }
+
+    private void HandleDashBehindCardPreviewDuringDrag()
+    {
+        if (currentDraggingCard == null || movementController == null || gridManager == null)
+        {
+            ClearDashBehindPreview();
+            return;
+        }
+
+        CellManager hoveredCell = GetMouseHoverCell();
+        bool isValidTarget =
+            hoveredCell != null &&
+            currentValidTargetGrids.Contains(hoveredCell) &&
+            IsValidTargetCell(hoveredCell, currentDraggingCard);
+
+        if (!isValidTarget)
+        {
+            ClearDashBehindPreview();
+            movementController.HideCardMovementPreview(this);
+            return;
+        }
+
+        var (targetX, targetZ) = gridManager.GetCellGridPosition(hoveredCell);
+        Vector2Int targetGrid = new Vector2Int(targetX, targetZ);
+        bool hasLandingCell = DashBehindEffect.TryGetLandingCell(
+            gridManager,
+            playerGridPos,
+            targetGrid,
+            requireTargetMonster: true,
+            out _,
+            out CellManager landingCell);
+
+        if (!hasLandingCell || landingCell == null)
+        {
+            ClearDashBehindPreview();
+            movementController.HideCardMovementPreview(this);
+            return;
+        }
+
+        if (dashBehindPreviewCell != landingCell)
+        {
+            ClearDashBehindPreview();
+            dashBehindPreviewCell = landingCell;
+            dashBehindPreviewStyle = currentDraggingCard.gridStyle;
+        }
+
+        if (dashBehindPreviewStyle != null)
+            visualManager.ApplyTargetCellStyle(landingCell, dashBehindPreviewStyle);
+
+        movementController.ShowCardMovementPreview(landingCell, this);
+    }
+
+    private void ClearDashBehindPreview()
+    {
+        if (movementController != null)
+            movementController.HideCardMovementPreview(this);
+
+        if (dashBehindPreviewCell == null || visualManager == null)
+        {
+            dashBehindPreviewCell = null;
+            dashBehindPreviewStyle = null;
+            return;
+        }
+
+        visualManager.RestoreCardRangeCell(
+            dashBehindPreviewCell,
+            CurrentHighlightedGrids,
+            dashBehindPreviewStyle,
+            playerCell);
+
+        dashBehindPreviewCell = null;
+        dashBehindPreviewStyle = null;
     }
 
     private void HandleMonsterHoverDuringDrag()
