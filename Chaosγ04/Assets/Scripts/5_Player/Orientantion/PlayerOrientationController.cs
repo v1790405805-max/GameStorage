@@ -75,6 +75,7 @@ public class PlayerOrientationController : MonoBehaviour
 
     private PointerEventData cachedPointerEventData;
     private readonly List<RaycastResult> uiRaycastResults = new List<RaycastResult>();
+    private readonly List<EventTrigger.Entry> directionHoverEntries = new List<EventTrigger.Entry>();
 
     private static readonly int HorizontalHash = Animator.StringToHash("Horizontal");
     private static readonly int VerticalHash = Animator.StringToHash("Vertical");
@@ -128,6 +129,54 @@ public class PlayerOrientationController : MonoBehaviour
         // Left: Horizontal = -1, Vertical = 1
         if (buttonLeft != null)
             buttonLeft.onClick.AddListener(() => HandleDirectionButtonClicked(-1f, 1f));
+
+        RegisterDirectionHoverEvents(buttonFront, 1f, 1f);
+        RegisterDirectionHoverEvents(buttonRight, 1f, -1f);
+        RegisterDirectionHoverEvents(buttonBack, -1f, -1f);
+        RegisterDirectionHoverEvents(buttonLeft, -1f, 1f);
+    }
+
+    private void RegisterDirectionHoverEvents(Button button, float horizontal, float vertical)
+    {
+        if (button == null)
+            return;
+
+        EventTrigger trigger = button.GetComponent<EventTrigger>();
+        if (trigger == null)
+            trigger = button.gameObject.AddComponent<EventTrigger>();
+
+        EventTrigger.Entry enterEntry = new EventTrigger.Entry
+        {
+            eventID = EventTriggerType.PointerEnter
+        };
+        enterEntry.callback.AddListener(_ => HandleDirectionButtonHoverEntered(horizontal, vertical));
+
+        EventTrigger.Entry exitEntry = new EventTrigger.Entry
+        {
+            eventID = EventTriggerType.PointerExit
+        };
+        exitEntry.callback.AddListener(_ => HandleDirectionButtonHoverExited());
+
+        trigger.triggers.Add(enterEntry);
+        trigger.triggers.Add(exitEntry);
+        directionHoverEntries.Add(enterEntry);
+        directionHoverEntries.Add(exitEntry);
+    }
+
+    private void HandleDirectionButtonHoverEntered(float horizontal, float vertical)
+    {
+        if (activeMode != OrientationMode.MoveFacing || moveInProgress || playerMoveController == null)
+            return;
+
+        playerMoveController.PreviewMoveFacingDirection(horizontal, vertical);
+    }
+
+    private void HandleDirectionButtonHoverExited()
+    {
+        if (activeMode != OrientationMode.MoveFacing || moveInProgress || playerMoveController == null)
+            return;
+
+        playerMoveController.RestoreMovePreviewDirection();
     }
 
     private void HandleDirectionButtonClicked(float horizontal, float vertical)
@@ -210,6 +259,10 @@ public class PlayerOrientationController : MonoBehaviour
         if (buttonBack != null) buttonBack.onClick.RemoveAllListeners();
         if (buttonLeft != null) buttonLeft.onClick.RemoveAllListeners();
         if (buttonRight != null) buttonRight.onClick.RemoveAllListeners();
+
+        foreach (EventTrigger.Entry entry in directionHoverEntries)
+            entry.callback.RemoveAllListeners();
+        directionHoverEntries.Clear();
     }
 
     private void Start()

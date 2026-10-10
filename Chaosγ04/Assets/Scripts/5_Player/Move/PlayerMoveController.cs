@@ -43,6 +43,9 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
     private List<CellManager> pendingMovePath;
     private HashSet<CellManager> pendingMovePathCells;
     private bool hasPendingMoveFacing = false;
+    private bool hasMovePreviewDirectionOverride = false;
+    private float movePreviewOverrideHorizontal;
+    private float movePreviewOverrideVertical;
     private GameObject movePreviewInstance;
     private Animator movePreviewAnimator;
     private SpriteRenderer movePreviewSpriteRenderer;
@@ -538,13 +541,47 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         if (movePreviewInstance == null || !movePreviewInstance.activeSelf || movePreviewAnimator == null)
             return;
 
+        if (hasMovePreviewDirectionOverride)
+        {
+            ApplyMovePreviewDirection(movePreviewOverrideHorizontal, movePreviewOverrideVertical);
+            return;
+        }
+
         if (playerAnimator == null && playerTransform != null)
             playerAnimator = playerTransform.GetComponentInChildren<Animator>();
         if (playerAnimator == null)
             return;
 
-        movePreviewAnimator.SetFloat(HorizontalHash, playerAnimator.GetFloat(HorizontalHash));
-        movePreviewAnimator.SetFloat(VerticalHash, playerAnimator.GetFloat(VerticalHash));
+        ApplyMovePreviewDirection(
+            playerAnimator.GetFloat(HorizontalHash),
+            playerAnimator.GetFloat(VerticalHash));
+    }
+
+    public void PreviewMoveFacingDirection(float horizontal, float vertical)
+    {
+        if (!hasPendingMoveFacing || movePreviewAnimator == null || !movePreviewInstance.activeSelf)
+            return;
+
+        hasMovePreviewDirectionOverride = true;
+        movePreviewOverrideHorizontal = horizontal;
+        movePreviewOverrideVertical = vertical;
+        ApplyMovePreviewDirection(horizontal, vertical);
+    }
+
+    public void RestoreMovePreviewDirection()
+    {
+        if (!hasMovePreviewDirectionOverride)
+            return;
+
+        hasMovePreviewDirectionOverride = false;
+        SyncMovePreviewDirection();
+        SyncMovePreviewSprite();
+    }
+
+    private void ApplyMovePreviewDirection(float horizontal, float vertical)
+    {
+        movePreviewAnimator.SetFloat(HorizontalHash, horizontal);
+        movePreviewAnimator.SetFloat(VerticalHash, vertical);
         movePreviewAnimator.Update(0f);
         SyncMovePreviewSprite();
     }
@@ -552,6 +589,8 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
     private void SyncMovePreviewSprite()
     {
         if (movePreviewInstance == null || !movePreviewInstance.activeSelf || movePreviewSpriteRenderer == null)
+            return;
+        if (hasMovePreviewDirectionOverride)
             return;
 
         if (playerSpriteRenderer == null)
@@ -574,6 +613,7 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
     private void HideMovePreview()
     {
         movePreviewCell = null;
+        hasMovePreviewDirectionOverride = false;
         if (movePreviewInstance != null)
             movePreviewInstance.SetActive(false);
     }
@@ -661,6 +701,7 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         pendingMovePath = null;
         pendingMovePathCells = null;
         hasPendingMoveFacing = false;
+        hasMovePreviewDirectionOverride = false;
 
         if (GridHoverController.Instance != null)
             GridHoverController.Instance.ClearHoverLockedCells();
