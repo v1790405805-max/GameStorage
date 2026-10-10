@@ -30,7 +30,7 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
     [Header("移动悬停预览")]
     [Tooltip("鼠标悬停在可移动格上时显示的玩家预览预制体")]
     [SerializeField] private GameObject movePreviewPrefab;
-    [SerializeField] private CardMovementPreviewer movementPreviewer;
+    [SerializeField] private PlayerMovementPreviewer movementPreviewer;
 
     private bool isMoving = false;
     public bool IsMoving => isMoving;
@@ -38,6 +38,7 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
     private Vector2Int currentClickedGrid = new Vector2Int(-1, -1);
     private CellManager currentClickedCell;
     private Vector2Int playerGridPos = new Vector2Int(-1, -1);
+    private CellManager playerOccupiedCell;
     private HashSet<CellManager> reachableGridSet = new HashSet<CellManager>();
     private HashSet<CellManager> pendingMoveAllowedCells;
     private List<CellManager> pendingMovePath;
@@ -102,6 +103,7 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
             Vector3 logicPos = playerTransform.position - visualManager.GridManager.cellOffset;
             var (px, pz) = visualManager.GridManager.GetGridPosition(logicPos);
             playerGridPos = new Vector2Int(px, pz);
+            SetPlayerOccupiedCell(FindClosestCellAt(px, pz));
         }
 
         if (TurnManager.Instance != null)
@@ -148,12 +150,71 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
     public void SyncGridPosition(Vector2Int gridPos)
     {
         playerGridPos = gridPos;
+        SetPlayerOccupiedCell(FindClosestCellAt(gridPos.x, gridPos.y));
+    }
+
+    public Vector2Int SyncPlayerGridPositionFromTransform()
+    {
+        if (visualManager == null || visualManager.GridManager == null || playerTransform == null)
+            return playerGridPos;
+
+        Vector3 logicPos = playerTransform.position - visualManager.GridManager.cellOffset;
+        var (px, pz) = visualManager.GridManager.GetGridPosition(logicPos);
+        playerGridPos = new Vector2Int(px, pz);
+        SetPlayerOccupiedCell(FindClosestCellAt(px, pz));
+        return playerGridPos;
+    }
+
+    private CellManager FindClosestCellAt(int x, int z)
+    {
+        if (visualManager == null || visualManager.GridManager == null || playerTransform == null)
+            return null;
+
+        CellManager bestCell = null;
+        float bestDistance = float.MaxValue;
+
+        foreach (CellManager cell in visualManager.GridManager.GetCellManagersInColumn(x, z))
+        {
+            if (cell == null)
+                continue;
+
+            float distance = Mathf.Abs(cell.transform.position.y - playerTransform.position.y);
+            if (distance < bestDistance)
+            {
+                bestDistance = distance;
+                bestCell = cell;
+            }
+        }
+
+        return bestCell;
+    }
+
+    private void SetPlayerOccupiedCell(CellManager nextCell)
+    {
+        if (playerOccupiedCell == nextCell)
+            return;
+
+        if (playerOccupiedCell != null)
+            playerOccupiedCell.SetPlayerInside(false);
+
+        playerOccupiedCell = nextCell;
+        if (playerOccupiedCell != null)
+            playerOccupiedCell.SetPlayerInside(true);
     }
 
     /// <summary>玩家当前所在格坐标（供 PlayerOrientationController 渲染朝向样式使用）。</summary>
     public Vector2Int PlayerGridPos => playerGridPos;
 
-    public CardMovementPreviewer MovementPreviewer
+    public bool IsPlayerGridCell(CellManager cell)
+    {
+        if (cell == null || visualManager == null || visualManager.GridManager == null)
+            return false;
+
+        var (x, z) = visualManager.GridManager.GetCellGridPosition(cell);
+        return x == playerGridPos.x && z == playerGridPos.y;
+    }
+
+    public PlayerMovementPreviewer MovementPreviewer
     {
         get
         {
@@ -165,9 +226,9 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
     private void EnsureMovementPreviewer()
     {
         if (movementPreviewer == null)
-            movementPreviewer = GetComponent<CardMovementPreviewer>();
+            movementPreviewer = GetComponent<PlayerMovementPreviewer>();
         if (movementPreviewer == null)
-            movementPreviewer = gameObject.AddComponent<CardMovementPreviewer>();
+            movementPreviewer = gameObject.AddComponent<PlayerMovementPreviewer>();
 
         movementPreviewer.Initialize(movePreviewPrefab, playerTransform, playerAnimator);
     }
@@ -253,6 +314,7 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
             playerTransform.position = targetPos;
             var (nx, nz) = visualManager.GridManager.GetCellGridPosition(next);
             playerGridPos = new Vector2Int(nx, nz);
+            SetPlayerOccupiedCell(next);
         }
 
         isMoving = false;
@@ -302,7 +364,7 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
             {
                 CellManager cellUnderMouse = hoverCell;
 
-                if (visualManager.IsPlayerOnCell(cellUnderMouse))
+                if (IsPlayerGridCell(cellUnderMouse))
                 {
                     pendingPressCell = cellUnderMouse;
                     pressStartTime = Time.time;
@@ -341,7 +403,7 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
                 : null;
             bool releasedOnPlayerCell = releaseCell != null
                 && releaseCell == pendingPressCell
-                && visualManager.IsPlayerOnCell(releaseCell);
+                && IsPlayerGridCell(releaseCell);
 
             if (isShortPress && !menuVisible && releasedOnPlayerCell)
             {
@@ -693,6 +755,7 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
             playerTransform.position = targetPos;
             var (nx, nz) = visualManager.GridManager.GetCellGridPosition(next);
             playerGridPos = new Vector2Int(nx, nz);
+            SetPlayerOccupiedCell(next);
         }
 
         isMoving = false;

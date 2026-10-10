@@ -297,6 +297,16 @@ public class SLManager : MonoBehaviour, ITurnStateListener
             Transform playerRoot = playerObj.transform.root;
             playerRoot.position = snapshotPlayerPosition;
             playerRoot.rotation = snapshotPlayerRotation;
+            Physics.SyncTransforms();
+
+            PlayerMoveController playerMove = playerObj.GetComponentInParent<PlayerMoveController>();
+            if (playerMove == null)
+                playerMove = FindFirstObjectByType<PlayerMoveController>();
+            if (playerMove != null)
+            {
+                playerMove.SyncPlayerGridPositionFromTransform();
+                playerMove.ForceClearHoverState();
+            }
         }
     }
 

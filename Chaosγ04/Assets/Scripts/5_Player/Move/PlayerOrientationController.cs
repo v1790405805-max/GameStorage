@@ -325,7 +325,8 @@ public class PlayerOrientationController : MonoBehaviour
             ? hit.collider.GetComponentInParent<CellManager>()
             : null;
 
-        bool onPlayerCell = cellUnderMouse != null && visualManager.IsPlayerOnCell(cellUnderMouse);
+        bool onPlayerCell = playerMoveController != null
+            && playerMoveController.IsPlayerGridCell(cellUnderMouse);
 
         if (Mouse.current.leftButton.wasPressedThisFrame)
         {

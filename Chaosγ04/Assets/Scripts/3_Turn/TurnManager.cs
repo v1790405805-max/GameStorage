@@ -84,6 +84,17 @@ public class TurnManager : MonoBehaviour
         if (playerObj != null)
         {
             playerObj.transform.root.position = saveObj.savedPlayerPosition;
+            Physics.SyncTransforms();
+
+            PlayerMoveController playerMove = playerObj.GetComponentInParent<PlayerMoveController>();
+            if (playerMove == null)
+                playerMove = FindFirstObjectByType<PlayerMoveController>();
+            if (playerMove != null)
+            {
+                playerMove.SyncPlayerGridPositionFromTransform();
+                playerMove.ForceClearHoverState();
+            }
+
             Debug.Log($"[TurnManager] 已恢复玩家位置至: {saveObj.savedPlayerPosition}");
         }
 

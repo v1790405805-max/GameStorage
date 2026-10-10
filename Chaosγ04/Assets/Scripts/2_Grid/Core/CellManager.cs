@@ -331,6 +331,19 @@ public class CellManager : MonoBehaviour
     /// <summary>当前格子内是否有玩家（Tag 为 Player 的 Collider）。</summary>
     public bool IsPlayerInside => isPlayerInside;
 
+    /// <summary>
+    /// 供角色位置同步逻辑显式更新玩家占用状态，避免直接改变 Transform 后触发器尚未刷新。
+    /// </summary>
+    public void SetPlayerInside(bool value)
+    {
+        if (isPlayerInside == value)
+            return;
+
+        isPlayerInside = value;
+        if (value)
+            PlayerEntered?.Invoke(this);
+    }
+
     /// <summary>当前格子内是否有怪物。</summary>
     public bool HasMonsterInside
     {

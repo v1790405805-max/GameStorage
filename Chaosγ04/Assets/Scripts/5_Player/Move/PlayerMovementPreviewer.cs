@@ -2,8 +2,9 @@ using UnityEngine;
 
 /// <summary>
 /// 统一管理 Player_WhenMove 预览实例，供手动移动和 Movement 卡牌共用。
+/// 预览动画方向始终以场景中的 Player Animator 为准。
 /// </summary>
-public class CardMovementPreviewer : MonoBehaviour
+public class PlayerMovementPreviewer : MonoBehaviour
 {
     private const float PreviewHeightOffset = 0.653f;
 
@@ -14,11 +15,9 @@ public class CardMovementPreviewer : MonoBehaviour
 
     private Transform playerTransform;
     private Animator playerAnimator;
-    private SpriteRenderer playerSpriteRenderer;
 
     private GameObject previewInstance;
     private Animator previewAnimator;
-    private SpriteRenderer previewSpriteRenderer;
     private CellManager previewCell;
     private object activeOwner;
 
@@ -33,6 +32,10 @@ public class CardMovementPreviewer : MonoBehaviour
         previewPrefab = prefab;
         playerTransform = player;
         playerAnimator = playerCharacterAnimator;
+
+        ResolvePlayerAnimator();
+        if (IsVisible)
+            SyncPreview();
     }
 
     public void Show(CellManager targetCell, object owner)
@@ -61,19 +64,12 @@ public class CardMovementPreviewer : MonoBehaviour
             return;
         }
 
-        bool wasActive = previewInstance.activeSelf;
         previewCell = targetCell;
 
         Vector3 previewPosition = targetCell.transform.position;
         previewPosition.y = targetCell.transform.position.y + PreviewHeightOffset;
         previewInstance.transform.position = previewPosition;
         previewInstance.SetActive(true);
-
-        if (!wasActive && previewAnimator != null)
-        {
-            previewAnimator.Rebind();
-            previewAnimator.Update(0f);
-        }
 
         SyncPreview();
     }
@@ -136,7 +132,6 @@ public class CardMovementPreviewer : MonoBehaviour
         previewInstance = Instantiate(previewPrefab);
         previewInstance.name = $"{previewPrefab.name} (Runtime Preview)";
         previewAnimator = previewInstance.GetComponentInChildren<Animator>(true);
-        previewSpriteRenderer = previewInstance.GetComponentInChildren<SpriteRenderer>(true);
         previewInstance.SetActive(false);
     }
 
@@ -151,8 +146,7 @@ public class CardMovementPreviewer : MonoBehaviour
             return;
         }
 
-        if (playerAnimator == null && playerTransform != null)
-            playerAnimator = playerTransform.GetComponentInChildren<Animator>();
+        ResolvePlayerAnimator();
         if (playerAnimator == null)
             return;
 
@@ -161,35 +155,29 @@ public class CardMovementPreviewer : MonoBehaviour
             playerAnimator.GetFloat(VerticalHash));
     }
 
+    private void ResolvePlayerAnimator()
+    {
+        if (playerAnimator != null)
+            return;
+
+        if (playerTransform != null)
+            playerAnimator = playerTransform.GetComponentInChildren<Animator>(true);
+
+        if (playerAnimator != null)
+            return;
+
+        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+        if (playerObject == null)
+            return;
+
+        playerTransform = playerObject.transform;
+        playerAnimator = playerObject.GetComponentInChildren<Animator>(true);
+    }
+
     private void ApplyDirection(float horizontal, float vertical)
     {
         previewAnimator.SetFloat(HorizontalHash, horizontal);
         previewAnimator.SetFloat(VerticalHash, vertical);
         previewAnimator.Update(0f);
-
-        if (!hasDirectionOverride)
-            SyncSpriteFromPlayer();
-    }
-
-    private void SyncSpriteFromPlayer()
-    {
-        if (previewSpriteRenderer == null)
-            return;
-
-        if (playerSpriteRenderer == null)
-        {
-            if (playerAnimator != null)
-                playerSpriteRenderer = playerAnimator.GetComponent<SpriteRenderer>()
-                    ?? playerAnimator.GetComponentInChildren<SpriteRenderer>(true);
-            if (playerSpriteRenderer == null && playerTransform != null)
-                playerSpriteRenderer = playerTransform.GetComponentInChildren<SpriteRenderer>(true);
-        }
-
-        if (playerSpriteRenderer == null)
-            return;
-
-        previewSpriteRenderer.sprite = playerSpriteRenderer.sprite;
-        previewSpriteRenderer.flipX = playerSpriteRenderer.flipX;
-        previewSpriteRenderer.flipY = playerSpriteRenderer.flipY;
     }
 }

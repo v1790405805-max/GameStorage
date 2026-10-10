@@ -24,6 +24,9 @@ public class CardDragController : MonoBehaviour
     /// <summary>最近一次鼠标射线实际命中的格子（跨层精确，用于落点校验）。</summary>
     private CellManager lastMouseHitCell;
 
+    /// <summary>当前卡牌允许作为最终落点的格子集合，用于移动预览与出牌判定。</summary>
+    private readonly HashSet<CellManager> currentValidTargetGrids = new HashSet<CellManager>();
+
     // ==================== 伤害悬停预览新增字段 ====================
     private CardData currentDraggingCard = null;
     private MonsterInfoUI currentHoveredMonsterUI = null;
@@ -105,6 +108,8 @@ public class CardDragController : MonoBehaviour
 
         ClearRangeHighlight();
         CurrentHighlightedGrids = targetGrids;
+        currentValidTargetGrids.Clear();
+        currentValidTargetGrids.UnionWith(validTargetGrids);
 
         if (data.gridStyle != null)
         {
@@ -299,7 +304,7 @@ public class CardDragController : MonoBehaviour
         CellManager hoveredCell = GetMouseHoverCell();
         bool isValid =
             hoveredCell != null &&
-            CurrentHighlightedGrids.Contains(hoveredCell) &&
+            currentValidTargetGrids.Contains(hoveredCell) &&
             IsValidTargetCell(hoveredCell, currentDraggingCard);
 
         if (isValid)
@@ -459,6 +464,8 @@ public class CardDragController : MonoBehaviour
 
     public void ClearRangeHighlight()
     {
+        currentValidTargetGrids.Clear();
+
         if (visualManager != null && CurrentHighlightedGrids.Count > 0)
         {
             visualManager.ClearRangeHighlight(CurrentHighlightedGrids);
