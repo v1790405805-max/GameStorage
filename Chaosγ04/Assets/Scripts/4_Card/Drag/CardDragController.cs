@@ -12,6 +12,7 @@ public class CardDragController : MonoBehaviour
     [SerializeField] private GridManager gridManager;
     [SerializeField] private GridVisualManager visualManager;
     [SerializeField] private Transform playerTransform;
+    [SerializeField] private PlayerMoveController movementController;
 
     /// <summary>当前被高亮的卡牌范围格集合（供外部查询，格子级含层）。</summary>
     public HashSet<CellManager> CurrentHighlightedGrids { get; private set; }
@@ -38,6 +39,7 @@ public class CardDragController : MonoBehaviour
 
         if (gridManager == null) gridManager = FindFirstObjectByType<GridManager>();
         if (visualManager == null) visualManager = FindFirstObjectByType<GridVisualManager>();
+        if (movementController == null) movementController = FindFirstObjectByType<PlayerMoveController>();
     }
 
     private void Update()
@@ -45,6 +47,7 @@ public class CardDragController : MonoBehaviour
         if (IsDragging && currentDraggingCard != null)
         {
             HandleMonsterHoverDuringDrag();
+            HandleMovementCardPreviewDuringDrag();
         }
     }
 
@@ -56,7 +59,10 @@ public class CardDragController : MonoBehaviour
     {
         if (data == null || gridManager == null || visualManager == null) return;
 
-        PlayerMoveController moveController = FindFirstObjectByType<PlayerMoveController>();
+        if (movementController == null)
+            movementController = FindFirstObjectByType<PlayerMoveController>();
+
+        PlayerMoveController moveController = movementController;
         if (moveController != null && moveController.IsMoving)
         {
             Debug.LogWarning("[CardDragController] 玩家正在移动中，禁止拖拽卡牌！");
@@ -68,6 +74,7 @@ public class CardDragController : MonoBehaviour
 
         if (moveController != null)
         {
+            moveController.HideCardMovementPreview(this);
             moveController.IsUsingCard = true;
             moveController.ForceClearHoverState();
         }
@@ -116,10 +123,13 @@ public class CardDragController : MonoBehaviour
         }
     }
 
-    public void OnCardDragEnd()
+    public void OnCardDragEnd(bool keepMovementPreview = false)
     {
         ClearCurrentHoverPreview();
         currentDraggingCard = null;
+
+        if (!keepMovementPreview && movementController != null)
+            movementController.HideCardMovementPreview(this);
 
         if (GridHoverController.Instance != null)
             GridHoverController.Instance.ClearContext();
@@ -127,7 +137,7 @@ public class CardDragController : MonoBehaviour
         IsDragging = false;
         ClearRangeHighlight();
 
-        PlayerMoveController moveController = FindFirstObjectByType<PlayerMoveController>();
+        PlayerMoveController moveController = movementController;
         if (moveController != null)
             moveController.IsUsingCard = false;
     }
@@ -214,10 +224,16 @@ public class CardDragController : MonoBehaviour
         }
 
         Debug.Log($"[CardDragController] 卡牌 [{data.cardName}] 落点格子：{releaseGrid}，模式：{data.targetSelectMode}");
-        OnCardDragEnd();
+        bool hasMovement = currentDraggingCard != null
+            && (currentDraggingCard.effectFlags & CardEffectType.Movement) != 0;
+        OnCardDragEnd(keepMovementPreview: hasMovement);
 
         if (CardManager.Instance != null)
+        {
             CardManager.Instance.PlayCard(data, cardUI.gameObject, releaseGrid, castTargetGrids);
+            if (movementController != null)
+                movementController.HideCardMovementPreview(this);
+        }
         else
         {
             Debug.LogWarning("[CardDragController] CardManager 实例未找到。");
@@ -266,6 +282,31 @@ public class CardDragController : MonoBehaviour
     // ===================================================================
     // 伤害与血条预览交互逻辑
     // ===================================================================
+
+    private void HandleMovementCardPreviewDuringDrag()
+    {
+        if (currentDraggingCard == null || movementController == null)
+            return;
+
+        bool hasMovement =
+            (currentDraggingCard.effectFlags & CardEffectType.Movement) != 0;
+        if (!hasMovement)
+        {
+            movementController.HideCardMovementPreview(this);
+            return;
+        }
+
+        CellManager hoveredCell = GetMouseHoverCell();
+        bool isValid =
+            hoveredCell != null &&
+            CurrentHighlightedGrids.Contains(hoveredCell) &&
+            IsValidTargetCell(hoveredCell, currentDraggingCard);
+
+        if (isValid)
+            movementController.ShowCardMovementPreview(hoveredCell, this);
+        else
+            movementController.HideCardMovementPreview(this);
+    }
 
     private void HandleMonsterHoverDuringDrag()
     {

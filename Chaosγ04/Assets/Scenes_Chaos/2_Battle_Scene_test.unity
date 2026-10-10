@@ -15827,7 +15827,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -140, y: 0}
+  m_AnchoredPosition: {x: -130, y: 0}
   m_SizeDelta: {x: 120, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &161659242
@@ -123214,7 +123214,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 270}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 140, y: 0}
+  m_AnchoredPosition: {x: 130, y: 0}
   m_SizeDelta: {x: 120, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1283018611
@@ -144800,7 +144800,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -140}
+  m_AnchoredPosition: {x: 0, y: -130}
   m_SizeDelta: {x: 120, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1537580480
@@ -154881,7 +154881,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 140}
+  m_AnchoredPosition: {x: 0, y: 130}
   m_SizeDelta: {x: 120, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1628216418
@@ -175150,6 +175150,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1860863962}
+  - component: {fileID: 1860863968}
   - component: {fileID: 1860863964}
   - component: {fileID: 1860863963}
   - component: {fileID: 1860863965}
@@ -175318,6 +175319,7 @@ MonoBehaviour:
   pathHeightOffset: 0.01
   pathWidth: 0.06
   movePreviewPrefab: {fileID: 7604940984857917978, guid: e9d679f1ade477c46abe18bc396a8858, type: 3}
+  movementPreviewer: {fileID: 1860863968}
 --- !u!114 &1860863965
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -175332,7 +175334,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerOrientationController
   visualManager: {fileID: 1996419303}
   playerMoveController: {fileID: 1860863964}
-  characterAnimator: {fileID: 0}
+  characterAnimator: {fileID: 82650083}
   buttonFront: {fileID: 1283018611}
   buttonBack: {fileID: 161659242}
   buttonLeft: {fileID: 1628216418}
@@ -175380,6 +175382,19 @@ MonoBehaviour:
   playerMoveController: {fileID: 1860863964}
   playerAnimator: {fileID: 82650083}
   orientationDamageController: {fileID: 1860863966}
+--- !u!114 &1860863968
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1860863961}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c4d8e17b2f94a45a6d130e7f8b5c219, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CardMovementPreviewer
+  previewPrefab: {fileID: 7604940984857917978, guid: e9d679f1ade477c46abe18bc396a8858, type: 3}
 --- !u!1 &1860950075
 GameObject:
   m_ObjectHideFlags: 0
@@ -211224,6 +211239,7 @@ MonoBehaviour:
   gridManager: {fileID: 1996419300}
   visualManager: {fileID: 1996419303}
   playerTransform: {fileID: 1860863962}
+  movementController: {fileID: 0}
 --- !u!1 &4813889461111650379
 GameObject:
   m_ObjectHideFlags: 0

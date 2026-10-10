@@ -30,7 +30,7 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
     [Header("移动悬停预览")]
     [Tooltip("鼠标悬停在可移动格上时显示的玩家预览预制体")]
     [SerializeField] private GameObject movePreviewPrefab;
-    private const float MovePreviewHeightOffset = 0.653f;
+    [SerializeField] private CardMovementPreviewer movementPreviewer;
 
     private bool isMoving = false;
     public bool IsMoving => isMoving;
@@ -43,17 +43,6 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
     private List<CellManager> pendingMovePath;
     private HashSet<CellManager> pendingMovePathCells;
     private bool hasPendingMoveFacing = false;
-    private bool hasMovePreviewDirectionOverride = false;
-    private float movePreviewOverrideHorizontal;
-    private float movePreviewOverrideVertical;
-    private GameObject movePreviewInstance;
-    private Animator movePreviewAnimator;
-    private SpriteRenderer movePreviewSpriteRenderer;
-    private SpriteRenderer playerSpriteRenderer;
-    private CellManager movePreviewCell;
-
-    private static readonly int HorizontalHash = Animator.StringToHash("Horizontal");
-    private static readonly int VerticalHash = Animator.StringToHash("Vertical");
 
     // 【长按/短按判定】按下玩家格时先挂起，抬起时区分“短按点击（显示范围）”与“长按（显示朝向按钮）”
     private CellManager pendingPressCell;
@@ -95,6 +84,7 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         if (pathLineRenderer == null)
             pathLineRenderer = GetComponent<LineRenderer>();
 
+        EnsureMovementPreviewer();
         ConfigureLineRenderer();
     }
 
@@ -130,8 +120,6 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
             return;
         }
 
-        SyncMovePreviewDirection();
-
         if (Application.isPlaying && visualManager != null && visualManager.GridManager != null)
             HandleGridInteraction();
     }
@@ -157,17 +145,6 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
             GridHoverController.Instance.ForceRestoreHover();
     }
 
-    private void LateUpdate()
-    {
-        SyncMovePreviewSprite();
-    }
-
-    private void OnDestroy()
-    {
-        if (movePreviewInstance != null)
-            Destroy(movePreviewInstance);
-    }
-
     public void SyncGridPosition(Vector2Int gridPos)
     {
         playerGridPos = gridPos;
@@ -175,6 +152,25 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
 
     /// <summary>玩家当前所在格坐标（供 PlayerOrientationController 渲染朝向样式使用）。</summary>
     public Vector2Int PlayerGridPos => playerGridPos;
+
+    public CardMovementPreviewer MovementPreviewer
+    {
+        get
+        {
+            EnsureMovementPreviewer();
+            return movementPreviewer;
+        }
+    }
+
+    private void EnsureMovementPreviewer()
+    {
+        if (movementPreviewer == null)
+            movementPreviewer = GetComponent<CardMovementPreviewer>();
+        if (movementPreviewer == null)
+            movementPreviewer = gameObject.AddComponent<CardMovementPreviewer>();
+
+        movementPreviewer.Initialize(movePreviewPrefab, playerTransform, playerAnimator);
+    }
 
     // ===================================================================
     // 【核心修复】卡牌位移专属入口与协程
@@ -192,6 +188,7 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
 
         if (startCell != null && endCell != null)
         {
+            HideAllMovementPreviews();
             StartCoroutine(MovePlayerByCardRoutine(startCell, endCell));
         }
         else
@@ -499,123 +496,40 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
 
     private void ShowMovePreview(CellManager targetCell)
     {
-        if (movePreviewPrefab == null || targetCell == null)
-        {
-            HideMovePreview();
-            return;
-        }
-
-        if (movePreviewInstance == null)
-        {
-            movePreviewInstance = Instantiate(movePreviewPrefab);
-            movePreviewInstance.name = $"{movePreviewPrefab.name} (Runtime Preview)";
-            movePreviewAnimator = movePreviewInstance.GetComponentInChildren<Animator>(true);
-            movePreviewSpriteRenderer = movePreviewInstance.GetComponentInChildren<SpriteRenderer>(true);
-            movePreviewInstance.SetActive(false);
-        }
-
-        if (movePreviewCell == targetCell && movePreviewInstance.activeSelf)
-        {
-            SyncMovePreviewDirection();
-            return;
-        }
-
-        bool wasActive = movePreviewInstance.activeSelf;
-        movePreviewCell = targetCell;
-        Vector3 previewPosition = targetCell.transform.position;
-        previewPosition.y = targetCell.transform.position.y + MovePreviewHeightOffset;
-        movePreviewInstance.transform.position = previewPosition;
-        movePreviewInstance.SetActive(true);
-
-        if (!wasActive && movePreviewAnimator != null)
-        {
-            movePreviewAnimator.Rebind();
-            movePreviewAnimator.Update(0f);
-        }
-
-        SyncMovePreviewDirection();
-    }
-
-    private void SyncMovePreviewDirection()
-    {
-        if (movePreviewInstance == null || !movePreviewInstance.activeSelf || movePreviewAnimator == null)
-            return;
-
-        if (hasMovePreviewDirectionOverride)
-        {
-            ApplyMovePreviewDirection(movePreviewOverrideHorizontal, movePreviewOverrideVertical);
-            return;
-        }
-
-        if (playerAnimator == null && playerTransform != null)
-            playerAnimator = playerTransform.GetComponentInChildren<Animator>();
-        if (playerAnimator == null)
-            return;
-
-        ApplyMovePreviewDirection(
-            playerAnimator.GetFloat(HorizontalHash),
-            playerAnimator.GetFloat(VerticalHash));
+        MovementPreviewer.Show(targetCell, this);
     }
 
     public void PreviewMoveFacingDirection(float horizontal, float vertical)
     {
-        if (!hasPendingMoveFacing || movePreviewAnimator == null || !movePreviewInstance.activeSelf)
-            return;
-
-        hasMovePreviewDirectionOverride = true;
-        movePreviewOverrideHorizontal = horizontal;
-        movePreviewOverrideVertical = vertical;
-        ApplyMovePreviewDirection(horizontal, vertical);
+        MovementPreviewer.PreviewDirection(horizontal, vertical, this);
     }
 
     public void RestoreMovePreviewDirection()
     {
-        if (!hasMovePreviewDirectionOverride)
-            return;
-
-        hasMovePreviewDirectionOverride = false;
-        SyncMovePreviewDirection();
-        SyncMovePreviewSprite();
-    }
-
-    private void ApplyMovePreviewDirection(float horizontal, float vertical)
-    {
-        movePreviewAnimator.SetFloat(HorizontalHash, horizontal);
-        movePreviewAnimator.SetFloat(VerticalHash, vertical);
-        movePreviewAnimator.Update(0f);
-        SyncMovePreviewSprite();
-    }
-
-    private void SyncMovePreviewSprite()
-    {
-        if (movePreviewInstance == null || !movePreviewInstance.activeSelf || movePreviewSpriteRenderer == null)
-            return;
-        if (hasMovePreviewDirectionOverride)
-            return;
-
-        if (playerSpriteRenderer == null)
-        {
-            if (playerAnimator != null)
-                playerSpriteRenderer = playerAnimator.GetComponent<SpriteRenderer>()
-                    ?? playerAnimator.GetComponentInChildren<SpriteRenderer>(true);
-            if (playerSpriteRenderer == null && playerTransform != null)
-                playerSpriteRenderer = playerTransform.GetComponentInChildren<SpriteRenderer>(true);
-        }
-
-        if (playerSpriteRenderer == null)
-            return;
-
-        movePreviewSpriteRenderer.sprite = playerSpriteRenderer.sprite;
-        movePreviewSpriteRenderer.flipX = playerSpriteRenderer.flipX;
-        movePreviewSpriteRenderer.flipY = playerSpriteRenderer.flipY;
+        MovementPreviewer.RestoreDirection(this);
     }
 
     private void HideMovePreview()
     {
-        movePreviewCell = null;
-        hasMovePreviewDirectionOverride = false;
-        if (movePreviewInstance != null)
-            movePreviewInstance.SetActive(false);
+        MovementPreviewer.Hide(this);
+    }
+
+    public void ShowCardMovementPreview(CellManager targetCell, object owner)
+    {
+        if (isMoving)
+            return;
+
+        MovementPreviewer.Show(targetCell, owner);
+    }
+
+    public void HideCardMovementPreview(object owner)
+    {
+        MovementPreviewer.Hide(owner);
+    }
+
+    public void HideAllMovementPreviews()
+    {
+        MovementPreviewer.HideAll();
     }
 
     private void DrawPathToTarget(CellManager startCell, CellManager endCell)
@@ -701,7 +615,6 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         pendingMovePath = null;
         pendingMovePathCells = null;
         hasPendingMoveFacing = false;
-        hasMovePreviewDirectionOverride = false;
 
         if (GridHoverController.Instance != null)
             GridHoverController.Instance.ClearHoverLockedCells();
