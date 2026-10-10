@@ -5,12 +5,14 @@ using UnityEngine.UI;
 using DG.Tweening;
 using System.Collections;
 
+[DefaultExecutionOrder(100)]
 public class MapInspector : MonoBehaviour
 {
     [Header("--- 1. 交互与目标设置 ---")]
     [Tooltip("左键聚焦功能使用的层级，请勾选地图格子所在的 Layer")]
     public LayerMask mapLayerMask;
     [SerializeField] private GridManager gridManager;
+    [SerializeField] private PlayerMoveController playerMoveController;
     public Key mapShortcutKey = Key.Space;
 
     [Header("--- 2. UI 联动与动画参数 ---")]
@@ -58,6 +60,11 @@ public class MapInspector : MonoBehaviour
         if (gridManager == null)
         {
             gridManager = FindFirstObjectByType<GridManager>();
+        }
+
+        if (playerMoveController == null)
+        {
+            playerMoveController = FindFirstObjectByType<PlayerMoveController>();
         }
     }
 
@@ -119,9 +126,16 @@ public class MapInspector : MonoBehaviour
     {
         if (Mouse.current == null || mainCamera == null) return;
 
-        if (!Mouse.current.leftButton.wasPressedThisFrame) return;
+        // PlayerMoveController confirms player-cell clicks on release. Focus after
+        // that frame's movement handling so moving the camera cannot change the release cell.
+        if (!Mouse.current.leftButton.wasReleasedThisFrame) return;
 
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+        {
+            return;
+        }
+
+        if (playerMoveController != null && !playerMoveController.ShouldAllowMapFocus)
         {
             return;
         }

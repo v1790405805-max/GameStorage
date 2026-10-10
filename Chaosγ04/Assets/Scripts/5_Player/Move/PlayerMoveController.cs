@@ -37,6 +37,7 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
 
     private Vector2Int currentClickedGrid = new Vector2Int(-1, -1);
     private CellManager currentClickedCell;
+    private int movementModeEnteredFrame = -1;
     private Vector2Int playerGridPos = new Vector2Int(-1, -1);
     private CellManager playerOccupiedCell;
     private HashSet<CellManager> reachableGridSet = new HashSet<CellManager>();
@@ -141,10 +142,19 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
 
     public void ForceClearHoverState()
     {
-        HideMovePreview();
+        pendingPressCell = null;
+        pressStartTime = -1f;
+
+        ClearPendingMoveFacing();
+        HideAllMovementPreviews();
         ClearPath();
-        if (GridHoverController.Instance != null)
-            GridHoverController.Instance.ForceRestoreHover();
+
+        if (PlayerOrientationController.Instance != null)
+        {
+            PlayerOrientationController.Instance.CloseMoveFacingSelection();
+        }
+
+        ClearClickedGrid();
     }
 
     public void SyncGridPosition(Vector2Int gridPos)
@@ -212,6 +222,20 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
 
         var (x, z) = visualManager.GridManager.GetCellGridPosition(cell);
         return x == playerGridPos.x && z == playerGridPos.y;
+    }
+
+    /// <summary>
+    /// 进入移动模式的那次点击仍允许地图聚焦；进入后选择目标格或方向时不再移动相机。
+    /// </summary>
+    public bool ShouldAllowMapFocus
+    {
+        get
+        {
+            if (isMoving || hasPendingMoveFacing)
+                return false;
+
+            return currentClickedCell == null || movementModeEnteredFrame == Time.frameCount;
+        }
     }
 
     public PlayerMovementPreviewer MovementPreviewer
@@ -516,10 +540,17 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
 
     private void SetClickedGrid(int x, int z, CellManager clickedCell)
     {
+        bool wasMovementModeActive = currentClickedCell != null;
         HideMovePreview();
         visualManager.ResetAllCellsVisuals();
         currentClickedGrid = new Vector2Int(x, z);
         currentClickedCell = clickedCell;
+
+        if (!wasMovementModeActive)
+        {
+            movementModeEnteredFrame = Time.frameCount;
+        }
+
         reachableGridSet = RangeSystem.CalculateReachableCells(
             clickedCell,
             CurrentActionPoint,
@@ -542,6 +573,7 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         visualManager.ResetAllCellsVisuals();
         currentClickedGrid = new Vector2Int(-1, -1);
         currentClickedCell = null;
+        movementModeEnteredFrame = -1;
         reachableGridSet.Clear();
         ClearPath();
 
