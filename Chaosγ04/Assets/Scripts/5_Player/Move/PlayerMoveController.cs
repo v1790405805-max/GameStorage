@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.EventSystems; // 引入 UI 事件系统
+using UnityEngine.EventSystems;
 
 [RequireComponent(typeof(LineRenderer))]
 public class PlayerMoveController : MonoBehaviour, ITurnStateListener
@@ -46,7 +46,6 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
     private HashSet<CellManager> pendingMovePathCells;
     private bool hasPendingMoveFacing = false;
 
-    // 【长按/短按判定】按下玩家格时先挂起，抬起时区分“短按点击（显示范围）”与“长按（显示朝向按钮）”
     private CellManager pendingPressCell;
     private float pressStartTime = -1f;
 
@@ -65,10 +64,6 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         }
     }
 
-    /// <summary>
-    /// 区分“短按点击（显示范围）”与“长按（显示朝向按钮）”的时长阈值；
-    /// 场景中存在 PlayerOrientationController 时跟随其配置，否则用默认值
-    /// </summary>
     private float ClickHoldThreshold
     {
         get
@@ -118,6 +113,7 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
             pendingPressCell = null;
             pressStartTime = -1f;
             HideMovePreview();
+            ClearActionPointPreview();
             if (currentClickedCell != null)
                 ClearClickedGrid();
             return;
@@ -135,6 +131,7 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         pressStartTime = -1f;
         CancelPendingMoveFacing();
         HideMovePreview();
+        ClearActionPointPreview();
         if (currentClickedCell != null)
             ClearClickedGrid();
         ClearPath();
@@ -148,6 +145,7 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         ClearPendingMoveFacing();
         HideAllMovementPreviews();
         ClearPath();
+        ClearActionPointPreview();
 
         if (PlayerOrientationController.Instance != null)
         {
@@ -212,7 +210,6 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
             playerOccupiedCell.SetPlayerInside(true);
     }
 
-    /// <summary>玩家当前所在格坐标（供 PlayerOrientationController 渲染朝向样式使用）。</summary>
     public Vector2Int PlayerGridPos => playerGridPos;
 
     public bool IsPlayerGridCell(CellManager cell)
@@ -224,9 +221,6 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         return x == playerGridPos.x && z == playerGridPos.y;
     }
 
-    /// <summary>
-    /// 进入移动模式的那次点击仍允许地图聚焦；进入后选择目标格或方向时不再移动相机。
-    /// </summary>
     public bool ShouldAllowMapFocus
     {
         get
@@ -257,13 +251,6 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         movementPreviewer.Initialize(movePreviewPrefab, playerTransform, playerAnimator);
     }
 
-    // ===================================================================
-    // 【核心修复】卡牌位移专属入口与协程
-    // ===================================================================
-
-    /// <summary>
-    /// 由 CardManager 调用的平滑走位（支持卡牌移动，绕过手动点击的集合限制）
-    /// </summary>
     public void MoveToTargetGridByCard(Vector2Int targetGrid)
     {
         if (visualManager == null || visualManager.GridManager == null) return;
@@ -274,6 +261,7 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         if (startCell != null && endCell != null)
         {
             HideAllMovementPreviews();
+            ClearActionPointPreview();
             StartCoroutine(MovePlayerByCardRoutine(startCell, endCell));
         }
         else
@@ -282,9 +270,6 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         }
     }
 
-    /// <summary>
-    /// 专供卡牌调用的走位协程（不要求 reachableGridSet，且不消耗基础行动点 AP）
-    /// </summary>
     private IEnumerator MovePlayerByCardRoutine(CellManager startCell, CellManager endCell)
     {
         if (playerTransform == null) yield break;
@@ -301,6 +286,7 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
 
         ClearPath();
         ClearClickedGrid();
+        ClearActionPointPreview();
         isMoving = true;
 
         if (playerAnimator != null) playerAnimator.SetBool("Move", true);
@@ -345,21 +331,19 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         if (playerAnimator != null) playerAnimator.SetBool("Move", false);
     }
 
-    // ===================================================================
-    // 普通点击移动交互
-    // ===================================================================
-
     private void HandleGridInteraction()
     {
         if (IsUsingCard || isMoving)
         {
             HideMovePreview();
             ClearPath();
+            ClearActionPointPreview();
             return;
         }
 
         if (Mouse.current == null) return;
 
+        // 右键取消逻辑
         if (Mouse.current.rightButton.wasPressedThisFrame)
         {
             if (hasPendingMoveFacing)
@@ -378,11 +362,11 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         if (hasPendingMoveFacing)
             return;
 
-        // 只让屏幕空间 UI 阻断地块交互；怪物血条等 World Space UI 不应挡住移动操作。
         if (IsPointerOverBlockingUI())
         {
             HideMovePreview();
             ClearPath();
+            ClearActionPointPreview();
             if (Mouse.current.leftButton.wasReleasedThisFrame)
             {
                 pendingPressCell = null;
@@ -455,6 +439,7 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
             pressStartTime = -1f;
         }
 
+        // 鼠标悬停逻辑：绘制路径与触发行动条预扣红格
         if (isValidHover)
         {
             bool inRange = reachableGridSet.Contains(hoverCell);
@@ -467,12 +452,14 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
             {
                 ClearPath();
                 HideMovePreview();
+                ClearActionPointPreview();
             }
         }
         else
         {
             ClearPath();
             HideMovePreview();
+            ClearActionPointPreview();
         }
     }
 
@@ -495,6 +482,10 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
             pendingMovePath = path;
             pendingMovePathCells = new HashSet<CellManager>(path);
             hasPendingMoveFacing = true;
+
+            // 保持红灯锁定状态
+            TriggerActionPointPreview(path.Count - 1);
+
             PlayerOrientationController.Instance.EnterMoveFacingMode(startCell, endCell);
             return;
         }
@@ -542,6 +533,7 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
     {
         bool wasMovementModeActive = currentClickedCell != null;
         HideMovePreview();
+        ClearActionPointPreview();
         visualManager.ResetAllCellsVisuals();
         currentClickedGrid = new Vector2Int(x, z);
         currentClickedCell = clickedCell;
@@ -570,7 +562,7 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         pressStartTime = -1f;
         HideMovePreview();
 
-        // 等待选择朝向期间保留消耗预览，避免清空路径时把红色警示一并取消。
+        // 仅在非待确认朝向阶段才清空行动点预览
         if (!hasPendingMoveFacing)
             ClearActionPointPreview();
 
@@ -609,13 +601,18 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
 
     private void TriggerActionPointPreview(int cost)
     {
-        if (ActionPointBarUI.Instance != null)
+        // 优先联动分段弧形条，其次兼容点状灯泡
+        if (SegmentedActionPointBar.Instance != null)
+            SegmentedActionPointBar.Instance.PreviewCost(cost);
+        else if (ActionPointBarUI.Instance != null)
             ActionPointBarUI.Instance.PreviewCost(cost);
     }
 
     private void ClearActionPointPreview()
     {
-        if (ActionPointBarUI.Instance != null)
+        if (SegmentedActionPointBar.Instance != null)
+            SegmentedActionPointBar.Instance.ClearPreview();
+        else if (ActionPointBarUI.Instance != null)
             ActionPointBarUI.Instance.ClearPreview();
     }
 
@@ -655,12 +652,24 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
     public void HideAllMovementPreviews()
     {
         MovementPreviewer.HideAll();
+        ClearActionPointPreview();
     }
 
     private void DrawPathToTarget(CellManager startCell, CellManager endCell)
     {
         List<CellManager> path = MoveSystem.FindPathAStarCells(startCell, endCell, reachableGridSet, visualManager.GridManager);
         DrawPath(path);
+
+        // 核心修复：悬停时根据路径步数触发变红预警
+        if (path != null && path.Count > 1)
+        {
+            int stepCost = path.Count - 1;
+            TriggerActionPointPreview(stepCost);
+        }
+        else
+        {
+            ClearActionPointPreview();
+        }
     }
 
     private void DrawPath(List<CellManager> path)
@@ -681,9 +690,6 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         }
     }
 
-    /// <summary>
-    /// 位移朝向选择完成后执行移动，并通过回调通知 PlayerOrientationController 应用最终朝向。
-    /// </summary>
     public void MovePlayerAlongPathAfterOrientation(
         CellManager startCell,
         CellManager endCell,
@@ -704,13 +710,11 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
     {
         bool hadPendingMove = hasPendingMoveFacing;
         ClearPendingMoveFacing();
+        ClearActionPointPreview();
         if (hadPendingMove)
             ClearClickedGrid();
     }
 
-    /// <summary>
-    /// 右键取消方向选择，但保留移动模式，重新回到目标格选择状态。
-    /// </summary>
     private void CancelMoveFacingSelectionToTargetSelection()
     {
         CellManager startCell = pendingMovePath != null && pendingMovePath.Count > 0
@@ -743,7 +747,7 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         ClearClickedGrid();
         DrawPath(pendingMovePath);
 
-        // 进入选择朝向阶段后，继续显示本次位移会消耗的行动点。
+        // 核心修复：选择朝向阶段继续锁定显示预扣红灯
         if (pendingMovePath != null && pendingMovePath.Count > 1)
             TriggerActionPointPreview(pendingMovePath.Count - 1);
 
@@ -800,12 +804,16 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         if (CombatStatsManager.Instance != null && !CombatStatsManager.Instance.HasEnoughActionPoint(stepCount))
         {
             Debug.LogWarning($"[PlayerMoveController] ActionPoint 不足！需要 {stepCount} 点，当前只有 {CombatStatsManager.Instance.currentActionPoint} 点！");
+            ClearActionPointPreview();
             onFinished?.Invoke(false);
             yield break;
         }
 
+        // 真实扣除行动点
         if (CombatStatsManager.Instance != null)
             CombatStatsManager.Instance.ConsumeActionPoint(stepCount);
+
+        ClearActionPointPreview();
 
         if (playerAnimator == null)
             playerAnimator = playerTransform.GetComponentInChildren<Animator>();

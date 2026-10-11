@@ -2,7 +2,7 @@ using UnityEngine;
 using DG.Tweening;
 
 /// <summary>
-/// 单个行动点分段格子：管理亮起、熄灭、消耗微缩动画
+/// 单个行动点分段格子：管理亮起、熄灭、消耗微缩与预扣警戒红
 /// </summary>
 public class ActionPointSegmentItem : MonoBehaviour
 {
@@ -10,11 +10,12 @@ public class ActionPointSegmentItem : MonoBehaviour
     [SerializeField] private ArcSegmentGraphic graphic;
 
     [Header("颜色配置")]
-    [SerializeField] private Color litColor = new Color(1f, 0.85f, 0.2f, 1f);      // 点亮：金黄发光
-    [SerializeField] private Color unlitColor = new Color(0.15f, 0.15f, 0.25f, 0.5f);// 熄灭：暗深色半透明
-    [SerializeField] private Color previewColor = new Color(0.95f, 0.3f, 0.25f, 1f); // 预扣费：警戒红
+    [SerializeField] private Color litColor = new Color(1f, 0.85f, 0.2f, 1f);        // 点亮：金黄发光
+    [SerializeField] private Color unlitColor = new Color(0.15f, 0.15f, 0.25f, 0.5f); // 熄灭：暗深色半透明
+    [SerializeField] private Color previewColor = new Color(0.95f, 0.3f, 0.25f, 1f);  // 预扣费：警戒红
 
-    private bool isLit = true;
+    private bool isLit = false;
+    private bool hasInitialized = false;
 
     private void Awake()
     {
@@ -24,7 +25,12 @@ public class ActionPointSegmentItem : MonoBehaviour
     public void InitShape(float radius, float thickness, float startAngle, float endAngle)
     {
         if (graphic == null) graphic = GetComponent<ArcSegmentGraphic>();
-        graphic.SetSegment(radius, thickness, startAngle, endAngle);
+        if (graphic != null)
+        {
+            graphic.SetSegment(radius, thickness, startAngle, endAngle);
+            // 解决开局白色问题：生成形状时立即刷上初始金色，防止 Prefab 默认纯白暴露
+            graphic.color = litColor;
+        }
     }
 
     /// <summary>
@@ -32,9 +38,13 @@ public class ActionPointSegmentItem : MonoBehaviour
     /// </summary>
     public void SetState(bool active, bool animate = true)
     {
+        if (graphic == null) graphic = GetComponent<ArcSegmentGraphic>();
         if (graphic == null) return;
-        if (isLit == active && animate) return;
 
+        // 仅在已成功初始化、且状态未变时才跳过
+        if (hasInitialized && isLit == active && animate) return;
+
+        hasInitialized = true;
         isLit = active;
         graphic.DOKill();
         transform.DOKill();
@@ -49,19 +59,17 @@ public class ActionPointSegmentItem : MonoBehaviour
 
         if (active)
         {
-            // 恢复/点亮：平滑变色
             graphic.DOColor(targetColor, 0.25f).SetEase(Ease.OutQuad);
         }
         else
         {
-            // 消耗瞬间：轻微缩放震颤 + 变暗
             transform.DOPunchScale(Vector3.one * 0.15f, 0.2f, 4, 0.5f);
             graphic.DOColor(targetColor, 0.2f).SetEase(Ease.OutQuad);
         }
     }
 
     /// <summary>
-    /// 设置预消耗预览状态（如拖拽移动或卡牌悬停时）
+    /// 设置预消耗预览状态
     /// </summary>
     public void SetPreview(bool isPreviewCost)
     {
