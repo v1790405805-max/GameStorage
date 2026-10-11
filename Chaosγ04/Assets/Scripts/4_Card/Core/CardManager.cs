@@ -49,6 +49,7 @@ public class CardManager : MonoBehaviour
 
     private int cardsPlayedThisTurn;
     public bool HasPlayedCardThisTurn => cardsPlayedThisTurn > 0;
+    public int CardsPlayedThisTurn => cardsPlayedThisTurn;
 
     private void Awake()
     {

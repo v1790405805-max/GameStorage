@@ -15,6 +15,20 @@ public class ActionPointPipUI : MonoBehaviour
     [SerializeField] private float fadeDuration = 0.2f;
 
     private bool isLit = true;
+    private Color baseLitColor = Color.white;
+
+    private void Awake()
+    {
+        if (litImage != null)
+            baseLitColor = litImage.color;
+    }
+
+    public void SetPreviewState(bool preview, Color previewColor)
+    {
+        if (litImage == null) return;
+
+        litImage.color = preview ? previewColor : baseLitColor;
+    }
 
     /// <summary>
     /// 设置亮灭状态（带补间动画）

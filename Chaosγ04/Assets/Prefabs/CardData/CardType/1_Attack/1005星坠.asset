@@ -29,8 +29,8 @@ MonoBehaviour:
   rangeDistance: 1
   targetSelectMode: 1
   extraEffects:
-  - effectScript: {fileID: 11500000, guid: 1d4e4d2d1ad240289c430a3513979ac8, type: 3}
-    effectTypeName: PushEffect, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+  - effectScript: {fileID: 11500000, guid: 4c6d1f83b02a4e5d9ab7c3e15d8f2a97, type: 3}
+    effectTypeName: StarFallEffect, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
   animationEffects:
   - effectScript: {fileID: 11500000, guid: 9bcaff3e235941c0a561299ba5120919, type: 3}
@@ -42,4 +42,4 @@ MonoBehaviour:
   hitVFXPrefab: {fileID: 3782734080634790471, guid: 8d76d5284bb79154db7d08b61a80a4c3, type: 3}
   hitVFXOffset: {x: 0, y: 0.5, z: 0}
   gridStyle: {fileID: 11400000, guid: 88afb53f10edd8244949d4b08ce8e10e, type: 2}
-  description: "\u5BF91\u683C\u8303\u56F4\u5185\u7684\u654C\u4EBA\u653B\u51FB\uFF0C\u9020\u62109\u70B9\u4F24\u5BB3\uFF0C\u5E76\u628A\u654C\u4EBA\u63A8\u540E\u4E00\u683C\uFF0C\u82E5\u5728\u77EE\u5899\u4E0A\u5411\u4E0B\u53D1\u8D77\u51B2\u51FB\uFF0C\u4E0B\u5899\u5E76\u56DE\u590D\u4E00\u70B9\u8D39\u7528"
+  description: "\u5BF91\u683C\u8303\u56F4\u5185\u7684\u654C\u4EBA\u653B\u51FB\uFF0C\u9020\u62109\u70B9\u4F24\u5BB3\uFF0C\u82E5\u5728\u77EE\u5899\u4E0A\u5411\u4E0B\u53D1\u8D77\u51B2\u51FB\uFF0C\u5219\u6539\u4E3A\u5BF9\u5341\u5B57\u5F62\u533A\u57DF\u9020\u621015\u70B9\u4F24\u5BB3\uFF0C\u4E14\u4F1A\u628A\u654C\u4EBA\u63A8\u540E1\u683C"

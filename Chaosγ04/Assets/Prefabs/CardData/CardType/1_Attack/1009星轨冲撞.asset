@@ -10,25 +10,31 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3a78281b4d3425b4b8b0e0a9fb05ed41, type: 3}
-  m_Name: 1008
+  m_Name: "1009\u661F\u8F68\u51B2\u649E"
   m_EditorClassIdentifier: Assembly-CSharp::CardData
-  cardID: 1007
-  cardName: 
+  cardID: 1009
+  cardName: "\u661F\u8F68\u51B2\u649E"
   type: 1
   cost: 1
-  effectFlags: 34
+  effectFlags: 2
   moveDistance: 0
   damage: 9
   block: 0
   healthChange: 0
   energyChange: 0
-  actionPointChange: 2
+  actionPointChange: 0
   drawAmount: 0
   discardAmount: 0
   rangeType: 1
   rangeDistance: 1
   targetSelectMode: 1
-  extraEffects: []
+  extraEffects:
+  - effectScript: {fileID: 11500000, guid: 1d4e4d2d1ad240289c430a3513979ac8, type: 3}
+    effectTypeName: PushEffect, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+  - effectScript: {fileID: 11500000, guid: 7b3f9c2ad4e64f39b8c1d5a6e2f70c18, type: 3}
+    effectTypeName: OnPushRecoverEnergyEffect, Assembly-CSharp, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
   animationEffects:
   - effectScript: {fileID: 11500000, guid: 9bcaff3e235941c0a561299ba5120919, type: 3}
     effectTypeName: PlayerAttackAnimation, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
@@ -39,4 +45,4 @@ MonoBehaviour:
   hitVFXPrefab: {fileID: 3782734080634790471, guid: 8d76d5284bb79154db7d08b61a80a4c3, type: 3}
   hitVFXOffset: {x: 0, y: 0.5, z: 0}
   gridStyle: {fileID: 11400000, guid: 88afb53f10edd8244949d4b08ce8e10e, type: 2}
-  description: "\u5BF91\u683C\u8303\u56F4\u5185\u7684\u654C\u4EBA\u653B\u51FB\uFF0C\u9020\u62109\u70B9\u4F24\u5BB3\uFF0C\u6062\u590D2\u70B9\u884C\u52A8\u529B"
+  description: "\u5BF91\u683C\u8303\u56F4\u5185\u7684\u654C\u4EBA\u653B\u51FB\uFF0C\u9020\u62109\u70B9\u4F24\u5BB3\uFF0C\u5E76\u628A\u654C\u4EBA\u63A8\u540E1\u683C\uFF0C\u82E5\u628A\u654C\u4EBA\u63A8\u81F3\u5899\u4F53\uFF0C\u5219\u56DE\u590D1\u70B9\u8D39\u7528"

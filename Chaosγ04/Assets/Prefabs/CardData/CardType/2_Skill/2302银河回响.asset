@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a78281b4d3425b4b8b0e0a9fb05ed41, type: 3}
+  m_Name: "2302\u94F6\u6CB3\u56DE\u54CD"
+  m_EditorClassIdentifier: Assembly-CSharp::CardData
+  cardID: 2302
+  cardName: "\u94F6\u6CB3\u56DE\u54CD"
+  type: 2
+  cost: 2
+  effectFlags: 0
+  moveDistance: 0
+  damage: 0
+  block: 0
+  healthChange: 0
+  energyChange: 1
+  actionPointChange: -3
+  drawAmount: 1
+  discardAmount: 1
+  rangeType: 0
+  rangeDistance: 0
+  targetSelectMode: 0
+  extraEffects:
+  - effectScript: {fileID: 11500000, guid: a4f7c2d991b34e6fa81205d37c6be520, type: 3}
+    effectTypeName: ComboCostReductionEffect, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+  animationEffects: []
+  vfxEffects:
+  - effectScript: {fileID: 11500000, guid: 49d304d41c16fcc43967f4c6ac156051, type: 3}
+    effectTypeName: MagicVFX, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+  hitVFXPrefab: {fileID: 0}
+  hitVFXOffset: {x: 0, y: 0.5, z: 0}
+  gridStyle: {fileID: 11400000, guid: 853c237319753544088890199db33ed8, type: 2}
+  description: "\u62BD\u4E24\u5F20\u724C\uFF0C\u8FDE\u51FB3\uFF0C\u4F7F\u672C\u5361\u724C\u7684\u8D39\u7528\u8F6C\u53D8\u4E3A0"

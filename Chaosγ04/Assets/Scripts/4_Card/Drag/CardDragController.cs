@@ -27,6 +27,18 @@ public class CardDragController : MonoBehaviour
     /// <summary>当前卡牌允许作为最终落点的格子集合，用于移动预览与出牌判定。</summary>
     private readonly HashSet<CellManager> currentValidTargetGrids = new HashSet<CellManager>();
 
+    /// <summary>拖拽开始时按实体要求过滤后的落点快照：拖拽预览可能假设性移动怪物，实时占用会失真，出牌校验改用这个快照。</summary>
+    private readonly HashSet<CellManager> currentValidEntityTargets = new HashSet<CellManager>();
+
+    // 额外效果提供的拖拽预览状态（与具体卡牌无关，见 ICardDragPreviewProvider）。
+    private static readonly Vector2Int NoEffectPreviewTarget = new Vector2Int(int.MinValue, int.MinValue);
+    private Vector2Int effectPreviewTargetGrid = new Vector2Int(int.MinValue, int.MinValue);
+    private readonly List<CellManager> effectPreviewCells = new List<CellManager>();
+    private GridStyleData effectPreviewStyle;
+    private MonsterIdentityManager effectPreviewMonster;
+    private Vector3 effectPreviewMonsterOrigin;
+    private bool effectPreviewMonsterMoved;
+
     // ==================== 伤害悬停预览新增字段 ====================
     private CardData currentDraggingCard = null;
     private MonsterInfoUI currentHoveredMonsterUI = null;
@@ -72,6 +84,7 @@ public class CardDragController : MonoBehaviour
             return;
         }
 
+        ClearEffectDragPreview();
         IsDragging = true;
         currentDraggingCard = data;
 
@@ -106,6 +119,9 @@ public class CardDragController : MonoBehaviour
                 validEntityTargets.Add(cell);
         }
 
+        currentValidEntityTargets.Clear();
+        currentValidEntityTargets.UnionWith(validEntityTargets);
+
         ClearRangeHighlight();
         CurrentHighlightedGrids = targetGrids;
         currentValidTargetGrids.Clear();
@@ -130,6 +146,7 @@ public class CardDragController : MonoBehaviour
 
     public void OnCardDragEnd(bool keepMovementPreview = false)
     {
+        ClearEffectDragPreview();
         ClearCurrentHoverPreview();
         currentDraggingCard = null;
 
@@ -152,6 +169,9 @@ public class CardDragController : MonoBehaviour
         if (cardUI == null || cardUI.CurrentCardData == null) return;
         CardData data = cardUI.CurrentCardData;
 
+        // 先还原拖拽预览可能造成的假设性怪物位移，再做落点校验。
+        ClearEffectDragPreview();
+
         bool canAfford = CombatStatsManager.Instance != null
             && CombatStatsManager.Instance.currentEnergy >= data.GetEffectiveCost();
 
@@ -169,9 +189,6 @@ public class CardDragController : MonoBehaviour
             : new Vector2Int(-1, -1);
         bool isValidDrop = false;
         HashSet<Vector2Int> castTargetGrids = null;
-        bool allowEmptyAttackTarget =
-            data.targetSelectMode == TargetSelectMode.Aoe
-            || data.targetSelectMode == TargetSelectMode.AQuarterCircle;
 
         switch (data.targetSelectMode)
         {
@@ -212,7 +229,8 @@ public class CardDragController : MonoBehaviour
             return;
         }
 
-        if (!IsValidTargetCell(releaseCell, data, allowEmptyAttackTarget))
+        // 用拖拽开始时的实体快照校验：拖拽预览可能假设性移动了怪物，实时占用会失真。
+        if (!currentValidEntityTargets.Contains(releaseCell))
         {
             Debug.Log($"[CardDragController] 落点格子 [{releaseGrid}] 不满足卡牌 [{data.cardName}] 的目标实体要求，取消出牌。");
             OnCardDragEnd();
@@ -291,7 +309,18 @@ public class CardDragController : MonoBehaviour
     private void HandleMovementCardPreviewDuringDrag()
     {
         if (currentDraggingCard == null || movementController == null)
+        {
+            ClearEffectDragPreview();
             return;
+        }
+
+        if (HasEffectDragPreview(currentDraggingCard))
+        {
+            HandleEffectDragPreviewDuringDrag();
+            return;
+        }
+
+        ClearEffectDragPreview();
 
         bool hasMovement =
             (currentDraggingCard.effectFlags & CardEffectType.Movement) != 0;
@@ -311,6 +340,190 @@ public class CardDragController : MonoBehaviour
             movementController.ShowCardMovementPreview(hoveredCell, this);
         else
             movementController.HideCardMovementPreview(this);
+    }
+
+    /// <summary>
+    /// 通用拖拽预览：内容由卡牌上实现了 ICardDragPreviewProvider 的额外效果提供，
+    /// CardDragController 只负责渲染（范围高亮 / Player_WhenMove / 假设性怪物位移）。
+    /// </summary>
+    private void HandleEffectDragPreviewDuringDrag()
+    {
+        if (currentDraggingCard == null || movementController == null || gridManager == null)
+        {
+            ClearEffectDragPreview();
+            return;
+        }
+
+        CellManager hoveredCell = GetMouseHoverCell();
+        if (hoveredCell == null)
+        {
+            ClearEffectDragPreview();
+            return;
+        }
+
+        var (targetX, targetZ) = gridManager.GetCellGridPosition(hoveredCell);
+        Vector2Int targetGrid = new Vector2Int(targetX, targetZ);
+
+        // 效果预览可能假设性移动怪物，每帧重算会和它互相打架，因此只在悬停目标格变化时重新求值。
+        if (targetGrid == effectPreviewTargetGrid)
+        {
+            RefreshEffectPreviewHighlight();
+            return;
+        }
+
+        ClearEffectDragPreview();
+
+        bool isCandidate =
+            currentValidTargetGrids.Contains(hoveredCell) &&
+            IsValidTargetCell(hoveredCell, currentDraggingCard);
+
+        if (!isCandidate ||
+            !TryBuildEffectDragPreview(currentDraggingCard, targetGrid, out CardDragPreview preview))
+        {
+            return;
+        }
+
+        ApplyEffectDragPreview(preview);
+        effectPreviewTargetGrid = targetGrid;
+    }
+
+    private void ApplyEffectDragPreview(CardDragPreview preview)
+    {
+        GridStyleData style = currentDraggingCard != null ? currentDraggingCard.gridStyle : null;
+        if (style != null && preview.highlightCells != null)
+        {
+            foreach (CellManager cell in preview.highlightCells)
+            {
+                if (cell == null) continue;
+                visualManager.ApplyTargetCellStyle(cell, style);
+                effectPreviewCells.Add(cell);
+            }
+            effectPreviewStyle = style;
+        }
+
+        effectPreviewMonster = preview.monsterToMove;
+        if (effectPreviewMonster != null)
+        {
+            effectPreviewMonsterOrigin = effectPreviewMonster.transform.position;
+            if (preview.monsterDestinationCell != null)
+            {
+                effectPreviewMonster.transform.position =
+                    preview.monsterDestinationCell.transform.position;
+                effectPreviewMonsterMoved = true;
+            }
+        }
+
+        if (preview.playerPreviewCell != null)
+        {
+            movementController.ShowCardMovementPreview(preview.playerPreviewCell, this);
+        }
+    }
+
+    private void RefreshEffectPreviewHighlight()
+    {
+        if (effectPreviewStyle == null || effectPreviewCells.Count == 0 || visualManager == null)
+        {
+            return;
+        }
+
+        foreach (CellManager cell in effectPreviewCells)
+        {
+            if (cell == null) continue;
+            visualManager.ApplyTargetCellStyle(cell, effectPreviewStyle);
+        }
+    }
+
+    private void ClearEffectDragPreview()
+    {
+        effectPreviewTargetGrid = NoEffectPreviewTarget;
+
+        if (movementController != null)
+        {
+            movementController.HideCardMovementPreview(this);
+        }
+
+        if (effectPreviewMonster != null && effectPreviewMonsterMoved)
+        {
+            effectPreviewMonster.transform.position = effectPreviewMonsterOrigin;
+        }
+        effectPreviewMonsterMoved = false;
+        effectPreviewMonster = null;
+
+        if (effectPreviewCells.Count > 0 && visualManager != null)
+        {
+            foreach (CellManager cell in effectPreviewCells)
+            {
+                if (cell == null) continue;
+                visualManager.RestoreCardRangeCell(
+                    cell, CurrentHighlightedGrids, effectPreviewStyle, playerCell);
+            }
+        }
+        effectPreviewCells.Clear();
+        effectPreviewStyle = null;
+    }
+
+    private static bool HasEffectDragPreview(CardData card)
+    {
+        if (card == null || card.extraEffects == null)
+        {
+            return false;
+        }
+
+        foreach (ExtraCardEffect extra in card.extraEffects)
+        {
+            if (string.IsNullOrEmpty(extra.effectTypeName))
+            {
+                continue;
+            }
+
+            System.Type effectType = System.Type.GetType(extra.effectTypeName);
+            if (effectType != null && typeof(ICardDragPreviewProvider).IsAssignableFrom(effectType))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private bool TryBuildEffectDragPreview(
+        CardData card,
+        Vector2Int targetGrid,
+        out CardDragPreview preview)
+    {
+        preview = default;
+
+        if (card == null || card.extraEffects == null || gridManager == null)
+        {
+            return false;
+        }
+
+        foreach (ExtraCardEffect extra in card.extraEffects)
+        {
+            if (string.IsNullOrEmpty(extra.effectTypeName))
+            {
+                continue;
+            }
+
+            System.Type effectType = System.Type.GetType(extra.effectTypeName);
+            if (effectType == null || effectType.IsAbstract ||
+                !typeof(ICardDragPreviewProvider).IsAssignableFrom(effectType))
+            {
+                continue;
+            }
+
+            ScriptableObject instance = ScriptableObject.CreateInstance(effectType);
+            bool found = instance is ICardDragPreviewProvider provider &&
+                         provider.TryGetDragPreview(gridManager, card, targetGrid, out preview);
+            Destroy(instance);
+
+            if (found)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void HandleMonsterHoverDuringDrag()
@@ -421,7 +634,7 @@ public class CardDragController : MonoBehaviour
             gridManager,
             type,
             blockByMonster: false,
-            blockBySpecialTerrain: false);
+            blockByWater: false);
     }
 
     private HashSet<Vector2Int> GetQuarterCircleTargetGrids(Vector2Int hoverGrid)

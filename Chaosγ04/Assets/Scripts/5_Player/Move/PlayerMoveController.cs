@@ -37,6 +37,7 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
 
     private Vector2Int currentClickedGrid = new Vector2Int(-1, -1);
     private CellManager currentClickedCell;
+    private int movementModeEnteredFrame = -1;
     private Vector2Int playerGridPos = new Vector2Int(-1, -1);
     private CellManager playerOccupiedCell;
     private HashSet<CellManager> reachableGridSet = new HashSet<CellManager>();
@@ -141,10 +142,19 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
 
     public void ForceClearHoverState()
     {
-        HideMovePreview();
+        pendingPressCell = null;
+        pressStartTime = -1f;
+
+        ClearPendingMoveFacing();
+        HideAllMovementPreviews();
         ClearPath();
-        if (GridHoverController.Instance != null)
-            GridHoverController.Instance.ForceRestoreHover();
+
+        if (PlayerOrientationController.Instance != null)
+        {
+            PlayerOrientationController.Instance.CloseMoveFacingSelection();
+        }
+
+        ClearClickedGrid();
     }
 
     public void SyncGridPosition(Vector2Int gridPos)
@@ -212,6 +222,20 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
 
         var (x, z) = visualManager.GridManager.GetCellGridPosition(cell);
         return x == playerGridPos.x && z == playerGridPos.y;
+    }
+
+    /// <summary>
+    /// 进入移动模式的那次点击仍允许地图聚焦；进入后选择目标格或方向时不再移动相机。
+    /// </summary>
+    public bool ShouldAllowMapFocus
+    {
+        get
+        {
+            if (isMoving || hasPendingMoveFacing)
+                return false;
+
+            return currentClickedCell == null || movementModeEnteredFrame == Time.frameCount;
+        }
     }
 
     public PlayerMovementPreviewer MovementPreviewer
@@ -327,9 +351,6 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
 
     private void HandleGridInteraction()
     {
-        if (hasPendingMoveFacing)
-            return;
-
         if (IsUsingCard || isMoving)
         {
             HideMovePreview();
@@ -338,6 +359,24 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         }
 
         if (Mouse.current == null) return;
+
+        if (Mouse.current.rightButton.wasPressedThisFrame)
+        {
+            if (hasPendingMoveFacing)
+            {
+                CancelMoveFacingSelectionToTargetSelection();
+                return;
+            }
+
+            if (currentClickedCell != null)
+            {
+                ClearClickedGrid();
+                return;
+            }
+        }
+
+        if (hasPendingMoveFacing)
+            return;
 
         // 只让屏幕空间 UI 阻断地块交互；怪物血条等 World Space UI 不应挡住移动操作。
         if (IsPointerOverBlockingUI())
@@ -372,7 +411,7 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
                 else if (cellUnderMouse != null && reachableGridSet.Contains(cellUnderMouse))
                 {
                     if (cellUnderMouse.BlocksPlayer)
-                        Debug.Log("[PlayerMoveController] 目标格为特殊地形或已锁死，无法进入！");
+                        Debug.Log("[PlayerMoveController] 目标格为水面 / 墙面或已锁死，无法进入！");
                     else if (cellUnderMouse.HasMonsterInside)
                         Debug.Log("[PlayerMoveController] 目标格有怪物，无法进入！");
                     else
@@ -501,10 +540,17 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
 
     private void SetClickedGrid(int x, int z, CellManager clickedCell)
     {
+        bool wasMovementModeActive = currentClickedCell != null;
         HideMovePreview();
         visualManager.ResetAllCellsVisuals();
         currentClickedGrid = new Vector2Int(x, z);
         currentClickedCell = clickedCell;
+
+        if (!wasMovementModeActive)
+        {
+            movementModeEnteredFrame = Time.frameCount;
+        }
+
         reachableGridSet = RangeSystem.CalculateReachableCells(
             clickedCell,
             CurrentActionPoint,
@@ -524,9 +570,14 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         pressStartTime = -1f;
         HideMovePreview();
 
+        // 等待选择朝向期间保留消耗预览，避免清空路径时把红色警示一并取消。
+        if (!hasPendingMoveFacing)
+            ClearActionPointPreview();
+
         visualManager.ResetAllCellsVisuals();
         currentClickedGrid = new Vector2Int(-1, -1);
         currentClickedCell = null;
+        movementModeEnteredFrame = -1;
         reachableGridSet.Clear();
         ClearPath();
 
@@ -554,6 +605,18 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
     private void ClearPath()
     {
         if (pathLineRenderer != null) pathLineRenderer.positionCount = 0;
+    }
+
+    private void TriggerActionPointPreview(int cost)
+    {
+        if (ActionPointBarUI.Instance != null)
+            ActionPointBarUI.Instance.PreviewCost(cost);
+    }
+
+    private void ClearActionPointPreview()
+    {
+        if (ActionPointBarUI.Instance != null)
+            ActionPointBarUI.Instance.ClearPreview();
     }
 
     private void ShowMovePreview(CellManager targetCell)
@@ -645,6 +708,33 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
             ClearClickedGrid();
     }
 
+    /// <summary>
+    /// 右键取消方向选择，但保留移动模式，重新回到目标格选择状态。
+    /// </summary>
+    private void CancelMoveFacingSelectionToTargetSelection()
+    {
+        CellManager startCell = pendingMovePath != null && pendingMovePath.Count > 0
+            ? pendingMovePath[0]
+            : currentClickedCell;
+
+        ClearPendingMoveFacing();
+        ClearActionPointPreview();
+        HideMovePreview();
+        ClearPath();
+
+        if (PlayerOrientationController.Instance != null)
+            PlayerOrientationController.Instance.CloseMoveFacingSelection();
+
+        if (startCell == null)
+        {
+            ClearClickedGrid();
+            return;
+        }
+
+        var (startX, startZ) = visualManager.GridManager.GetCellGridPosition(startCell);
+        SetClickedGrid(startX, startZ, startCell);
+    }
+
     public void PrepareMoveFacingPreview(CellManager targetCell)
     {
         if (targetCell == null)
@@ -652,6 +742,10 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
 
         ClearClickedGrid();
         DrawPath(pendingMovePath);
+
+        // 进入选择朝向阶段后，继续显示本次位移会消耗的行动点。
+        if (pendingMovePath != null && pendingMovePath.Count > 1)
+            TriggerActionPointPreview(pendingMovePath.Count - 1);
 
         if (pendingMovePathCells != null && pendingMovePathCells.Count > 0)
         {

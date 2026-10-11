@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3a78281b4d3425b4b8b0e0a9fb05ed41, type: 3}
-  m_Name: 1007
+  m_Name: "1007\u661F\u5C18\u8FF8\u53D1"
   m_EditorClassIdentifier: Assembly-CSharp::CardData
   cardID: 1007
-  cardName: 
+  cardName: "\u661F\u5C18\u8FF8\u53D1 "
   type: 1
   cost: 1
   effectFlags: 66

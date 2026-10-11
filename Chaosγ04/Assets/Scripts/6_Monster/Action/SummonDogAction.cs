@@ -267,7 +267,8 @@ public sealed class SummonDogAction : MonsterActionBase
     {
         return cell != null &&
                cell.gameObject.activeInHierarchy &&
-               !cell.IsSpecialTerrain &&
+               !cell.IsWater &&
+               !cell.IsWall &&
                !cell.IsHardLocked &&
                !IsOccupied(cell);
     }

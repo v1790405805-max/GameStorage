@@ -43,11 +43,18 @@ public class GridManager : MonoBehaviour
     public Color lineNormalColor = new Color(1f, 1f, 1f, 0.1f);     // 默认线框颜色 (10%透明度白色)
     public float lineWidth = 0.05f;                                  // 线条宽度
 
-    [Header("特殊地形颜色设置")]
+    [Header("水面 / 墙面颜色设置")]
     [FormerlySerializedAs("CellLockedColor")]
-    public Color SpecialTerrainCellColor = new Color(0.35f, 0.35f, 0.35f, 0.7f);
+    [FormerlySerializedAs("SpecialTerrainCellColor")]
+    public Color WaterCellColor = new Color(0.35f, 0.35f, 0.35f, 0.7f);
     [FormerlySerializedAs("LineLockedColor")]
-    public Color SpecialTerrainLineColor = new Color(1f, 0.75f, 0.2f, 1f);
+    [FormerlySerializedAs("SpecialTerrainLineColor")]
+    public Color WaterLineColor = new Color(1f, 0.75f, 0.2f, 1f);
+
+    [Tooltip("墙面格子显示的面片颜色：所有单位禁入。")]
+    public Color WallCellColor = new Color(0.5f, 0.47f, 0.42f, 0.95f);
+    [Tooltip("墙面格子显示的边框颜色。")]
+    public Color WallLineColor = new Color(0.85f, 0.82f, 0.75f, 1f);
 
     [HideInInspector]
     public int cellLayer = 0; // 取消 Header 标记，由 Custom Editor 统一接管渲染位置
