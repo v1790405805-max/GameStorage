@@ -4,6 +4,10 @@ using DG.Tweening;
 
 public class ActionPointBarUI : MonoBehaviour
 {
+    public static ActionPointBarUI Instance { get; private set; }
+
+    [Header("Preview Cost")]
+    [SerializeField] private Color previewCostColor = new Color(1f, 0.25f, 0.2f, 1f);
     [Header("预制体与容器")]
     [Tooltip("单个灯珠预制体（AP_Pip）")]
     [SerializeField] private GameObject pipPrefab;
@@ -30,9 +34,11 @@ public class ActionPointBarUI : MonoBehaviour
 
     private readonly List<ActionPointPipUI> spawnedPips = new List<ActionPointPipUI>();
     private int cachedMaxAP = -1;
+    private int previewCost;
 
     private void Awake()
     {
+        Instance = this;
         if (pipsContainer == null) pipsContainer = transform;
     }
 
@@ -49,6 +55,9 @@ public class ActionPointBarUI : MonoBehaviour
 
     private void OnDestroy()
     {
+        if (Instance == this)
+            Instance = null;
+
         if (CombatStatsManager.Instance != null)
         {
             CombatStatsManager.Instance.OnStatsChanged -= RefreshAPDisplay;
@@ -67,11 +76,29 @@ public class ActionPointBarUI : MonoBehaviour
             RebuildPips(max);
         }
 
+        int previewStartIndex = Mathf.Max(0, current - previewCost);
+
         for (int i = 0; i < spawnedPips.Count; i++)
         {
             bool shouldBeLit = i < current;
+            bool showPreview = previewCost > 0 && i >= previewStartIndex && i < current;
+            spawnedPips[i].SetPreviewState(showPreview, previewCostColor);
             spawnedPips[i].SetState(shouldBeLit, animate: true);
         }
+    }
+
+    public void PreviewCost(int cost)
+    {
+        previewCost = Mathf.Max(0, cost);
+        RefreshAPDisplay();
+    }
+
+    public void ClearPreview()
+    {
+        if (previewCost == 0) return;
+
+        previewCost = 0;
+        RefreshAPDisplay();
     }
 
     private void RebuildPips(int maxCount)

@@ -570,6 +570,10 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         pressStartTime = -1f;
         HideMovePreview();
 
+        // 等待选择朝向期间保留消耗预览，避免清空路径时把红色警示一并取消。
+        if (!hasPendingMoveFacing)
+            ClearActionPointPreview();
+
         visualManager.ResetAllCellsVisuals();
         currentClickedGrid = new Vector2Int(-1, -1);
         currentClickedCell = null;
@@ -601,6 +605,18 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
     private void ClearPath()
     {
         if (pathLineRenderer != null) pathLineRenderer.positionCount = 0;
+    }
+
+    private void TriggerActionPointPreview(int cost)
+    {
+        if (ActionPointBarUI.Instance != null)
+            ActionPointBarUI.Instance.PreviewCost(cost);
+    }
+
+    private void ClearActionPointPreview()
+    {
+        if (ActionPointBarUI.Instance != null)
+            ActionPointBarUI.Instance.ClearPreview();
     }
 
     private void ShowMovePreview(CellManager targetCell)
@@ -702,6 +718,7 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
             : currentClickedCell;
 
         ClearPendingMoveFacing();
+        ClearActionPointPreview();
         HideMovePreview();
         ClearPath();
 
@@ -725,6 +742,10 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
 
         ClearClickedGrid();
         DrawPath(pendingMovePath);
+
+        // 进入选择朝向阶段后，继续显示本次位移会消耗的行动点。
+        if (pendingMovePath != null && pendingMovePath.Count > 1)
+            TriggerActionPointPreview(pendingMovePath.Count - 1);
 
         if (pendingMovePathCells != null && pendingMovePathCells.Count > 0)
         {
