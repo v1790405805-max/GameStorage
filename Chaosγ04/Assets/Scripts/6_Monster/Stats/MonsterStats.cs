@@ -59,6 +59,15 @@ public class MonsterStats : MonoBehaviour, IDamageable
         ApplyDamage(damageAmount, attacker, playerAttributed: attacker == null);
     }
 
+    /// <summary>
+    /// 无视护盾与剩余生命值，直接判定该怪物死亡。
+    /// 用于推击落入致死地形（落点不存在 / 硬锁格 / 未注册可通过的水面）等效果。
+    /// </summary>
+    public void KillInstantly()
+    {
+        Die(playerAttributed: true);
+    }
+
     private void ApplyDamage(int damageAmount, MonsterIdentityManager attacker, bool playerAttributed)
     {
         int remainingDamage = damageAmount;
