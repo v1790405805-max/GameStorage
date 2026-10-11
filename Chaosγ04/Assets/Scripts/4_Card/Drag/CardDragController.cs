@@ -27,6 +27,9 @@ public class CardDragController : MonoBehaviour
     /// <summary>当前卡牌允许作为最终落点的格子集合，用于移动预览与出牌判定。</summary>
     private readonly HashSet<CellManager> currentValidTargetGrids = new HashSet<CellManager>();
 
+    /// <summary>拖拽开始时按实体要求过滤后的落点快照：拖拽预览可能假设性移动怪物，实时占用会失真，出牌校验改用这个快照。</summary>
+    private readonly HashSet<CellManager> currentValidEntityTargets = new HashSet<CellManager>();
+
     // 额外效果提供的拖拽预览状态（与具体卡牌无关，见 ICardDragPreviewProvider）。
     private static readonly Vector2Int NoEffectPreviewTarget = new Vector2Int(int.MinValue, int.MinValue);
     private Vector2Int effectPreviewTargetGrid = new Vector2Int(int.MinValue, int.MinValue);
@@ -116,6 +119,9 @@ public class CardDragController : MonoBehaviour
                 validEntityTargets.Add(cell);
         }
 
+        currentValidEntityTargets.Clear();
+        currentValidEntityTargets.UnionWith(validEntityTargets);
+
         ClearRangeHighlight();
         CurrentHighlightedGrids = targetGrids;
         currentValidTargetGrids.Clear();
@@ -183,9 +189,6 @@ public class CardDragController : MonoBehaviour
             : new Vector2Int(-1, -1);
         bool isValidDrop = false;
         HashSet<Vector2Int> castTargetGrids = null;
-        bool allowEmptyAttackTarget =
-            data.targetSelectMode == TargetSelectMode.Aoe
-            || data.targetSelectMode == TargetSelectMode.AQuarterCircle;
 
         switch (data.targetSelectMode)
         {
@@ -226,7 +229,8 @@ public class CardDragController : MonoBehaviour
             return;
         }
 
-        if (!IsValidTargetCell(releaseCell, data, allowEmptyAttackTarget))
+        // 用拖拽开始时的实体快照校验：拖拽预览可能假设性移动了怪物，实时占用会失真。
+        if (!currentValidEntityTargets.Contains(releaseCell))
         {
             Debug.Log($"[CardDragController] 落点格子 [{releaseGrid}] 不满足卡牌 [{data.cardName}] 的目标实体要求，取消出牌。");
             OnCardDragEnd();
