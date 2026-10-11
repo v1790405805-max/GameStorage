@@ -171,7 +171,7 @@ public static class RangeSystem
         bool blockByMonster = true,
         bool useAbilityTraversal = false,
         MonsterIdentityManager traversingMonster = null,
-        bool blockBySpecialTerrain = true)
+        bool blockByWater = true)
     {
         HashSet<CellManager> reachable = new HashSet<CellManager>();
         if (gridManager == null || startCell == null) return reachable;
@@ -216,7 +216,7 @@ public static class RangeSystem
                     if (BlocksTerrainTraversal(
                             neighbor,
                             traversingMonster,
-                            blockBySpecialTerrain))
+                            blockByWater))
                     {
                         continue;
                     }
@@ -268,7 +268,7 @@ public static class RangeSystem
         RangeType type = RangeType.Diamond,
         bool blockByMonster = true,
         MonsterIdentityManager traversingMonster = null,
-        bool blockBySpecialTerrain = true)
+        bool blockByWater = true)
     {
         HashSet<Vector2Int> reachable = new HashSet<Vector2Int>();
         if (gridManager == null || !gridManager.IsValidGridPosition(startPos.x, startPos.y))
@@ -307,7 +307,7 @@ public static class RangeSystem
                     BlocksTerrainTraversal(
                         cell,
                         traversingMonster,
-                        blockBySpecialTerrain))
+                        blockByWater))
                 {
                     continue;
                 }
@@ -324,15 +324,15 @@ public static class RangeSystem
     private static bool BlocksTerrainTraversal(
         CellManager cell,
         MonsterIdentityManager traversingMonster,
-        bool blockBySpecialTerrain)
+        bool blockByWater)
     {
         if (traversingMonster != null)
             return !cell.CanMonsterTraverse(traversingMonster);
 
-        if (cell.IsHardLocked)
+        if (cell.IsHardLocked || cell.IsWall)
             return true;
 
-        return blockBySpecialTerrain && cell.IsSpecialTerrain;
+        return blockByWater && cell.IsWater;
     }
 
     /// <summary>

@@ -32,6 +32,8 @@ public class MapInspector : MonoBehaviour
     public bool enableBounds = true;
     public float minX = -30f, maxX = 30f;
     public float minY = -30f, maxY = 30f;
+    [Tooltip("WASD 平移视角的速度（每秒等效拖动的屏幕像素数，与中键拖拽使用同一套投影逻辑）")]
+    public float keyboardPanSpeed = 600f;
 
     [Header("--- 5. 镜头焦点参数 ---")]
     public Transform battleFocusTarget;
@@ -115,6 +117,7 @@ public class MapInspector : MonoBehaviour
         }
 
         HandleCameraDrag();
+        HandleKeyboardPan();
         HandleMapScrollZoom();
         HandleLeftClickToFocus();
     }
@@ -193,27 +196,69 @@ public class MapInspector : MonoBehaviour
         // 注意：目前拖拽使用的是中键 (middleButton)。如果你希望改成鼠标左键拖拽，可以顺便在这里调整。
         if (Mouse.current.middleButton.wasPressedThisFrame)
         {
-            Ray ray = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
-            Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
-            if (groundPlane.Raycast(ray, out float enter))
+            if (TryGetGroundPoint(Mouse.current.position.ReadValue(), out Vector3 pressPoint))
             {
-                dragOrigin = ray.GetPoint(enter);
+                dragOrigin = pressPoint;
             }
         }
 
         if (Mouse.current.middleButton.isPressed)
         {
-            Ray ray = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
-            Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
-            if (groundPlane.Raycast(ray, out float enter))
+            if (TryGetGroundPoint(Mouse.current.position.ReadValue(), out Vector3 currentPos))
             {
-                Vector3 currentPos = ray.GetPoint(enter);
                 Vector3 difference = dragOrigin - currentPos;
                 mainCamera.transform.position += difference;
 
                 if (enableBounds) ClampCameraPosition();
             }
         }
+    }
+
+    /// <summary>
+    /// 处理键盘 WASD 平移视角：与中键拖拽保持完全一致的逻辑（同一套地面投影换算 + 相同的边界限制）。
+    /// 区别只在于输入来源：把按键产生的屏幕位移当作虚拟拖拽位移，再投影到地面平面上。
+    /// </summary>
+    private void HandleKeyboardPan()
+    {
+        if (Keyboard.current == null || mainCamera == null) return;
+
+        float horizontal = 0f;
+        float vertical = 0f;
+        if (Keyboard.current.aKey.isPressed) horizontal -= 1f;
+        if (Keyboard.current.dKey.isPressed) horizontal += 1f;
+        if (Keyboard.current.sKey.isPressed) vertical -= 1f;
+        if (Keyboard.current.wKey.isPressed) vertical += 1f;
+
+        if (Mathf.Approximately(horizontal, 0f) && Mathf.Approximately(vertical, 0f)) return;
+
+        Vector2 screenDelta = new Vector2(horizontal, vertical).normalized
+            * keyboardPanSpeed * Time.unscaledDeltaTime;
+
+        // 以屏幕中心为参考点，把屏幕位移换算成地面平面上的世界位移，换算方式与中键拖拽一致。
+        Vector2 screenCenter = new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
+        if (TryGetGroundPoint(screenCenter, out Vector3 before) &&
+            TryGetGroundPoint(screenCenter + screenDelta, out Vector3 after))
+        {
+            mainCamera.transform.position += after - before;
+
+            if (enableBounds) ClampCameraPosition();
+        }
+    }
+
+    /// <summary>
+    /// 将屏幕坐标投影到 y = 0 的地面平面上，成功时返回对应的世界坐标。
+    /// </summary>
+    private bool TryGetGroundPoint(Vector2 screenPosition, out Vector3 groundPoint)
+    {
+        groundPoint = Vector3.zero;
+        if (mainCamera == null) return false;
+
+        Ray ray = mainCamera.ScreenPointToRay(screenPosition);
+        Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
+        if (!groundPlane.Raycast(ray, out float enter)) return false;
+
+        groundPoint = ray.GetPoint(enter);
+        return true;
     }
 
     private void HandleMapScrollZoom()

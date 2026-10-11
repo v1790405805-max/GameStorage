@@ -46,14 +46,15 @@ public class MonsterIdentityManager : MonoBehaviour
     private HostileFactionFlags hostileFactions =
         HostileFactionFlags.Dog | HostileFactionFlags.Crocodile | HostileFactionFlags.Player;
 
-    [Header("特殊地形通行")]
-    [Tooltip("允许该怪物进入并穿过特殊地形格。")]
-    [SerializeField] private bool canTraverseSpecialTerrain = false;
+    [Header("水面通行")]
+    [Tooltip("允许该怪物进入并停留在水面格。")]
+    [FormerlySerializedAs("canTraverseSpecialTerrain")]
+    [SerializeField] private bool canTraverseWater = false;
 
     [SerializeField, HideInInspector]
     private bool hostileFactionsInitialized;
 
-    public bool CanTraverseSpecialTerrain => canTraverseSpecialTerrain;
+    public bool CanTraverseWater => canTraverseWater;
     public HostileFactionFlags HostileFactions => hostileFactions;
     public bool IsDogLeader => faction == MonsterFaction.Dog && isDogLeader;
 

@@ -11,8 +11,9 @@ using UnityEditor;
 public enum CellAccessState
 {
     Normal = 0,
-    SpecialTerrain = 1,
-    HardLocked = 2
+    HardLocked = 1,
+    Water = 2,
+    Wall = 3
 }
 
 [ExecuteInEditMode]
@@ -22,8 +23,8 @@ public class CellManager : MonoBehaviour
     public static event Action<CellManager, MonsterIdentityManager> MonsterEntered;
 
     [Header("格子通行状态")]
-    [Tooltip("普通：玩家与怪物均可通行。特殊地形：玩家与普通怪物禁入，特殊怪物可通行，并显示特殊地形颜色。" +
-             "真正锁死：所有单位禁入、不可选、无悬停，并恢复为全透明显示。")]
+    [Tooltip("普通：玩家与怪物均可通行。水面：玩家与普通怪物禁入，可通过水面的怪物可通行，并显示水面颜色。" +
+             "墙面：所有单位禁入，并显示墙面颜色。真正锁死：所有单位禁入、不可选、无悬停，并恢复为全透明显示。")]
     [SerializeField] private CellAccessState accessState = CellAccessState.Normal;
 
     [HideInInspector]
@@ -34,13 +35,14 @@ public class CellManager : MonoBehaviour
     [SerializeField] private bool accessStateMigrated = false;
 
     public CellAccessState AccessState => accessState;
-    public bool IsSpecialTerrain => accessState == CellAccessState.SpecialTerrain;
+    public bool IsWater => accessState == CellAccessState.Water;
+    public bool IsWall => accessState == CellAccessState.Wall;
     public bool IsHardLocked => accessState == CellAccessState.HardLocked;
     public bool BlocksPlayer => accessState != CellAccessState.Normal;
     public bool SuppressesHoverHighlight => accessState != CellAccessState.Normal;
 
     /// <summary>
-    /// 判断指定怪物能否进入/经过该格。特殊地形仅允许显式开启该能力的怪物通行。
+    /// 判断指定怪物能否进入/经过该格。水面仅允许显式开启该能力的怪物通行；墙面与锁死格对所有怪物禁行。
     /// </summary>
     public bool CanMonsterTraverse(MonsterIdentityManager monster)
     {
@@ -48,8 +50,8 @@ public class CellManager : MonoBehaviour
         {
             case CellAccessState.Normal:
                 return true;
-            case CellAccessState.SpecialTerrain:
-                return monster != null && monster.CanTraverseSpecialTerrain;
+            case CellAccessState.Water:
+                return monster != null && monster.CanTraverseWater;
             default:
                 return false;
         }
@@ -112,7 +114,7 @@ public class CellManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 兼容旧场景数据：原 isLocked=true 统一迁移为特殊地形，保留现有显示效果。
+    /// 兼容旧场景数据：原 isLocked=true 统一迁移为水面，保留现有显示效果。
     /// </summary>
     private void EnsureAccessStateMigrated()
     {
@@ -120,7 +122,7 @@ public class CellManager : MonoBehaviour
             return;
 
         if (legacyIsLocked && accessState == CellAccessState.Normal)
-            accessState = CellAccessState.SpecialTerrain;
+            accessState = CellAccessState.Water;
 
         legacyIsLocked = false;
         accessStateMigrated = true;
@@ -131,23 +133,11 @@ public class CellManager : MonoBehaviour
     /// </summary>
     private void ApplyAccessStateVisuals()
     {
-        switch (accessState)
+        if (!TryGetAccessStateColors(out Color cellColor, out Color lineColor))
         {
-            case CellAccessState.SpecialTerrain:
-                ApplySpecialTerrainVisuals();
-                break;
-            case CellAccessState.HardLocked:
-                ApplyHardLockedVisuals();
-                break;
-            default:
-                RestoreLastRequestedVisuals();
-                break;
+            RestoreLastRequestedVisuals();
+            return;
         }
-    }
-
-    private void ApplySpecialTerrainVisuals()
-    {
-        GetSpecialTerrainColors(out Color cellColor, out Color lineColor);
 
         if (meshRenderer == null) meshRenderer = GetComponent<MeshRenderer>();
         ApplyCellColor(cellColor, Application.isPlaying, forceInstance: true);
@@ -161,18 +151,27 @@ public class CellManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 真正锁死时恢复旧版表现：格子面片与四条边框全部透明。
+    /// 读取当前通行状态自带的覆盖颜色（水面 / 墙面 / 锁死）。
+    /// 返回 true 表示调用方传入的颜色应被覆盖；Normal 返回 false，沿用请求颜色。
     /// </summary>
-    private void ApplyHardLockedVisuals()
+    private bool TryGetAccessStateColors(out Color cellColor, out Color lineColor)
     {
-        if (meshRenderer == null) meshRenderer = GetComponent<MeshRenderer>();
-        ApplyCellColor(Color.clear, Application.isPlaying, forceInstance: true);
-
-        for (int i = 0; i < 4; i++)
+        switch (accessState)
         {
-            if (lineRenderers[i] == null) continue;
-            lineRenderers[i].startColor = Color.clear;
-            lineRenderers[i].endColor = Color.clear;
+            case CellAccessState.Water:
+                GetWaterColors(out cellColor, out lineColor);
+                return true;
+            case CellAccessState.Wall:
+                GetWallColors(out cellColor, out lineColor);
+                return true;
+            case CellAccessState.HardLocked:
+                cellColor = Color.clear;
+                lineColor = Color.clear;
+                return true;
+            default:
+                cellColor = Color.clear;
+                lineColor = Color.clear;
+                return false;
         }
     }
 
@@ -196,9 +195,9 @@ public class CellManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 从所属 GridManager 读取特殊地形颜色；未找到时回退为透明，兼容独立测试的 Cell。
+    /// 从所属 GridManager 读取水面颜色；未找到时回退为透明，兼容独立测试的 Cell。
     /// </summary>
-    private void GetSpecialTerrainColors(out Color cellColor, out Color lineColor)
+    private void GetWaterColors(out Color cellColor, out Color lineColor)
     {
         GridManager gridManager = GetComponentInParent<GridManager>();
         if (gridManager == null)
@@ -208,8 +207,25 @@ public class CellManager : MonoBehaviour
             return;
         }
 
-        cellColor = gridManager.SpecialTerrainCellColor;
-        lineColor = gridManager.SpecialTerrainLineColor;
+        cellColor = gridManager.WaterCellColor;
+        lineColor = gridManager.WaterLineColor;
+    }
+
+    /// <summary>
+    /// 从所属 GridManager 读取墙面颜色；未找到时回退为透明，兼容独立测试的 Cell。
+    /// </summary>
+    private void GetWallColors(out Color cellColor, out Color lineColor)
+    {
+        GridManager gridManager = GetComponentInParent<GridManager>();
+        if (gridManager == null)
+        {
+            cellColor = Color.clear;
+            lineColor = Color.clear;
+            return;
+        }
+
+        cellColor = gridManager.WallCellColor;
+        lineColor = gridManager.WallLineColor;
     }
 
     /// <summary>
@@ -390,15 +406,8 @@ public class CellManager : MonoBehaviour
         // 状态覆盖时也缓存外部请求，供返回 Normal 时恢复。
         lastCellColor = color;
 
-        if (accessState == CellAccessState.SpecialTerrain)
-        {
-            GetSpecialTerrainColors(out Color specialCellColor, out _);
-            color = specialCellColor;
-        }
-        else if (accessState == CellAccessState.HardLocked)
-        {
-            color = Color.clear;
-        }
+        if (TryGetAccessStateColors(out Color stateCellColor, out _))
+            color = stateCellColor;
 
         ApplyCellColor(color, isRuntime, forceInstance: accessState != CellAccessState.Normal);
     }
@@ -412,15 +421,9 @@ public class CellManager : MonoBehaviour
         lastLineColor = color;
         hasIndividualLines = false; // 最近一次为统一边框模式
 
-        if (accessState == CellAccessState.SpecialTerrain)
-        {
-            GetSpecialTerrainColors(out _, out Color specialLineColor);
-            color = specialLineColor;
-        }
-        else if (accessState == CellAccessState.HardLocked)
-        {
-            color = Color.clear;
-        }
+        if (TryGetAccessStateColors(out _, out Color stateLineColor))
+            color = stateLineColor;
+
         for (int i = 0; i < 4; i++)
         {
             if (lineRenderers[i] != null)
@@ -445,16 +448,10 @@ public class CellManager : MonoBehaviour
         lastLeftOuter = leftOuter; lastRightOuter = rightOuter;
         hasIndividualLines = true; // 最近一次为逐边模式
 
-        if (accessState == CellAccessState.SpecialTerrain)
+        if (TryGetAccessStateColors(out _, out Color stateLineColor))
         {
-            GetSpecialTerrainColors(out _, out Color specialLineColor);
-            defaultColor = specialLineColor;
-            outerColor = specialLineColor;
-        }
-        else if (accessState == CellAccessState.HardLocked)
-        {
-            defaultColor = Color.clear;
-            outerColor = Color.clear;
+            defaultColor = stateLineColor;
+            outerColor = stateLineColor;
         }
         // 0: 左
         if (lineRenderers[0] != null)

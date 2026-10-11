@@ -7,7 +7,7 @@ public class MonsterIdentityManagerEditor : Editor
     private SerializedProperty factionProperty;
     private SerializedProperty monsterIdProperty;
     private SerializedProperty isDogLeaderProperty;
-    private SerializedProperty canTraverseSpecialTerrainProperty;
+    private SerializedProperty canTraverseWaterProperty;
     private SerializedProperty hostileFactionsProperty;
     private SerializedProperty hostileFactionsInitializedProperty;
 
@@ -16,7 +16,7 @@ public class MonsterIdentityManagerEditor : Editor
         factionProperty = serializedObject.FindProperty("faction");
         monsterIdProperty = serializedObject.FindProperty("monsterId");
         isDogLeaderProperty = serializedObject.FindProperty("isDogLeader");
-        canTraverseSpecialTerrainProperty = serializedObject.FindProperty("canTraverseSpecialTerrain");
+        canTraverseWaterProperty = serializedObject.FindProperty("canTraverseWater");
         hostileFactionsProperty = serializedObject.FindProperty("hostileFactions");
         hostileFactionsInitializedProperty = serializedObject.FindProperty("hostileFactionsInitialized");
     }
@@ -29,7 +29,7 @@ public class MonsterIdentityManagerEditor : Editor
         EditorGUILayout.PropertyField(factionProperty, new GUIContent("阵营"));
         DrawDogLeaderField();
         EditorGUILayout.PropertyField(monsterIdProperty, new GUIContent("怪物 ID"));
-        EditorGUILayout.PropertyField(canTraverseSpecialTerrainProperty, new GUIContent("可通过特殊地形"));
+        EditorGUILayout.PropertyField(canTraverseWaterProperty, new GUIContent("可通过水面"));
 
         EditorGUILayout.Space(8f);
         DrawHostileFactionFlags();

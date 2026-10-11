@@ -510,7 +510,7 @@ public class CardDragController : MonoBehaviour
             gridManager,
             type,
             blockByMonster: false,
-            blockBySpecialTerrain: false);
+            blockByWater: false);
     }
 
     private HashSet<Vector2Int> GetQuarterCircleTargetGrids(Vector2Int hoverGrid)
