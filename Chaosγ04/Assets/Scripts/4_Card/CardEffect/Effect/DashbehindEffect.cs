@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -8,30 +9,49 @@ using UnityEngine;
 /// 地形或单位，并且允许玩家落脚。验证失败时卡牌不能使用，避免前面的
 /// TeleportEffect 先把玩家传送到敌方所在格后，再因突进失败留下重叠状态。
 /// </summary>
-public class DashBehindEffect : CardEffectCore
+public class DashBehindEffect : CardEffectCore, ICardDragPreviewProvider
 {
-    public static bool IsAttachedTo(CardData card)
+    /// <summary>
+    /// 拖拽预览：目标单位身后存在合法落点时，高亮该落点，并把 Player_WhenMove 预览显示在那里。
+    /// </summary>
+    public bool TryGetDragPreview(
+        GridManager gridManager,
+        CardData card,
+        Vector2Int targetGrid,
+        out CardDragPreview preview)
     {
-        if (card == null || card.extraEffects == null)
+        preview = default;
+
+        if (gridManager == null)
         {
             return false;
         }
 
-        foreach (ExtraCardEffect extra in card.extraEffects)
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        if (player == null)
         {
-            if (string.IsNullOrEmpty(extra.effectTypeName))
-            {
-                continue;
-            }
-
-            System.Type effectType = System.Type.GetType(extra.effectTypeName);
-            if (effectType == typeof(DashBehindEffect))
-            {
-                return true;
-            }
+            return false;
         }
 
-        return false;
+        Vector2Int startGrid = GetGridPosition(gridManager, player.transform.position);
+        if (!TryGetLandingCell(
+                gridManager,
+                startGrid,
+                targetGrid,
+                requireTargetMonster: true,
+                out _,
+                out CellManager landingCell) ||
+            landingCell == null)
+        {
+            return false;
+        }
+
+        preview = new CardDragPreview
+        {
+            highlightCells = new List<CellManager> { landingCell },
+            playerPreviewCell = landingCell
+        };
+        return true;
     }
 
     public override bool CanPlay(CardData card, Vector2Int targetGrid)

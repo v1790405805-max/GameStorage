@@ -14,12 +14,13 @@ using UnityEngine;
 /// Resolution order for the cell behind the target:
 /// 1. No cell behind the target (off the map) - the target dies instantly.
 /// 2. HardLocked cell (treated as no cell) - the target dies instantly.
-/// 3. Wall cell - the target is not pushed.
+/// 3. Wall cell, or a landing cell two or more layers higher (treated as a wall)
+///    - the target is not pushed.
 /// 4. Water cell - pushed only when the target is registered as water-traversable
 ///    in MonsterIdentityManager (CanTraverseWater); otherwise the target dies instantly.
 /// 5. Cell occupied by another monster - the target is not pushed and both monsters
 ///    take the card's damage. Cell occupied by another object - the target is not pushed.
-/// 6. pushedLayer greater than targetLayer - the target is not pushed.
+/// 6. pushedLayer exactly one layer higher than targetLayer - the target is not pushed.
 /// 7. Otherwise (pushedLayer not greater than targetLayer and traversable) - the
 ///    target is pushed one cell back.
 /// </summary>
@@ -58,32 +59,48 @@ public class PushEffect : CardEffectCore
 
     public override bool Execute(CardData card, Vector2Int targetGrid)
     {
+        return ResolvePush(card, targetGrid, applyBlockerDamage: true).isValid;
+    }
+
+    /// <summary>
+    /// Resolves the push and returns its outcome. <paramref name="applyBlockerDamage"/> controls
+    /// whether a monster blocking the landing cell takes the card's damage (the regular
+    /// behaviour). Card orchestrators that redirect a blocked push instead pass false.
+    /// When <paramref name="dryRun"/> is true the resolution produces no side effects (no
+    /// movement, damage or death) so it can be used for drag previews.
+    /// </summary>
+    public PushResult ResolvePush(
+        CardData card,
+        Vector2Int targetGrid,
+        bool applyBlockerDamage,
+        bool dryRun = false)
+    {
         LastResult = default;
 
         if (card == null || !card.effectFlags.HasFlag(CardEffectType.Attack))
         {
             Debug.LogWarning("[PushEffect] The card is not configured as an attack.");
-            return false;
+            return LastResult;
         }
 
         GridManager gridManager = Object.FindFirstObjectByType<GridManager>();
         if (gridManager == null)
         {
             Debug.LogError("[PushEffect] GridManager was not found.");
-            return false;
+            return LastResult;
         }
 
         if (!TryGetPlayerStartGrid(gridManager, out Vector2Int startGrid))
         {
             Debug.LogWarning("[PushEffect] The player's starting cell is invalid.");
-            return false;
+            return LastResult;
         }
 
         Vector2Int direction = GetCardinalDirection(startGrid, targetGrid);
         if (direction == Vector2Int.zero)
         {
             Debug.LogWarning("[PushEffect] The player and target cannot occupy the same cell.");
-            return false;
+            return LastResult;
         }
 
         MonsterIdentityManager targetMonster =
@@ -91,14 +108,14 @@ public class PushEffect : CardEffectCore
         if (targetMonster == null)
         {
             Debug.Log($"[PushEffect] No living enemy was found at target cell [{targetGrid}].");
-            return false;
+            return LastResult;
         }
 
         CellManager targetCell = FindCellContainingMonster(gridManager, targetMonster, targetGrid);
         if (targetCell == null)
         {
             Debug.LogWarning($"[PushEffect] Could not resolve the cell containing the target at [{targetGrid}].");
-            return false;
+            return LastResult;
         }
 
         int targetLayer = gridManager.GetCellLayer(targetCell);
@@ -119,8 +136,8 @@ public class PushEffect : CardEffectCore
         {
             result.outcome = PushOutcome.KilledTarget;
             LastResult = result;
-            KillTarget(targetMonster, "no landing cell");
-            return true;
+            if (!dryRun) KillTarget(targetMonster, "no landing cell");
+            return result;
         }
 
         int pushedLayer = gridManager.GetCellLayer(pushedCell);
@@ -131,17 +148,18 @@ public class PushEffect : CardEffectCore
         {
             result.outcome = PushOutcome.KilledTarget;
             LastResult = result;
-            KillTarget(targetMonster, "hard-locked landing cell");
-            return true;
+            if (!dryRun) KillTarget(targetMonster, "hard-locked landing cell");
+            return result;
         }
 
-        // 3. Wall: not pushed.
-        if (pushedCell.IsWall)
+        // 3. Wall, or a landing cell two or more layers higher (treated as a wall):
+        //    not pushed.
+        if (pushedCell.IsWall || pushedLayer - targetLayer >= 2)
         {
             result.outcome = PushOutcome.BlockedByWall;
             LastResult = result;
-            Debug.Log($"[PushEffect] Landing cell [{pushedGrid}] is a wall; the target was not pushed.");
-            return true;
+            Debug.Log($"[PushEffect] Landing cell [{pushedGrid}] is a wall (or {pushedLayer - targetLayer} layers higher); the target was not pushed.");
+            return result;
         }
 
         // 4. Water: only water-traversable monsters can be pushed in.
@@ -149,8 +167,8 @@ public class PushEffect : CardEffectCore
         {
             result.outcome = PushOutcome.KilledTarget;
             LastResult = result;
-            KillTarget(targetMonster, "non-traversable water landing cell");
-            return true;
+            if (!dryRun) KillTarget(targetMonster, "non-traversable water landing cell");
+            return result;
         }
 
         // 5. Occupied landing cell: not pushed.
@@ -161,12 +179,21 @@ public class PushEffect : CardEffectCore
             result.outcome = PushOutcome.BlockedByMonster;
             LastResult = result;
 
-            // Regular push behaviour: a monster standing behind the target blocks the
-            // push, and both monsters take the card's damage.
-            ApplyCardDamage(card, targetMonster);
-            ApplyCardDamage(card, blocker);
-            Debug.Log($"[PushEffect] Landing cell [{pushedGrid}] is occupied by another monster; the target was not pushed and both took {card.damage} damage.");
-            return true;
+            // Regular push behaviour: a monster standing behind the target blocks the push and
+            // both monsters take the card's damage. Orchestrators that redirect the push instead
+            // skip that damage.
+            if (applyBlockerDamage && !dryRun)
+            {
+                ApplyCardDamage(card, targetMonster);
+                ApplyCardDamage(card, blocker);
+                Debug.Log($"[PushEffect] Landing cell [{pushedGrid}] is occupied by another monster; the target was not pushed and both took {card.damage} damage.");
+            }
+            else
+            {
+                Debug.Log($"[PushEffect] Landing cell [{pushedGrid}] is occupied by another monster; the target was not pushed (blocker damage skipped).");
+            }
+
+            return result;
         }
 
         if (pushedCell.IsPlayerInside)
@@ -174,7 +201,7 @@ public class PushEffect : CardEffectCore
             result.outcome = PushOutcome.BlockedByObstacle;
             LastResult = result;
             Debug.Log($"[PushEffect] Landing cell [{pushedGrid}] is occupied by another object; the target was not pushed.");
-            return true;
+            return result;
         }
 
         // 6. Higher layer acts like a wall: not pushed.
@@ -183,15 +210,15 @@ public class PushEffect : CardEffectCore
             result.outcome = PushOutcome.BlockedByHigherLayer;
             LastResult = result;
             Debug.Log($"[PushEffect] Target cannot be pushed upward from L{targetLayer} to L{pushedLayer}; the target was not pushed.");
-            return true;
+            return result;
         }
 
         // 7. Normal push: move the enemy one cell back.
         result.outcome = PushOutcome.Pushed;
         LastResult = result;
-        targetMonster.transform.position = pushedCell.transform.position;
+        if (!dryRun) targetMonster.transform.position = pushedCell.transform.position;
         Debug.Log($"[PushEffect] Target [{targetMonster.monsterId}] was pushed from L{targetLayer} to L{pushedLayer} at [{pushedGrid}].");
-        return true;
+        return result;
     }
 
     private static bool TryGetPlayerStartGrid(GridManager gridManager, out Vector2Int startGrid)
@@ -221,7 +248,7 @@ public class PushEffect : CardEffectCore
         return startGrid.x >= 0 && startGrid.y >= 0;
     }
 
-    private static Vector2Int GetCardinalDirection(Vector2Int from, Vector2Int to)
+    internal static Vector2Int GetCardinalDirection(Vector2Int from, Vector2Int to)
     {
         int dx = to.x - from.x;
         int dy = to.y - from.y;
@@ -235,7 +262,7 @@ public class PushEffect : CardEffectCore
             : new Vector2Int(0, dy > 0 ? 1 : -1);
     }
 
-    private static MonsterIdentityManager FindMonsterAtGrid(
+    internal static MonsterIdentityManager FindMonsterAtGrid(
         GridManager gridManager,
         Vector2Int grid,
         bool includeInactive = false)
@@ -303,7 +330,7 @@ public class PushEffect : CardEffectCore
         return null;
     }
 
-    private static MonsterIdentityManager FindOtherMonsterInside(
+    internal static MonsterIdentityManager FindOtherMonsterInside(
         CellManager cell,
         MonsterIdentityManager exclude)
     {
@@ -323,7 +350,7 @@ public class PushEffect : CardEffectCore
         return null;
     }
 
-    private static CellManager FindCellContainingMonster(
+    internal static CellManager FindCellContainingMonster(
         GridManager gridManager,
         MonsterIdentityManager monster,
         Vector2Int grid)
@@ -373,7 +400,7 @@ public class PushEffect : CardEffectCore
     /// matches the target's layer, otherwise the cell with the closest layer.
     /// Returns null when the adjacent column has no cell at all.
     /// </summary>
-    private static CellManager ResolveLandingCell(
+    internal static CellManager ResolveLandingCell(
         GridManager gridManager,
         Vector2Int grid,
         int originLayer)
