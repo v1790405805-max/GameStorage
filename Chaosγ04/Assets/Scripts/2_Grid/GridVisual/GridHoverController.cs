@@ -88,9 +88,12 @@ public class GridHoverController : MonoBehaviour
     {
         if (!Application.isPlaying) return;
         if (gridManager == null || visualManager == null) return;
-        if (Camera.main == null || Mouse.current == null) return;
+        if (Mouse.current == null) return;
 
-        HandleHover();
+        Camera hoverCamera = MainCameraAppoint.Current;
+        if (hoverCamera == null) return;
+
+        HandleHover(hoverCamera);
     }
 
     // ===================================================================
@@ -218,10 +221,10 @@ public class GridHoverController : MonoBehaviour
     // 内部悬停处理
     // ===================================================================
 
-    private void HandleHover()
+    private void HandleHover(Camera hoverCamera)
     {
         Vector2 mousePos = Mouse.current.position.ReadValue();
-        Ray ray = Camera.main.ScreenPointToRay(mousePos);
+        Ray ray = hoverCamera.ScreenPointToRay(mousePos);
         int layerMask = 1 << gridManager.cellLayer;
 
         CellManager hitCell = null;

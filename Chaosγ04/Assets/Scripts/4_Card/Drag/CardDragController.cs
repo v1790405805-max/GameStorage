@@ -266,10 +266,13 @@ public class CardDragController : MonoBehaviour
 
     private CellManager GetMouseHoverCell()
     {
-        if (gridManager == null || Camera.main == null) return null;
+        if (gridManager == null) return null;
         if (Mouse.current == null) return null;
 
-        Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
+        Camera dragCamera = MainCameraAppoint.Current;
+        if (dragCamera == null) return null;
+
+        Ray ray = dragCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
         int layerMask = 1 << gridManager.cellLayer;
 
         if (Physics.Raycast(ray, out RaycastHit hit, 1000f, layerMask))

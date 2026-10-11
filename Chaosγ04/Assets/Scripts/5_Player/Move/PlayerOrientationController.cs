@@ -296,7 +296,7 @@ public class PlayerOrientationController : MonoBehaviour
             return;
         }
 
-        if (Camera.main == null || Mouse.current == null || visualManager == null || visualManager.GridManager == null)
+        if (Mouse.current == null || visualManager == null || visualManager.GridManager == null)
             return;
 
         // 仅在鼠标按键相关的帧做处理，避免每帧多余开销
@@ -318,8 +318,12 @@ public class PlayerOrientationController : MonoBehaviour
             return;
         }
 
+        Camera interactionCamera = MainCameraAppoint.Current;
+        if (interactionCamera == null)
+            return;
+
         Vector2 mousePosition = Mouse.current.position.ReadValue();
-        Ray ray = Camera.main.ScreenPointToRay(mousePosition);
+        Ray ray = interactionCamera.ScreenPointToRay(mousePosition);
         bool hasHit = Physics.Raycast(ray, out RaycastHit hit, 1000f, clickLayerMask.value);
         CellManager cellUnderMouse = hasHit && hit.collider != null
             ? hit.collider.GetComponentInParent<CellManager>()

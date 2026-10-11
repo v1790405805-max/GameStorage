@@ -62,10 +62,10 @@ public class MonsterTurnInspector : MonoBehaviour
 
     private void Start()
     {
-        mainCamera = Camera.main;
+        mainCamera = MainCameraAppoint.Current;
         if (mainCamera == null)
         {
-            Debug.LogError("[MonsterTurnInspector] 未找到 Camera.main，无法执行怪物 Action 聚焦。");
+            Debug.LogError("[MonsterTurnInspector] 未找到主相机（场景中名为 \"Main Camera\" 的相机），无法执行怪物 Action 聚焦。");
         }
 
         if (TurnManager.Instance == null)
@@ -120,7 +120,7 @@ public class MonsterTurnInspector : MonoBehaviour
 
         if (mainCamera == null)
         {
-            mainCamera = Camera.main;
+            mainCamera = MainCameraAppoint.Current;
         }
 
         if (mainCamera == null)

@@ -23,12 +23,13 @@ public class MonsterInfoUI : MonoBehaviour
     [SerializeField] private bool billboardToCamera = true;
 
     private MonsterStats monsterStats;
-    private Camera mainCamera;
+
+    /// <summary>当前主相机：场景中名为 "Main Camera" 的相机（见 MainCameraAppoint 静态类）。</summary>
+    private Camera mainCamera => MainCameraAppoint.Current;
 
     private void Awake()
     {
         monsterStats = GetComponentInParent<MonsterStats>();
-        mainCamera = Camera.main;
     }
 
     private void Start()

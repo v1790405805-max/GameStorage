@@ -47,9 +47,11 @@ public class MapInspector : MonoBehaviour
     private Vector2 originalHandPos;
     private Vector3 originalHandScale;
     private bool isMapMode = false;
-    private Camera mainCamera;
     private Vector3 dragOrigin;
     private Vector3 cameraOffset;
+
+    /// <summary>当前主相机：场景中名为 "Main Camera" 的相机（见 MainCameraAppoint 静态类）。</summary>
+    private Camera mainCamera => MainCameraAppoint.Current;
 
     // UI 组件缓存
     private HorizontalLayoutGroup handLayoutGroup;
@@ -72,8 +74,6 @@ public class MapInspector : MonoBehaviour
 
     IEnumerator Start()
     {
-        mainCamera = Camera.main;
-
         if (mainCamera != null)
         {
             Ray centerRay = mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
