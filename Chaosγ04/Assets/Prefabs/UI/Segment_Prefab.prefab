@@ -84,6 +84,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ActionPointSegmentItem
   graphic: {fileID: 8939731183590818926}
-  litColor: {r: 1, g: 0.85, b: 0.2, a: 1}
+  litColor: {r: 0.8509804, g: 0.5803922, b: 0.21176471, a: 1}
   unlitColor: {r: 0.15, g: 0.15, b: 0.25, a: 0.78431374}
-  previewColor: {r: 0.95, g: 0.3, b: 0.25, a: 1}
+  previewColor: {r: 0.69803923, g: 0.21568628, b: 0.21568628, a: 1}

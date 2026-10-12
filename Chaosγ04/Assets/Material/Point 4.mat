@@ -38,7 +38,7 @@ Material:
   disabledShaderPasses:
   - DepthOnly
   - SHADOWCASTER
-  m_LockedProperties: 
+  m_LockedProperties: _EmissionColor _EmissionMap
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -125,12 +125,12 @@ Material:
     - _UVSec: 0
     - _ZWrite: 0
     m_Colors:
-    - _BaseColor: {r: 0.42919707, g: 1, b: 0.047169685, a: 1}
+    - _BaseColor: {r: 0.050980393, g: 0.50980395, b: 0.2509804, a: 1}
     - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
     - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
-    - _Color: {r: 0.42919704, g: 1, b: 0.047169663, a: 1}
+    - _Color: {r: 0.050980374, g: 0.5098039, b: 0.25098038, a: 1}
     - _ColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
-    - _EmissionColor: {r: 0.7238441, g: 1.216786, b: 0, a: 1}
+    - _EmissionColor: {r: 0, g: 1.216786, b: 0.33704504, a: 1}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

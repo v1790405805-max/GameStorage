@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
@@ -6,6 +7,11 @@ using DG.Tweening;
 public class CardPileViewerUI : MonoBehaviour
 {
     public static CardPileViewerUI Instance; // 单例模式，方便其他脚本调用
+
+    /// <summary>
+    /// 弹窗关闭事件广播：通知牌堆图标恢复收起状态
+    /// </summary>
+    public event Action OnViewerClosed;
 
     [Header("--- UI 节点关联 ---")]
     [Tooltip("弹窗的主背景容器 (挂载了 CanvasGroup)")]
@@ -67,9 +73,12 @@ public class CardPileViewerUI : MonoBehaviour
             }
         }
 
-        // 4. 播放弹窗出现动画 (类似 Figma 的弹出效果)
+        // 4. 播放弹窗出现动画
+        popupPanel.DOKill();
+        popupPanel.transform.DOKill();
+
         popupPanel.gameObject.SetActive(true);
-        popupPanel.transform.localScale = Vector3.one * 0.8f; // 初始稍微缩小
+        popupPanel.transform.localScale = Vector3.one * 0.8f;
 
         popupPanel.DOFade(1f, 0.25f);
         popupPanel.transform.DOScale(Vector3.one, 0.25f).SetEase(Ease.OutBack);
@@ -88,8 +97,17 @@ public class CardPileViewerUI : MonoBehaviour
         popupPanel.interactable = false;
         popupPanel.blocksRaycasts = false;
 
-        // 播放消失动画
+        popupPanel.DOKill();
+        popupPanel.transform.DOKill();
+
+        // 播放消失动画并在收起完毕后隐藏对象
         popupPanel.transform.DOScale(Vector3.one * 0.8f, 0.2f).SetEase(Ease.InBack);
-        popupPanel.DOFade(0f, 0.2f);
+        popupPanel.DOFade(0f, 0.2f).OnComplete(() =>
+        {
+            popupPanel.gameObject.SetActive(false);
+        });
+
+        // 触发关闭事件广播，通知牌堆图标恢复收起
+        OnViewerClosed?.Invoke();
     }
 }
