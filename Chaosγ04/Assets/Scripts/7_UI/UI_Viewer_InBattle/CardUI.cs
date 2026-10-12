@@ -64,11 +64,12 @@ public class CardUI : MonoBehaviour,
 
     private CardData currentCardData;
     private Vector3 originalLocalPos;
-    private Vector3 originalLocalRot; // 弧形基准旋转角
-    private Vector3 originalScale;
+    private Vector3 originalLocalRot;
+    private Vector3 originalScale = Vector3.one;
     private RectTransform rectTransform;
     private bool isDragging = false;
     private bool hasShifted = false;
+    private bool hasCustomHomeTransform = false; // 坐标保护锁
     private Camera uiCamera;
 
     public CardData CurrentCardData => currentCardData;
@@ -77,13 +78,28 @@ public class CardUI : MonoBehaviour,
     private void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
+        originalScale = transform.localScale;
+
+        // 清理此前残留的 Canvas 组件，确保渲染稳定
+        Canvas extraCanvas = GetComponent<Canvas>();
+        if (extraCanvas != null) Destroy(extraCanvas);
+        GraphicRaycaster extraRaycaster = GetComponent<GraphicRaycaster>();
+        if (extraRaycaster != null) Destroy(extraRaycaster);
     }
 
     private void Start()
     {
-        originalLocalPos = transform.localPosition;
-        originalLocalRot = transform.localEulerAngles;
-        originalScale = transform.localScale;
+        // 核心修复：仅当未被 HandCardArcLayout 赋予弧线基准坐标时，才使用初始 localPosition
+        if (!hasCustomHomeTransform)
+        {
+            originalLocalPos = transform.localPosition;
+            originalLocalRot = transform.localEulerAngles;
+        }
+
+        if (originalScale == Vector3.zero)
+        {
+            originalScale = Vector3.one;
+        }
 
         Canvas parentCanvas = GetComponentInParent<Canvas>();
         if (parentCanvas != null && parentCanvas.renderMode != RenderMode.ScreenSpaceOverlay)
@@ -133,6 +149,7 @@ public class CardUI : MonoBehaviour,
     {
         originalLocalPos = pos;
         originalLocalRot = rot;
+        hasCustomHomeTransform = true; // 锁定基准坐标，避免被 Start() 的瞬时飞行坐标冲掉
     }
 
     private void UpdateCardTypeColor(CardType type)
@@ -168,10 +185,16 @@ public class CardUI : MonoBehaviour,
         if (isDisplayOnly || isDragging || (currentlySelectedCard != null && currentlySelectedCard != this))
             return;
 
+        // 悬停瞬间置顶
+        if (HandCardArcLayout.Instance != null)
+        {
+            HandCardArcLayout.Instance.BringCardToFront(this);
+        }
+
         UpdateHighlightState(true);
         transform.DOKill();
 
-        // 悬停时：放大、回正旋转、向上微浮 35 像素，增强阅读舒适度
+        // 悬停时：轻微放大、回正旋转、向上平滑浮起 35 像素
         transform.DOScale(originalScale * 1.15f, tweenDuration).SetEase(Ease.OutBack);
         transform.DOLocalRotate(Vector3.zero, tweenDuration).SetEase(Ease.OutBack);
         transform.DOLocalMove(originalLocalPos + new Vector3(0f, 35f, 0f), tweenDuration).SetEase(Ease.OutBack);
@@ -181,10 +204,16 @@ public class CardUI : MonoBehaviour,
     {
         if (isDisplayOnly || isDragging) return;
 
+        // 移出后还原至原本的物理层级
+        if (HandCardArcLayout.Instance != null)
+        {
+            HandCardArcLayout.Instance.RestoreCardOrder(this);
+        }
+
         UpdateHighlightState(false);
         transform.DOKill();
 
-        // 鼠标移出：平滑弹回弧线初始位置与倾角
+        // 移出鼠标平滑归位至弧线标准基准点
         transform.DOScale(originalScale, tweenDuration).SetEase(Ease.OutCubic);
         transform.DOLocalMove(originalLocalPos, tweenDuration).SetEase(Ease.OutCubic);
         transform.DOLocalRotate(originalLocalRot, tweenDuration).SetEase(Ease.OutCubic);
@@ -198,6 +227,11 @@ public class CardUI : MonoBehaviour,
         currentlySelectedCard = this;
         isDragging = true;
         hasShifted = false;
+
+        if (HandCardArcLayout.Instance != null)
+        {
+            HandCardArcLayout.Instance.BringCardToFront(this);
+        }
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -253,6 +287,11 @@ public class CardUI : MonoBehaviour,
         {
             currentlySelectedCard = null;
         }
+
+        if (HandCardArcLayout.Instance != null)
+        {
+            HandCardArcLayout.Instance.RestoreCardOrder(this);
+        }
     }
 
     // --- 3. 动画与逻辑状态控制 ---
@@ -263,7 +302,6 @@ public class CardUI : MonoBehaviour,
         UpdateHighlightState(true);
         transform.DOKill();
 
-        // 预选出牌时，卡牌回正角度并放大抬升
         transform.DOLocalMove(targetPos, tweenDuration).SetEase(Ease.OutBack);
         transform.DOLocalRotate(Vector3.zero, tweenDuration).SetEase(Ease.OutBack);
         transform.DOScale(originalScale * shiftedScaleMultiplier, tweenDuration).SetEase(Ease.OutBack);
@@ -279,7 +317,6 @@ public class CardUI : MonoBehaviour,
         hasShifted = false;
         transform.DOKill();
 
-        // 取消预选拉回：恢复弧度位置、旋转及悬停放大倍率
         transform.DOLocalMove(originalLocalPos, tweenDuration).SetEase(Ease.OutCubic);
         transform.DOLocalRotate(originalLocalRot, tweenDuration).SetEase(Ease.OutCubic);
         transform.DOScale(originalScale * 1.15f, tweenDuration).SetEase(Ease.OutCubic);
@@ -296,7 +333,11 @@ public class CardUI : MonoBehaviour,
         UpdateHighlightState(false);
         transform.DOKill();
 
-        // 彻底复位至弧线初始状态
+        if (HandCardArcLayout.Instance != null)
+        {
+            HandCardArcLayout.Instance.RestoreCardOrder(this);
+        }
+
         transform.DOLocalMove(originalLocalPos, tweenDuration).SetEase(Ease.OutCubic);
         transform.DOLocalRotate(originalLocalRot, tweenDuration).SetEase(Ease.OutCubic);
         transform.DOScale(originalScale, tweenDuration).SetEase(Ease.OutCubic);

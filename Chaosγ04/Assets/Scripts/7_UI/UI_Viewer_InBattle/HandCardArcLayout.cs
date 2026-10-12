@@ -3,33 +3,42 @@ using UnityEngine;
 using DG.Tweening;
 
 /// <summary>
-/// 手牌弧形/扇形排布控制器：
-/// 实现中间高两边低、两侧自然向外翘起、手牌超量时动态压叠的自适应布局。
+/// 专业级手牌弧形/扇形排布控制器：
+/// 维护独立的稳定逻辑队列，支持卡牌纯原生置顶且弧线坐标绝不乱跑。
 /// </summary>
 public class HandCardArcLayout : MonoBehaviour
 {
     public static HandCardArcLayout Instance { get; private set; }
 
-    [Header("弧形几何排布参数")]
-    [Tooltip("手牌数量较少时的基础水平间距（像素）")]
-    [SerializeField] private float cardSpacing = 150f;
+    [Header("--- 1. 空间与安全区约束 ---")]
+    [Tooltip("手牌绝对允许占用的最大总宽度（含卡牌自身宽度，左右边缘绝不会超出此范围）")]
+    [SerializeField] private float maxSafeVisualWidth = 720f;
 
-    [Tooltip("手牌容器允许的最大总宽度（超过此宽度将自动压缩卡牌间距）")]
-    [SerializeField] private float maxTotalWidth = 850f;
+    [Tooltip("单张卡牌的大致视觉宽度（像素，用于计算边缘防越界）")]
+    [SerializeField] private float cardVisualWidth = 140f;
 
-    [Tooltip("抛物线拱起高度系数（值越大，中间最高与两侧最低的落差越明显，建议 8 ~ 15）")]
-    [SerializeField] private float curveHeightFactor = 12f;
+    [Tooltip("手牌较少时的自然基础间距（像素，保证少牌时紧密不散开）")]
+    [SerializeField] private float naturalSpacing = 135f;
 
-    [Tooltip("卡牌旋转倾角步长（度数，越往两边倾斜越明显，建议 2.5 ~ 4.5）")]
-    [SerializeField] private float angleStep = 3.5f;
+    [Tooltip("极端多牌时允许压缩到的最小极限间距（像素）")]
+    [SerializeField] private float minAllowedSpacing = 45f;
 
-    [Header("补间动画配置")]
-    [Tooltip("卡牌滑动归位的动画耗时（秒）")]
-    [SerializeField] private float arrangeDuration = 0.25f;
+    [Header("--- 2. 弧形几何参数 ---")]
+    [Tooltip("抛物线拱起高度系数（建议 8 ~ 14）")]
+    [SerializeField] private float curveHeightFactor = 10f;
 
-    [Tooltip("排布缓动曲线（推荐 OutCubic，起步迅速且停稳自然）")]
+    [Tooltip("卡牌旋转倾角步长（度数，建议 2.5 ~ 4.0）")]
+    [SerializeField] private float baseAngleStep = 3.2f;
+
+    [Header("--- 3. 补间动画配置 ---")]
+    [Tooltip("卡牌归位动画时长（秒）")]
+    [SerializeField] private float arrangeDuration = 0.22f;
+
+    [Tooltip("排布缓动曲线")]
     [SerializeField] private Ease arrangeEase = Ease.OutCubic;
 
+    // 内部稳定的手牌逻辑队列，绝不随 Hierarchy 顺序变更而乱序
+    private readonly List<CardUI> trackedCards = new List<CardUI>();
     private int lastChildCount = -1;
 
     private void Awake()
@@ -44,13 +53,17 @@ public class HandCardArcLayout : MonoBehaviour
 
     private void OnTransformChildrenChanged()
     {
-        // 当抽牌或打出牌使子物体数量发生变化时，自动重新计算排布
-        RefreshLayout();
+        // 关键保护：仅当卡牌数量真正发生增减（抽牌/打出）时才刷新布局，
+        // 悬停置顶引起的兄弟节点顺序调换直接忽略，杜绝死循环与位置乱飞！
+        if (transform.childCount != lastChildCount)
+        {
+            lastChildCount = transform.childCount;
+            RefreshLayout();
+        }
     }
 
     private void Update()
     {
-        // 兜底检测子物体数量变化
         if (transform.childCount != lastChildCount)
         {
             lastChildCount = transform.childCount;
@@ -59,64 +72,121 @@ public class HandCardArcLayout : MonoBehaviour
     }
 
     /// <summary>
+    /// 同步稳定的手牌列表：移除失效卡牌，按添加顺序追加新抽到的卡牌
+    /// </summary>
+    private void SyncTrackedCards()
+    {
+        for (int i = trackedCards.Count - 1; i >= 0; i--)
+        {
+            if (trackedCards[i] == null || !trackedCards[i].gameObject.activeSelf || trackedCards[i].transform.parent != transform)
+            {
+                trackedCards.RemoveAt(i);
+            }
+        }
+
+        foreach (Transform child in transform)
+        {
+            CardUI card = child.GetComponent<CardUI>();
+            if (card != null && child.gameObject.activeSelf && !trackedCards.Contains(card))
+            {
+                trackedCards.Add(card);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 卡牌置顶：直接移到同级末尾，在 UGUI 中永远渲染在同层最表面
+    /// </summary>
+    public void BringCardToFront(CardUI card)
+    {
+        if (card == null || card.transform.parent != transform) return;
+        card.transform.SetAsLastSibling();
+    }
+
+    /// <summary>
+    /// 卡牌还原：根据它在逻辑队列中的正确槽位还原物理层级
+    /// </summary>
+    public void RestoreCardOrder(CardUI card)
+    {
+        if (card == null || card.transform.parent != transform) return;
+        int index = trackedCards.IndexOf(card);
+        if (index >= 0)
+        {
+            card.transform.SetSiblingIndex(index);
+        }
+    }
+
+    /// <summary>
     /// 全局刷新手牌弧线排布
     /// </summary>
     public void RefreshLayout()
     {
-        List<CardUI> cards = new List<CardUI>();
-        foreach (Transform child in transform)
-        {
-            CardUI card = child.GetComponent<CardUI>();
-            if (card != null && child.gameObject.activeSelf)
-            {
-                cards.Add(card);
-            }
-        }
+        SyncTrackedCards();
 
-        int count = cards.Count;
+        int count = trackedCards.Count;
         if (count == 0) return;
 
-        // 1. 动态自适应水平间距（卡牌多时自动压叠收窄）
-        float effectiveSpacing = cardSpacing;
-        if (count > 1 && (count - 1) * cardSpacing > maxTotalWidth)
+        // 1. 单张手牌直接正中居中
+        if (count == 1)
         {
-            effectiveSpacing = maxTotalWidth / (count - 1);
+            CardUI singleCard = trackedCards[0];
+            if (singleCard != null && !singleCard.IsDragging)
+            {
+                singleCard.UpdateHomeTransform(Vector3.zero, Vector3.zero);
+                singleCard.transform.DOKill();
+                singleCard.transform.DOLocalMove(Vector3.zero, arrangeDuration).SetEase(arrangeEase);
+                singleCard.transform.DOLocalRotate(Vector3.zero, arrangeDuration).SetEase(arrangeEase);
+            }
+            return;
         }
+
+        // 2. 核心算法：安全区限制与自适应压缩比计算
+        float maxCenterSpan = Mathf.Max(0f, maxSafeVisualWidth - cardVisualWidth);
+        float autoSpacing = maxCenterSpan / (count - 1);
+        float effectiveSpacing = Mathf.Clamp(Mathf.Min(naturalSpacing, autoSpacing), minAllowedSpacing, naturalSpacing);
+
+        float compressFactor = Mathf.Clamp01(effectiveSpacing / naturalSpacing);
+        float currentAngleStep = baseAngleStep * Mathf.Lerp(0.65f, 1f, compressFactor);
+        float currentHeightFactor = curveHeightFactor * Mathf.Lerp(0.7f, 1f, compressFactor);
 
         float midIndex = (count - 1) / 2f;
 
-        // 2. 遍历计算每张卡牌的弧形目标位置与旋转
+        // 3. 严格遍历 trackedCards（而不是 transform 遍历），保证卡牌坐标绝对锁定在原槽位
         for (int i = 0; i < count; i++)
         {
-            CardUI card = cards[i];
+            CardUI card = trackedCards[i];
+            if (card == null || card.IsDragging) continue;
 
-            // 正在被鼠标拖拽的卡牌不强制覆盖其位移
-            if (card.IsDragging) continue;
+            float offset = i - midIndex;
 
-            float offset = i - midIndex; // 中心偏移量（如 5 张牌时为 -2, -1, 0, 1, 2）
-
-            // X 轴：水平线性展开
             float targetX = offset * effectiveSpacing;
-
-            // Y 轴：抛物线方程（offset = 0 时处于拱顶最高点，两边随平方急速下沉）
-            float targetY = -Mathf.Pow(offset, 2f) * curveHeightFactor;
-
-            // Z 轴：扇形倾角（左侧卡牌向左翘起，右侧卡牌向右翘起）
-            float targetAngle = -offset * angleStep;
+            float targetY = -Mathf.Pow(offset, 2f) * currentHeightFactor;
+            float targetAngle = -offset * currentAngleStep;
 
             Vector3 targetPos = new Vector3(targetX, targetY, 0f);
             Vector3 targetRot = new Vector3(0f, 0f, targetAngle);
 
-            // 更新渲染层级（从左往右自然压叠）
             card.transform.SetSiblingIndex(i);
-
-            // 将计算出的弧线基准位置与旋转同步给卡牌
             card.UpdateHomeTransform(targetPos, targetRot);
 
-            // 驱动平滑过渡动画
             card.transform.DOKill();
             card.transform.DOLocalMove(targetPos, arrangeDuration).SetEase(arrangeEase);
             card.transform.DOLocalRotate(targetRot, arrangeDuration).SetEase(arrangeEase);
         }
     }
+
+#if UNITY_EDITOR
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.green;
+        float halfW = maxSafeVisualWidth * 0.5f;
+
+        Vector3 left = transform.TransformPoint(new Vector3(-halfW, 0f, 0f));
+        Vector3 right = transform.TransformPoint(new Vector3(halfW, 0f, 0f));
+
+        Gizmos.DrawLine(left, right);
+        Gizmos.DrawLine(transform.TransformPoint(new Vector3(-halfW, -60f, 0f)), transform.TransformPoint(new Vector3(-halfW, 60f, 0f)));
+        Gizmos.DrawLine(transform.TransformPoint(new Vector3(halfW, -60f, 0f)), transform.TransformPoint(new Vector3(halfW, 60f, 0f)));
+    }
+#endif
 }
