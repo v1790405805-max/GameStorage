@@ -1,19 +1,13 @@
-// 由手写 Shader 脚本复刻 "FogEffect_Sprite" ShaderGraph。
-// 功能：Sprite 图片同时受光照（URP Lit/PBR）、雾（Fog）以及 Gooch Shading（仅暗面/亮面染色）影响。
+// Sprite 2D 光照 Shader：Sprite 贴图受 URP 光照（Lit/PBR）与场景雾效（Fog）影响。
 Shader "Custom/SpriteAffectedByLight"
 {
     Properties
     {
         _MainTex ("MainTex", 2D) = "white" {}
-        _FogIntensity ("FogIntensity", Float) = 0
-        
-        // Gooch Shading 控制属性
-        [Header(Gooch Shading)]
-        _GoochWarmColor ("Warm Color (Lit)", Color) = (1.0, 1.0, 1.0, 1.0)
-        _GoochCoolColor ("Cool Color (Shaded)", Color) = (0.2, 0.4, 0.8, 1.0)
-        _GoochWarmAlpha ("Warm Tint Strength", Range(0.0, 1.0)) = 0.0
-        _GoochCoolAlpha ("Cool Tint Strength", Range(0.0, 1.0)) = 0.5
-        
+
+        [Header(Lighting)]
+        _LightIntensity ("Light Intensity", Range(0.0, 1.0)) = 1.0
+
         [Header(Normal Offset for 2D Sprite)]
         _SpriteNormalOffset ("Normal Offset (X, Y)", Vector) = (0, 1, 0, 0)
 
@@ -110,14 +104,10 @@ Shader "Custom/SpriteAffectedByLight"
 
             CBUFFER_START(UnityPerMaterial)
                 float4 _MainTex_ST;
-                float _FogIntensity;
                 float _Cutoff;
-                
-                // Gooch & Normal Offset CBUFFER 声明
-                half4 _GoochWarmColor;
-                half4 _GoochCoolColor;
-                half _GoochWarmAlpha;
-                half _GoochCoolAlpha;
+                float _LightIntensity;
+
+                // Normal Offset CBUFFER 声明
                 float4 _SpriteNormalOffset;
             CBUFFER_END
 
@@ -162,42 +152,23 @@ Shader "Custom/SpriteAffectedByLight"
                 // 将法线进行适度偏置，使其在 2D 平面上具有“上下/左右”弧度倾向，产生平滑光照过渡
                 half3 adjustedNormalWS = normalize(baseNormalWS + TransformObjectToWorldDir(float3(_SpriteNormalOffset.xy, 0.0)));
 
-                // 获取主光源数据
+                // 获取阴影采样坐标（光照本身由 URP 的 UniversalFragmentPBR 处理）
                 #if defined(MAIN_LIGHT_CALCULATE_SHADOWS)
                     float4 shadowCoord = TransformWorldToShadowCoord(input.positionWS);
-                    Light mainLight = GetMainLight(shadowCoord, input.positionWS, 1.0);
-                #else
-                    Light mainLight = GetMainLight();
                 #endif
 
-                // 3. 计算 Gooch 亮暗面混合（阴影叠加算法）
-                half NdotL = dot(adjustedNormalWS, mainLight.direction);
-                half shadowMask = saturate(NdotL * 0.5 + 0.5); // 映射到 0~1
+                // 3. 固有色：贴图 * 顶点色，光照与雾效全部交给 URP 标准流程
+                half3 albedo = texAndVertex.rgb;
 
-                // 暗面：用原图色彩乘上 CoolColor（根据 CoolAlpha 决定染暗程度）
-                half3 shadedColor = lerp(texAndVertex.rgb, texAndVertex.rgb * _GoochCoolColor.rgb, _GoochCoolAlpha);
-                // 亮面：用原图色彩乘上 WarmColor（根据 WarmAlpha 决定暖色提亮程度）
-                half3 litColor = lerp(texAndVertex.rgb, texAndVertex.rgb * _GoochWarmColor.rgb, _GoochWarmAlpha);
-
-                // 亮暗面平滑过渡
-                half3 goochAlbedo = lerp(shadedColor, litColor, shadowMask);
-
-                // 4. 计算雾混合
-                float viewZ = -TransformWorldToView(TransformObjectToWorld(input.positionWS)).z;
-                float nearZ0ToFarZ = max(viewZ - _ProjectionParams.y, 0.0);
-                float density = 1.0 - ComputeFogIntensity(ComputeFogFactorZ0ToFar(nearZ0ToFarZ));
-                float fogT = density * _FogIntensity;
-
-                half3 albedo = lerp(goochAlbedo, unity_FogColor.rgb, fogT);
-
-                // 5. Alpha Clip
+                // 4. Alpha Clip
                 clip(texColor.a - _Cutoff);
                 half alpha = texColor.a;
 
-                // 6. 构建 URP Surface & Input Data
+                // 5. 构建 URP Surface & Input Data
                 InputData inputData = (InputData)0;
                 inputData.positionWS = input.positionWS;
-                inputData.normalWS = baseNormalWS;
+                // 使用偏置后的法线参与光照，让平的 Sprite 也能产生明暗过渡
+                inputData.normalWS = adjustedNormalWS;
                 inputData.viewDirectionWS = GetWorldSpaceNormalizeViewDir(input.positionWS);
                 #if defined(MAIN_LIGHT_CALCULATE_SHADOWS)
                     inputData.shadowCoord = shadowCoord;
@@ -241,8 +212,10 @@ Shader "Custom/SpriteAffectedByLight"
                     inputData.shadowMask = SAMPLE_SHADOWMASK(input.staticLightmapUV);
                 #endif
 
-                // 7. PBR 光照与终点雾混合
+                // 6. PBR 光照与雾混合
                 half4 color = UniversalFragmentPBR(inputData, surfaceData);
+                // 光照强度：0 = 完全不受光照影响（原图直出），1 = 完整光照
+                color.rgb = lerp(albedo, color.rgb, saturate(_LightIntensity));
                 color.rgb = MixFog(color.rgb, inputData.fogCoord);
                 color.a = 1.0;
 
@@ -252,7 +225,7 @@ Shader "Custom/SpriteAffectedByLight"
         }
 
         // ------------------------------------------------------------------
-        // ShadowCaster Pass
+        // ShadowCaster Pass（向 3D 场景投射阴影）
         Pass
         {
             Name "ShadowCaster"
@@ -266,53 +239,71 @@ Shader "Custom/SpriteAffectedByLight"
             HLSLPROGRAM
             #pragma vertex ShadowPassVertex
             #pragma fragment ShadowPassFragment
+            #pragma multi_compile_instancing
+            // 平行光与点光/聚光灯的法线偏移算法不同，靠这个关键字区分
             #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
-            #pragma multi_compile _ LOD_FADE_CROSSFADE
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
+
+            // URP 每帧设置：平行光用 _LightDirection，点光/聚光灯用 _LightPosition
+            float3 _LightDirection;
+            float3 _LightPosition;
 
             struct Attributes
             {
                 float4 positionOS   : POSITION;
                 float3 normalOS     : NORMAL;
                 float2 uv           : TEXCOORD0;
-                float4 color        : COLOR;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
             struct Varyings
             {
-                float4 positionCS   : SV_POSITION;
                 float2 uv           : TEXCOORD0;
-                float4 color        : COLOR;
-                UNITY_VERTEX_OUTPUT_STEREO
+                float4 positionCS   : SV_POSITION;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
             TEXTURE2D(_MainTex);
             SAMPLER(sampler_MainTex);
 
+            // 必须与 ForwardLit 的布局完全一致，SRP Batcher 要求各 Pass 的 UnityPerMaterial 相同
             CBUFFER_START(UnityPerMaterial)
                 float4 _MainTex_ST;
                 float _Cutoff;
+                float _LightIntensity;
+                float4 _SpriteNormalOffset;
             CBUFFER_END
 
             Varyings ShadowPassVertex(Attributes input)
             {
                 Varyings output;
                 UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
-                VertexPositionInputs vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
-                output.positionCS = vertexInput.positionCS;
+                UNITY_TRANSFER_INSTANCE_ID(input, output);
+
+                float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
+                float3 normalWS = TransformObjectToWorldNormal(input.normalOS);
+
+                #if defined(_CASTING_PUNCTUAL_LIGHT_SHADOW)
+                    float3 lightDirectionWS = normalize(_LightPosition - positionWS);
+                #else
+                    float3 lightDirectionWS = _LightDirection;
+                #endif
+
+                // 与 URP 标准 ShadowCaster 一致：施加深度/法线偏移，再钳制到近裁剪面
+                float4 positionCS = TransformWorldToHClip(ApplyShadowBias(positionWS, normalWS, lightDirectionWS));
+                output.positionCS = ApplyShadowClamping(positionCS);
                 output.uv = TRANSFORM_TEX(input.uv, _MainTex);
-                output.color = input.color;
                 return output;
             }
 
             half4 ShadowPassFragment(Varyings input) : SV_Target
             {
-                half4 texColor = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
-                clip(texColor.a - _Cutoff);
+                UNITY_SETUP_INSTANCE_ID(input);
+                // 按贴图 alpha 抠出 Sprite 轮廓，透明区域不投影
+                half alpha = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv).a;
+                clip(alpha - _Cutoff);
                 return 0;
             }
             ENDHLSL
