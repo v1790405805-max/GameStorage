@@ -110,6 +110,8 @@ public class TurnStartSnapshotData
     public int energy;
     public int actionPoint;
     public int usedActionPointCount;
+    public int sturdy;
+    public int comboCount;
     public List<CardData> hand = new List<CardData>();
     public List<CardData> drawPile = new List<CardData>();
     public List<CardData> discardPile = new List<CardData>();
@@ -126,10 +128,9 @@ public class TurnStartSnapshotData
 /// 战斗状态与快照管理器：
 /// 负责所有"只在战斗场景有意义"的数据，包括实时战斗属性、怪物位置、手牌快照及中途存档恢复。
 ///
-/// 【职责边界】本类只负责数值的记录与增减计算（护甲/生命/能量/行动点等），
-/// 传入多少就修改多少，不做任何"这个数值应该是多少"的业务判断
-/// （例如伤害减免、暴击、buff 加成等），这些逻辑交由调用方（如
-/// PlayerOrientationDamageController）在调用前算好。
+/// 【职责边界】本类只负责数值的记录与增减计算（护甲/生命/能量/行动点等）。
+/// 伤害减免等战斗规则由调用方（如 PlayerOrientationDamageController）在调用前算好；
+/// 格挡获取统一经过 PlayerBuffManager，以便坚固等 Buff 影响所有格挡来源。
 /// </summary>
 public class CombatStatsManager : MonoBehaviour
 {
@@ -182,6 +183,8 @@ public class CombatStatsManager : MonoBehaviour
     public TurnStartSnapshotData savedTurnStartSnapshot;
     public float savedHorizontal;
     public float savedVertical;
+    public int savedSturdy;
+    public int savedComboCount;
 
     public event Action OnStatsChanged;
     public event Action<int> OnActionPointCountChanged;
@@ -225,6 +228,9 @@ public class CombatStatsManager : MonoBehaviour
         currentEnergy = maxEnergy;
         currentActionPoint = maxActionPoint;
         currentBlock = 0;
+        savedSturdy = 0;
+        savedComboCount = 0;
+        PlayerBuffManager.Instance?.ResetForNewLevel();
         Horizontal = 0f;
         Vertical = 0f;
         hasSavedGame = false;
@@ -286,6 +292,12 @@ public class CombatStatsManager : MonoBehaviour
 
     public void AddBlock(int amount)
     {
+        PlayerBuffManager buffManager = PlayerBuffManager.Instance;
+        if (amount > 0 && buffManager != null)
+        {
+            amount = buffManager.ApplyBlockGainBonus(amount);
+        }
+
         currentBlock += amount;
         TriggerStatsChanged();
     }
@@ -396,6 +408,9 @@ public class CombatStatsManager : MonoBehaviour
             savedTurnStartSnapshot = null;
             savedHorizontal = 0f;
             savedVertical = 0f;
+            savedSturdy = 0;
+            savedComboCount = 0;
+            PlayerBuffManager.Instance?.ResetForNewLevel();
             Debug.Log("【CombatStatsManager】当前处于大地图或非战斗状态，已清理战斗残留标记，安全退回主菜单。");
             SceneManager.LoadScene(mainMenuSceneName);
             return;
@@ -408,6 +423,12 @@ public class CombatStatsManager : MonoBehaviour
         CapturePlayerFacing();
         savedHorizontal = Horizontal;
         savedVertical = Vertical;
+        savedSturdy = PlayerBuffManager.Instance != null
+            ? PlayerBuffManager.Instance.Sturdy
+            : 0;
+        savedComboCount = CardManager.Instance != null
+            ? CardManager.Instance.CardsPlayedThisTurn
+            : 0;
 
         savedMonsters.Clear();
         foreach (var monster in allMonsters)
