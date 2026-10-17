@@ -16,7 +16,7 @@ MonoBehaviour:
   cardName: "\u661F\u8F68\u5171\u9E23"
   type: 2
   cost: 3
-  effectFlags: 0
+  effectFlags: 512
   moveDistance: 0
   damage: 0
   block: 0
@@ -25,6 +25,7 @@ MonoBehaviour:
   actionPointChange: -3
   drawAmount: 1
   discardAmount: 1
+  combo: 3
   rangeType: 0
   rangeDistance: 0
   targetSelectMode: 0

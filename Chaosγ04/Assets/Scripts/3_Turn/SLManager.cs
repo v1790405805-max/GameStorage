@@ -23,6 +23,8 @@ public class SLManager : MonoBehaviour, ITurnStateListener
     [SerializeField] private int snapshotEnergy;
     [SerializeField] private int snapshotActionPoint;
     [SerializeField] private int snapshotUsedActionPointCount;
+    [SerializeField] private int snapshotSturdy;
+    [SerializeField] private int snapshotComboCount;
 
     // 玩家朝向（Animator 参数）快照
     [SerializeField] private float snapshotHorizontal;
@@ -120,6 +122,9 @@ public class SLManager : MonoBehaviour, ITurnStateListener
         snapshotEnergy = stats.currentEnergy;
         snapshotActionPoint = stats.currentActionPoint;
         snapshotUsedActionPointCount = stats.UsedActionPointCount;
+        snapshotSturdy = PlayerBuffManager.Instance != null
+            ? PlayerBuffManager.Instance.Sturdy
+            : 0;
         snapshotHorizontal = stats.Horizontal;
         snapshotVertical = stats.Vertical;
     }
@@ -133,6 +138,7 @@ public class SLManager : MonoBehaviour, ITurnStateListener
         snapshotDiscardPile = CloneCardList(cards.discardPile);
         snapshotExhaustPile = CloneCardList(cards.exhaustPile);
         snapshotSpecialCards = CloneCardList(cards.specialCards);
+        snapshotComboCount = cards.CardsPlayedThisTurn;
     }
 
     private List<CardData> CloneCardList(List<CardData> source)
@@ -182,6 +188,8 @@ public class SLManager : MonoBehaviour, ITurnStateListener
         data.energy = snapshotEnergy;
         data.actionPoint = snapshotActionPoint;
         data.usedActionPointCount = snapshotUsedActionPointCount;
+        data.sturdy = snapshotSturdy;
+        data.comboCount = snapshotComboCount;
         data.hand = CloneCardList(snapshotHand);
         data.drawPile = CloneCardList(snapshotDrawPile);
         data.discardPile = CloneCardList(snapshotDiscardPile);
@@ -206,6 +214,8 @@ public class SLManager : MonoBehaviour, ITurnStateListener
         snapshotEnergy = data.energy;
         snapshotActionPoint = data.actionPoint;
         snapshotUsedActionPointCount = data.usedActionPointCount;
+        snapshotSturdy = data.sturdy;
+        snapshotComboCount = data.comboCount;
         snapshotHand = CloneCardList(data.hand);
         snapshotDrawPile = CloneCardList(data.drawPile);
         snapshotDiscardPile = CloneCardList(data.discardPile);
@@ -264,6 +274,8 @@ public class SLManager : MonoBehaviour, ITurnStateListener
 
     private void RestorePlayerStats()
     {
+        PlayerBuffManager.Instance?.SetSturdy(snapshotSturdy);
+
         var stats = CombatStatsManager.Instance;
         if (stats == null) return;
         stats.currentHP = snapshotHP;
@@ -287,6 +299,7 @@ public class SLManager : MonoBehaviour, ITurnStateListener
             snapshotDiscardPile,
             snapshotExhaustPile,
             snapshotSpecialCards);
+        cards.RestoreComboCount(snapshotComboCount);
     }
 
     private void RestorePositions()
@@ -373,6 +386,8 @@ public class SLManager : MonoBehaviour, ITurnStateListener
         hasSnapshot = false;
         snapshotRoundCount = 0;
         snapshotUsedActionPointCount = 0;
+        snapshotSturdy = 0;
+        snapshotComboCount = 0;
         snapshotHorizontal = 0f;
         snapshotVertical = 0f;
         snapshotHand.Clear();

@@ -15,8 +15,8 @@ public class ComboCostReductionEffect : CardEffectCore
             return 0;
         }
 
-        bool isComboActive =
-            CardManager.Instance.CardsPlayedThisTurn >= ComboCardThreshold - 1;
+        int requiredCombo = card.combo > 0 ? card.combo : ComboCardThreshold;
+        bool isComboActive = CardManager.Instance.MeetsCombo(requiredCombo);
 
         return isComboActive ? -card.cost : 0;
     }

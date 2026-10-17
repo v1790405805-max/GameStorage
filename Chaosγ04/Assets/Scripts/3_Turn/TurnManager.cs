@@ -147,7 +147,10 @@ public class TurnManager : MonoBehaviour
                 saveObj.savedDiscardPile,
                 saveObj.savedExhaustPile
             );
+            CardManager.Instance.RestoreComboCount(saveObj.savedComboCount);
         }
+
+        PlayerBuffManager.Instance?.SetSturdy(saveObj.savedSturdy);
 
         saveObj.hasSavedGame = false;
         currentTurn = TurnState.Player;
