@@ -64765,7 +64765,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &489538650
 Transform:
   m_ObjectHideFlags: 0
@@ -201762,6 +201762,8 @@ MonoBehaviour:
   snapshotEnergy: 0
   snapshotActionPoint: 0
   snapshotUsedActionPointCount: 0
+  snapshotSturdy: 0
+  snapshotComboCount: 0
   snapshotHorizontal: 0
   snapshotVertical: 0
   snapshotRoundCount: 0
@@ -277115,7 +277117,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1001 &7080626493093617587
 PrefabInstance:
   m_ObjectHideFlags: 0
