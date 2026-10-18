@@ -46,7 +46,9 @@ public enum CardEffectType
     Energy = 1 << 4,   // 能量（增减）
     ActionPoint = 1 << 5,   // 行动点（增减）
     DrawCard = 1 << 6,   // 摸牌
-    DiscardCard = 1 << 7    // 弃牌
+    DiscardCard = 1 << 7,   // 弃牌
+    Sturdy = 1 << 8,   // 坚固（提高之后获得的格挡值）
+    Combo = 1 << 9    // 连击（本回合已打出卡牌数达到要求）
 }
 
 [Serializable]
@@ -108,6 +110,10 @@ public class CardData : ScriptableObject
     public int drawAmount;
     [Tooltip("弃牌数量")]
     public int discardAmount;
+    [Tooltip("坚固值（正数增加之后获得的格挡值）")]
+    public int sturdy;
+    [Tooltip("连击需求：本回合第几张及之后可以满足该连击条件")]
+    public int combo;
 
     public RangeType rangeType = RangeType.Point;
     public int rangeDistance;
@@ -216,6 +222,8 @@ public class CardData : ScriptableObject
         clone.actionPointChange = actionPointChange;
         clone.drawAmount = drawAmount;
         clone.discardAmount = discardAmount;
+        clone.sturdy = sturdy;
+        clone.combo = combo;
         clone.rangeType = rangeType;
         clone.rangeDistance = rangeDistance;
         clone.targetSelectMode = targetSelectMode;

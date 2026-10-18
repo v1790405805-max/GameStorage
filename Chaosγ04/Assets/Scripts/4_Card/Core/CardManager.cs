@@ -50,6 +50,27 @@ public class CardManager : MonoBehaviour
     private int cardsPlayedThisTurn;
     public bool HasPlayedCardThisTurn => cardsPlayedThisTurn > 0;
     public int CardsPlayedThisTurn => cardsPlayedThisTurn;
+    /// <summary>本回合已打出的卡牌数；卡牌结算期间包含当前卡。</summary>
+    public int ComboCount => cardsPlayedThisTurn;
+    /// <summary>下一张打出的卡牌将成为本回合的第几张牌。</summary>
+    public int NextCombo => cardsPlayedThisTurn + 1;
+
+    /// <summary>用于出牌前判断下一张牌是否达到连击要求。</summary>
+    public bool MeetsCombo(int requiredCombo)
+    {
+        return requiredCombo <= 0 || NextCombo >= requiredCombo;
+    }
+
+    /// <summary>用于卡牌结算期间判断当前牌是否达到连击要求。</summary>
+    public bool MeetsCurrentCombo(int requiredCombo)
+    {
+        return requiredCombo <= 0 || ComboCount >= requiredCombo;
+    }
+
+    public void RestoreComboCount(int count)
+    {
+        cardsPlayedThisTurn = Mathf.Max(0, count);
+    }
 
     private void Awake()
     {
@@ -378,7 +399,13 @@ public class CardManager : MonoBehaviour
             combatStats.AddBlock(card.block);
         }
 
-        // 4. 生命值变化
+        // 4. 坚固增益
+        if (card.effectFlags.HasFlag(CardEffectType.Sturdy) && card.sturdy != 0)
+        {
+            PlayerBuffManager.Instance?.AddSturdy(card.sturdy);
+        }
+
+        // 5. 生命值变化
         if (card.effectFlags.HasFlag(CardEffectType.Health) && card.healthChange != 0)
         {
             if (card.healthChange > 0)
@@ -391,31 +418,31 @@ public class CardManager : MonoBehaviour
             }
         }
 
-        // 5. 能量变化
+        // 6. 能量变化
         if (card.effectFlags.HasFlag(CardEffectType.Energy) && card.energyChange != 0)
         {
             combatStats.ModifyEnergy(card.energyChange, allowExceedMax: true);
         }
 
-        // 6. 行动力变化
+        // 7. 行动力变化
         if (card.effectFlags.HasFlag(CardEffectType.ActionPoint) && card.actionPointChange != 0)
         {
             combatStats.ModifyActionPoint(card.actionPointChange, allowExceedMax: true);
         }
 
-        // 7. 抽牌效果
+        // 8. 抽牌效果
         if (card.effectFlags.HasFlag(CardEffectType.DrawCard) && card.drawAmount > 0)
         {
             DrawCards(card.drawAmount);
         }
 
-        // 8. 弃牌效果
+        // 9. 弃牌效果
         if (card.effectFlags.HasFlag(CardEffectType.DiscardCard) && card.discardAmount > 0)
         {
             Debug.Log($"[卡牌效果] 需要手动或随机弃牌 {card.discardAmount} 张");
         }
 
-        // 9. 额外效果
+        // 10. 额外效果
         if (!hasExtraEffects)
         {
             return;

@@ -26,6 +26,7 @@ MonoBehaviour:
   actionPointChange: 0
   drawAmount: 0
   discardAmount: 0
+  sturdy: 0
   rangeType: 0
   rangeDistance: 0
   targetSelectMode: 0
@@ -41,4 +42,4 @@ MonoBehaviour:
   hitVFXPrefab: {fileID: 0}
   hitVFXOffset: {x: 0, y: 0.5, z: 0}
   gridStyle: {fileID: 11400000, guid: 853c237319753544088890199db33ed8, type: 2}
-  description: "\u83B7\u5F975\u70B9\u683C\u6321"
+  description: "\u83B7\u5F974\u70B9\u683C\u6321"

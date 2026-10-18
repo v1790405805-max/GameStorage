@@ -32,6 +32,8 @@ public class CardDataEditor : Editor
     private SerializedProperty actionPointChange;
     private SerializedProperty drawAmount;
     private SerializedProperty discardAmount;
+    private SerializedProperty sturdy;
+    private SerializedProperty combo;
 
     // 范围
     private SerializedProperty rangeType;
@@ -67,6 +69,8 @@ public class CardDataEditor : Editor
         actionPointChange = serializedObject.FindProperty("actionPointChange");
         drawAmount = serializedObject.FindProperty("drawAmount");
         discardAmount = serializedObject.FindProperty("discardAmount");
+        sturdy = serializedObject.FindProperty("sturdy");
+        combo = serializedObject.FindProperty("combo");
 
         rangeType = serializedObject.FindProperty("rangeType");
         rangeDistance = serializedObject.FindProperty("rangeDistance");
@@ -121,6 +125,8 @@ public class CardDataEditor : Editor
             if ((flags & CardEffectType.ActionPoint) != 0) EditorGUILayout.PropertyField(actionPointChange, new GUIContent("Action Point Change"));
             if ((flags & CardEffectType.DrawCard) != 0) EditorGUILayout.PropertyField(drawAmount, new GUIContent("Draw Amount"));
             if ((flags & CardEffectType.DiscardCard) != 0) EditorGUILayout.PropertyField(discardAmount, new GUIContent("Discard Amount"));
+            if ((flags & CardEffectType.Sturdy) != 0) EditorGUILayout.PropertyField(sturdy, new GUIContent("Sturdy"));
+            if ((flags & CardEffectType.Combo) != 0) EditorGUILayout.PropertyField(combo, new GUIContent("Combo"));
 
             EditorGUILayout.Space(8f);
         }

@@ -1,4 +1,4 @@
-Shader "Custom/HalfLambert_Gooch_Combined"
+Shader "Custom/Half_Lambert_LightTest"
 {
     Properties
     {
@@ -53,6 +53,13 @@ Shader "Custom/HalfLambert_Gooch_Combined"
             #pragma multi_compile_fragment _ _AMBIENT_PROBE_OCCLUSION
             #pragma multi_compile_fog
 
+            // çƒ˜ç„™å…‰ç…§ï¼šå‹¾é€‰ Static å¹¶çƒ˜ç„™åï¼Œç‰©ä½“éœ€è¦èµ° Lightmap åˆ†æ”¯
+            #pragma multi_compile _ LIGHTMAP_ON
+            #pragma multi_compile _ DIRLIGHTMAP_COMBINED
+            // Shadowmask æ¨¡å¼ä¸‹ï¼Œçƒ˜ç„™é˜´å½±éœ€è¦é€šè¿‡ Shadowmask ä¸å®æ—¶é˜´å½±æ··åˆ
+            #pragma multi_compile _ SHADOWS_SHADOWMASK
+            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
+
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
@@ -61,6 +68,7 @@ Shader "Custom/HalfLambert_Gooch_Combined"
                 float4 positionOS   : POSITION;
                 float3 normalOS     : NORMAL;
                 float2 uv           : TEXCOORD0;
+                float2 staticLightmapUV : TEXCOORD1;
             };
 
             struct Varyings
@@ -70,6 +78,9 @@ Shader "Custom/HalfLambert_Gooch_Combined"
                 float2 uv           : TEXCOORD1;
                 float3 positionWS   : TEXCOORD2;
                 half fogFactor      : TEXCOORD3;
+            #if defined(LIGHTMAP_ON)
+                float2 lightmapUV   : TEXCOORD4;
+            #endif
             };
 
             TEXTURE2D(_BaseMap);
@@ -135,61 +146,87 @@ Shader "Custom/HalfLambert_Gooch_Combined"
 
                 output.fogFactor = GetOrthographicFogFactor(positionInputs.positionWS, positionInputs.positionCS.z);
 
+            #if defined(LIGHTMAP_ON)
+                output.lightmapUV = input.staticLightmapUV * unity_LightmapST.xy + unity_LightmapST.zw;
+            #endif
+
                 return output;
+            }
+
+            // é˜´å½±é®ç½©ï¼šShadowmask æ¨¡å¼ä¸‹è¯»å–çƒ˜ç„™é˜´å½±ï¼Œæœªå¼€å¯æ—¶è¿”å›å…¨ 1
+            half4 GetShadowMask(Varyings input)
+            {
+            #if defined(SHADOWS_SHADOWMASK) && defined(LIGHTMAP_ON)
+                return SAMPLE_SHADOWMASK(input.lightmapUV);
+            #elif !defined(LIGHTMAP_ON)
+                return unity_ProbesOcclusion;
+            #else
+                return half4(1.0, 1.0, 1.0, 1.0);
+            #endif
+            }
+
+            // çƒ˜ç„™é—´æ¥å…‰ï¼šé™æ€çƒ˜ç„™ç‰©ä½“å– Lightmapï¼ŒåŠ¨æ€ç‰©ä½“å–å…‰ç…§æ¢é’ˆ / ç¯å¢ƒå…‰ SH
+            half3 GetBakedLighting(Varyings input, half3 normalWS)
+            {
+            #if defined(LIGHTMAP_ON)
+                return SampleLightmap(input.lightmapUV, normalWS);
+            #else
+                return SampleSH(normalWS);
+            #endif
             }
 
             half4 frag(Varyings input) : SV_Target
             {
-                // 1. »ñÈ¡»ù´¡ÏòÁ¿Óë¹âÔ´
+                // 1. è·å–åŸºç¡€å‘é‡ä¸å…‰æº
                 float4 shadowCoord = TransformWorldToShadowCoord(input.positionWS);
-                Light mainLight = GetMainLight(shadowCoord);
+                Light mainLight = GetMainLight(shadowCoord, input.positionWS, GetShadowMask(input));
 
                 half3 N = normalize(input.normalWS);
                 half3 L = normalize(mainLight.direction);
                 half3 V = GetWorldSpaceNormalizeViewDir(input.positionWS);
                 half3 H = normalize(L + V);
 
-                // 2. °ëÀ¼²®ÌØÓëÒõÓ°Ë¥¼õ¼ÆËã
+                // 2. åŠå…°ä¼¯ç‰¹ä¸é˜´å½±è¡°å‡è®¡ç®—
                 half NdotL = dot(N, L);
                 half halfLambert = NdotL * 0.5 + 0.5;
                 half finalRampInput = halfLambert * mainLight.shadowAttenuation;
 
-                // 3. Éú³É¿¨Âş·Ö½ç Mask
+                // 3. ç”Ÿæˆå¡æ¼«åˆ†ç•Œ Mask
                 half rampMask = smoothstep(_ShadowThreshold - _Smoothness, _ShadowThreshold + _Smoothness, finalRampInput);
 
-                // 4. ¸ß¹â¼ÆËã (Blinn-Phong + ¿¨ÂşÇĞ·Ö)
+                // 4. é«˜å…‰è®¡ç®— (Blinn-Phong + å¡æ¼«åˆ‡åˆ†)
                 half NdotH = saturate(dot(N, H));
                 half specIntensity = pow(NdotH, _SpecGloss);
                 half specMask = smoothstep(0.5 - _SpecSmoothness, 0.5 + _SpecSmoothness, specIntensity);
                 half3 specular = _SpecColor.rgb * specMask * mainLight.shadowAttenuation * mainLight.color;
 
-                // 5. ·ÆÄù¶ûÓë±ßÔµ¹â¼ÆËã (Rim Light / Fresnel)
+                // 5. è²æ¶…å°”ä¸è¾¹ç¼˜å…‰è®¡ç®— (Rim Light / Fresnel)
                 half NdotV = saturate(dot(N, V));
                 half fresnel = pow(1.0 - NdotV, _RimPower);
                 half rimMask = smoothstep(_RimThreshold - _RimSmoothness, _RimThreshold + _RimSmoothness, fresnel);
                 half3 rimLight = _RimColor.rgb * rimMask * mainLight.shadowAttenuation;
 
-                // 6. ²ÉÑù¹ÌÓĞÉ«
+                // 6. é‡‡æ ·å›ºæœ‰è‰²
                 half4 albedo = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv) * _MainColor;
 
-                // 7. Ê¹ÓÃ lerp ¿ØÖÆ Gooch ÀäÅ¯É«²Ê¸²¸Ç±ÈÀı
+                // 7. ä½¿ç”¨ lerp æ§åˆ¶ Gooch å†·æš–è‰²å½©è¦†ç›–æ¯”ä¾‹
                 half3 coolTone = lerp(albedo.rgb, _CoolColor.rgb, _CoolFactor);
                 half3 warmTone = lerp(albedo.rgb, _WarmColor.rgb, _WarmFactor);
 
-                // 8. ²ÉÑù»·¾³¹â (Skybox Ambient / Light Probe)
-                half3 envColor = SampleSH(N) * _EnvironmentIntensity;
+                // 8. é‡‡æ ·çƒ˜ç„™é—´æ¥å…‰ (Static çƒ˜ç„™çš„ Lightmap / åŠ¨æ€ç‰©ä½“çš„ç¯å¢ƒå…‰ä¸æ¢é’ˆ)
+                half3 bakedGI = GetBakedLighting(input, N) * _EnvironmentIntensity;
 
-                // 9. ÓÅ»¯ºóµÄ°µ²¿ÓëÁÁ²¿ÑÕÉ«¼ÆËã
-                // °µ²¿£ºÍ¬Ê±°üº¬ Gooch ÀäÉ«µ÷Óë Skybox »·¾³É«
-                half3 shadowColor = coolTone * envColor;
-                // ÁÁ²¿£ºÖ±½Óµş¼ÓÖ÷¹âÔ´ÓëÍêÕû»·¾³¹â
-                half3 litColor = warmTone * mainLight.color + (albedo.rgb * envColor);
+                // 9. ä¼˜åŒ–åçš„æš—éƒ¨ä¸äº®éƒ¨é¢œè‰²è®¡ç®—
+                // æš—éƒ¨ï¼šGooch å†·è‰²è°ƒ * çƒ˜ç„™é—´æ¥å…‰ï¼Œçƒ˜ç„™åæš—éƒ¨ä¸ä¼šå¡Œæˆçº¯é»‘
+                half3 shadowColor = coolTone * bakedGI;
+                // äº®éƒ¨ï¼šä¸»å…‰æºç›´å°„ + å›ºæœ‰è‰² * çƒ˜ç„™é—´æ¥å…‰
+                half3 litColor = warmTone * mainLight.color + (albedo.rgb * bakedGI);
 
-                // 10. »ìºÏ»ù´¡Âş·´Éä¡¢¸ß¹âÓë±ßÔµ¹â
+                // 10. æ··åˆåŸºç¡€æ¼«åå°„ã€é«˜å…‰ä¸è¾¹ç¼˜å…‰
                 half3 baseLighting = lerp(shadowColor, litColor, rampMask);
                 half3 finalColor = saturate(baseLighting + specular + rimLight);
 
-                // 11. »ìºÏ Fog
+                // 11. æ··åˆ Fog
                 finalColor = MixFog(finalColor, input.fogFactor);
 
                 return half4(finalColor, albedo.a);
@@ -218,7 +255,7 @@ Shader "Custom/HalfLambert_Gooch_Combined"
         }
 
 
-        // ÔÚ ShadowCaster Pass ºóÃæÌí¼ÓÒÔÏÂ DepthOnly Pass
+        // åœ¨ ShadowCaster Pass åé¢æ·»åŠ ä»¥ä¸‹ DepthOnly Pass
         Pass
         {
             Name "DepthOnly"
@@ -231,7 +268,7 @@ Shader "Custom/HalfLambert_Gooch_Combined"
             #pragma vertex DepthOnlyVertex
             #pragma fragment DepthOnlyFragment
 
-            // ÒıÈë URP ±ê×¼Éî¶È Pass ÊµÏÖ
+            // å¼•å…¥ URP æ ‡å‡†æ·±åº¦ Pass å®ç°
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/DepthOnlyPass.hlsl"
             ENDHLSL
