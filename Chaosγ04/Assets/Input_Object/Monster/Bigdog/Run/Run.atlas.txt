@@ -1,0 +1,111 @@
+
+Run.png
+size: 10252,6152
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+3d467915-b44f-42d0-8a21-09b797a5b0e1-run_00
+  rotate: false
+  xy: 2, 2
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-run_01
+  rotate: false
+  xy: 2052, 2
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-run_02
+  rotate: false
+  xy: 4102, 2
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-run_03
+  rotate: false
+  xy: 6152, 2
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-run_04
+  rotate: false
+  xy: 8202, 2
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-run_05
+  rotate: false
+  xy: 2, 2052
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-run_06
+  rotate: false
+  xy: 2052, 2052
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-run_07
+  rotate: false
+  xy: 4102, 2052
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-run_08
+  rotate: false
+  xy: 6152, 2052
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-run_09
+  rotate: false
+  xy: 8202, 2052
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-run_10
+  rotate: false
+  xy: 2, 4102
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-run_11
+  rotate: false
+  xy: 2052, 4102
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-run_12
+  rotate: false
+  xy: 4102, 4102
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-run_13
+  rotate: false
+  xy: 6152, 4102
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-run_14
+  rotate: false
+  xy: 8202, 4102
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1

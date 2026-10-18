@@ -1,0 +1,222 @@
+
+Howling.png
+size: 10252,10252
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+3d467915-b44f-42d0-8a21-09b797a5b0e1-haojiao_00
+  rotate: false
+  xy: 2, 2
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-haojiao_01
+  rotate: false
+  xy: 2052, 2
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-haojiao_02
+  rotate: false
+  xy: 4102, 2
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-haojiao_03
+  rotate: false
+  xy: 6152, 2
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-haojiao_04
+  rotate: false
+  xy: 8202, 2
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-haojiao_05
+  rotate: false
+  xy: 2, 2052
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-haojiao_06
+  rotate: false
+  xy: 2052, 2052
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-haojiao_07
+  rotate: false
+  xy: 4102, 2052
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-haojiao_08
+  rotate: false
+  xy: 6152, 2052
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-haojiao_09
+  rotate: false
+  xy: 8202, 2052
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-haojiao_10
+  rotate: false
+  xy: 2, 4102
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-haojiao_11
+  rotate: false
+  xy: 2052, 4102
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-haojiao_12
+  rotate: false
+  xy: 4102, 4102
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-haojiao_13
+  rotate: false
+  xy: 6152, 4102
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-haojiao_14
+  rotate: false
+  xy: 8202, 4102
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-haojiao_15
+  rotate: false
+  xy: 2, 6152
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-haojiao_16
+  rotate: false
+  xy: 2052, 6152
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-haojiao_17
+  rotate: false
+  xy: 4102, 6152
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-haojiao_18
+  rotate: false
+  xy: 6152, 6152
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-haojiao_19
+  rotate: false
+  xy: 8202, 6152
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-haojiao_20
+  rotate: false
+  xy: 2, 8202
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-haojiao_21
+  rotate: false
+  xy: 2052, 8202
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-haojiao_22
+  rotate: false
+  xy: 4102, 8202
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-haojiao_23
+  rotate: false
+  xy: 6152, 8202
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-haojiao_24
+  rotate: false
+  xy: 8202, 8202
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+
+Howling2.png
+size: 10252,2052
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+3d467915-b44f-42d0-8a21-09b797a5b0e1-haojiao_25
+  rotate: false
+  xy: 2, 2
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-haojiao_26
+  rotate: false
+  xy: 2052, 2
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-haojiao_27
+  rotate: false
+  xy: 4102, 2
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-haojiao_28
+  rotate: false
+  xy: 6152, 2
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-haojiao_29
+  rotate: false
+  xy: 8202, 2
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1

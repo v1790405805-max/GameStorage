@@ -1,0 +1,181 @@
+
+Attack.png
+size: 10252,10252
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+3d467915-b44f-42d0-8a21-09b797a5b0e1-yao_00
+  rotate: false
+  xy: 2, 2
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-yao_01
+  rotate: false
+  xy: 2052, 2
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-yao_02
+  rotate: false
+  xy: 4102, 2
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-yao_03
+  rotate: false
+  xy: 6152, 2
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-yao_04
+  rotate: false
+  xy: 8202, 2
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-yao_05
+  rotate: false
+  xy: 2, 2052
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-yao_06
+  rotate: false
+  xy: 2052, 2052
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-yao_07
+  rotate: false
+  xy: 4102, 2052
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-yao_08
+  rotate: false
+  xy: 6152, 2052
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-yao_09
+  rotate: false
+  xy: 8202, 2052
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-yao_10
+  rotate: false
+  xy: 2, 4102
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-yao_11
+  rotate: false
+  xy: 2052, 4102
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-yao_12
+  rotate: false
+  xy: 4102, 4102
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-yao_13
+  rotate: false
+  xy: 6152, 4102
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-yao_14
+  rotate: false
+  xy: 8202, 4102
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-yao_15
+  rotate: false
+  xy: 2, 6152
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-yao_16
+  rotate: false
+  xy: 2052, 6152
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-yao_17
+  rotate: false
+  xy: 4102, 6152
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-yao_18
+  rotate: false
+  xy: 6152, 6152
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-yao_19
+  rotate: false
+  xy: 8202, 6152
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-yao_20
+  rotate: false
+  xy: 2, 8202
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-yao_21
+  rotate: false
+  xy: 2052, 8202
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-yao_22
+  rotate: false
+  xy: 4102, 8202
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-yao_23
+  rotate: false
+  xy: 6152, 8202
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
+3d467915-b44f-42d0-8a21-09b797a5b0e1-yao_24
+  rotate: false
+  xy: 8202, 8202
+  size: 2048, 2048
+  orig: 2048, 2048
+  offset: 0, 0
+  index: -1
