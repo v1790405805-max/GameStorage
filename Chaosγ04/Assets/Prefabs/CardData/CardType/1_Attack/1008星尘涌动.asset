@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: "1008\u661F\u5C18\u6D8C\u52A8"
   m_EditorClassIdentifier: Assembly-CSharp::CardData
   cardID: 1007
-  cardName: 
+  cardName: "\u661F\u5C18\u6D8C\u52A8"
+  cardArtwork: {fileID: 21300000, guid: fc21f6ab8edc8494285052a01e603a67, type: 3}
   type: 1
   cost: 1
   effectFlags: 34

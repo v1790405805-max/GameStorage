@@ -11,6 +11,7 @@ public class CardDataEditor : Editor
     // 基础信息
     private SerializedProperty cardID;
     private SerializedProperty cardName;
+    private SerializedProperty cardArtwork; // 【新增】卡面插图属性引用
     private SerializedProperty type;
     private SerializedProperty cost;
     private SerializedProperty effectFlags;
@@ -47,6 +48,7 @@ public class CardDataEditor : Editor
     {
         cardID = serializedObject.FindProperty("cardID");
         cardName = serializedObject.FindProperty("cardName");
+        cardArtwork = serializedObject.FindProperty("cardArtwork"); // 【新增】绑定数据字段
         type = serializedObject.FindProperty("type");
         cost = serializedObject.FindProperty("cost");
         effectFlags = serializedObject.FindProperty("effectFlags");
@@ -83,6 +85,10 @@ public class CardDataEditor : Editor
         EditorGUILayout.LabelField("基础信息", EditorStyles.boldLabel);
         EditorGUILayout.PropertyField(cardID, new GUIContent("Card ID"));
         EditorGUILayout.PropertyField(cardName, new GUIContent("Card Name"));
+
+        // 【新增】：在面板上绘制卡面插图 Sprite 拖拽槽位
+        EditorGUILayout.PropertyField(cardArtwork, new GUIContent("Card Artwork (卡面插图)"));
+
         EditorGUILayout.PropertyField(type, new GUIContent("Type"));
         DrawCostField();
 

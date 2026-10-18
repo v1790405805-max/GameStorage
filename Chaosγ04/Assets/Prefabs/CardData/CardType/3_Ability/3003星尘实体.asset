@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardData
   cardID: 3003
   cardName: "\u661F\u5C18\u5B9E\u4F53"
+  cardArtwork: {fileID: 21300000, guid: df60d23a767db7e4f923352ca041ccf8, type: 3}
   type: 3
   cost: 1
   effectFlags: 0

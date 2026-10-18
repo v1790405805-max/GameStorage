@@ -28,9 +28,23 @@ public class CardUI : MonoBehaviour,
     public TextMeshProUGUI nameText;
     public TextMeshProUGUI descText;
 
+    [Header("卡面插图组件")]
+    [Tooltip("卡牌上用于展示主卡面/立绘插图的 Image 组件")]
+    public Image cardArtworkImage;
+
     [Header("卡牌类型视觉配置")]
-    [Tooltip("随卡牌类型改变颜色的底图/边框/标头 Image 组件（留空则不生效）")]
+    [Tooltip("单个主变色组件（保留以兼容已绑定的旧引用）")]
     public Image cardTypeImage;
+
+    [Tooltip("所有需要随卡牌类型改变颜色的 Image 列表（如：边框、Cost底图、文字区域底图等）")]
+    public Image[] cardTypeImages;
+
+    [Tooltip("可选：需要随类型改变颜色的 TextMeshPro 文本列表（如卡名、费用数字等）")]
+    public TextMeshProUGUI[] cardTypeTexts;
+
+    [Tooltip("变色时是否保留各个组件自身的透明度（Alpha），强烈推荐勾选！可让半透明底板保持通透")]
+    public bool preserveAlpha = true;
+
     [Tooltip("攻击卡颜色 (默认暗红)")]
     public Color attackColor = new Color(0.9f, 0.35f, 0.35f, 1f);
     [Tooltip("技能卡颜色 (默认冷蓝)")]
@@ -136,6 +150,20 @@ public class CardUI : MonoBehaviour,
         if (nameText != null) nameText.text = data.cardName;
         if (descText != null) descText.text = data.description;
 
+        // 刷新卡面插图显示
+        if (cardArtworkImage != null)
+        {
+            if (data != null && data.cardArtwork != null)
+            {
+                cardArtworkImage.sprite = data.cardArtwork;
+                cardArtworkImage.gameObject.SetActive(true);
+            }
+            else
+            {
+                cardArtworkImage.gameObject.SetActive(false); // 无插图时自动隐藏，防止留白
+            }
+        }
+
         if (data != null)
         {
             UpdateCardTypeColor(data.type);
@@ -152,30 +180,73 @@ public class CardUI : MonoBehaviour,
         hasCustomHomeTransform = true; // 锁定基准坐标，避免被 Start() 的瞬时飞行坐标冲掉
     }
 
-    private void UpdateCardTypeColor(CardType type)
+    /// <summary>
+    /// 获取对应卡牌类型的代表色
+    /// </summary>
+    public Color GetCardTypeColor(CardType type)
     {
-        if (cardTypeImage == null) return;
-
         switch (type)
         {
-            case CardType.Attack:
-                cardTypeImage.color = attackColor;
-                break;
-            case CardType.Skill:
-                cardTypeImage.color = skillColor;
-                break;
-            case CardType.Movement:
-                cardTypeImage.color = movementColor;
-                break;
-            case CardType.Special:
-                cardTypeImage.color = specialColor;
-                break;
-            case CardType.Ability:
-                cardTypeImage.color = abilityColor;
-                break;
-            default:
-                cardTypeImage.color = defaultTypeColor;
-                break;
+            case CardType.Attack: return attackColor;
+            case CardType.Skill: return skillColor;
+            case CardType.Movement: return movementColor;
+            case CardType.Special: return specialColor;
+            case CardType.Ability: return abilityColor;
+            default: return defaultTypeColor;
+        }
+    }
+
+    /// <summary>
+    /// 批量更新卡面多个 Image 和 TextMeshPro 组件的颜色
+    /// </summary>
+    private void UpdateCardTypeColor(CardType type)
+    {
+        Color targetColor = GetCardTypeColor(type);
+
+        // 1. 兼容原有的单个 cardTypeImage 槽位
+        ApplyColorToImage(cardTypeImage, targetColor);
+
+        // 2. 批量更新多张 Image（如边框、费用底座、文字区域底板等）
+        if (cardTypeImages != null)
+        {
+            for (int i = 0; i < cardTypeImages.Length; i++)
+            {
+                ApplyColorToImage(cardTypeImages[i], targetColor);
+            }
+        }
+
+        // 3. 可选：更新跟随类型的文本（如需要卡名也变成对应颜色）
+        if (cardTypeTexts != null)
+        {
+            for (int i = 0; i < cardTypeTexts.Length; i++)
+            {
+                TextMeshProUGUI txt = cardTypeTexts[i];
+                if (txt == null) continue;
+
+                if (preserveAlpha)
+                {
+                    txt.color = new Color(targetColor.r, targetColor.g, targetColor.b, txt.color.a);
+                }
+                else
+                {
+                    txt.color = targetColor;
+                }
+            }
+        }
+    }
+
+    private void ApplyColorToImage(Image img, Color targetColor)
+    {
+        if (img == null) return;
+
+        if (preserveAlpha)
+        {
+            // 保持原本配置的 Alpha 透明度，防止半透明底板变成纯不透明死色
+            img.color = new Color(targetColor.r, targetColor.g, targetColor.b, img.color.a);
+        }
+        else
+        {
+            img.color = targetColor;
         }
     }
 

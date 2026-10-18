@@ -79,6 +79,11 @@ public class CardData : ScriptableObject
 
     public string cardID;
     public string cardName;
+
+    [Header("卡牌插图与视觉")]
+    [Tooltip("卡牌的主卡面插图/立绘 Sprite")]
+    public Sprite cardArtwork;
+
     public CardType type;
     [Tooltip("固定费用输入整数；变量费用输入 X（序列化值为 -1）")]
     public int cost;
@@ -196,6 +201,7 @@ public class CardData : ScriptableObject
         clone.name = string.IsNullOrEmpty(cardName) ? name : cardName;
         clone.cardID = cardID;
         clone.cardName = cardName;
+        clone.cardArtwork = cardArtwork; // 深拷贝卡面插图引用
         clone.type = type;
         clone.cost = cost;
         clone.effectFlags = effectFlags;

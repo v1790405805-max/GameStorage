@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardData
   cardID: 2002
   cardName: "\u661F\u5C18\u5E87\u62A4"
+  cardArtwork: {fileID: 21300000, guid: b4ca6f72be12ded4cb5fdef851f00ee5, type: 3}
   type: 2
   cost: 1
   effectFlags: 36
@@ -37,5 +38,7 @@ MonoBehaviour:
   - effectScript: {fileID: 11500000, guid: 97f6561ec09c4aeaa47bbb0f3c33f105, type: 3}
     effectTypeName: ShieldVFX, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
+  hitVFXPrefab: {fileID: 0}
+  hitVFXOffset: {x: 0, y: 0.5, z: 0}
   gridStyle: {fileID: 11400000, guid: 853c237319753544088890199db33ed8, type: 2}
   description: "\u83B7\u5F975\u70B9\u683C\u6321\uFF0C\u56DE\u590D1\u70B9\u884C\u52A8\u529B"
