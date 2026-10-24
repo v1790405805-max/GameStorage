@@ -201,7 +201,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterStats
   maxHp: 5
   currentHp: 0
-  currentBlock: 0
+  currentArmor: 0
   mobility: 2
   attackRange: 1
   attackDamage: 5

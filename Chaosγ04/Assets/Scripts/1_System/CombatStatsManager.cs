@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 
 [Serializable]
 public struct MonsterSaveData
@@ -10,7 +11,8 @@ public struct MonsterSaveData
     public MonsterIdentityManager.MonsterFaction monsterFaction;
     public Vector3 position;
     public int hp;
-    public int block;
+    [FormerlySerializedAs("block")]
+    public int armor;
 }
 
 [Serializable]
@@ -23,7 +25,8 @@ public class MonsterStateSnapshot
     public bool activeSelf;
     public int maxHp;
     public int currentHp;
-    public int currentBlock;
+    [FormerlySerializedAs("currentBlock")]
+    public int currentArmor;
     public int mobility;
     public int attackRange;
     public int attackDamage;
@@ -47,7 +50,7 @@ public class MonsterStateSnapshot
         {
             snapshot.maxHp = stats.maxHp;
             snapshot.currentHp = stats.currentHp;
-            snapshot.currentBlock = stats.currentBlock;
+            snapshot.currentArmor = stats.currentArmor;
             snapshot.mobility = stats.mobility;
             snapshot.attackRange = stats.attackRange;
             snapshot.attackDamage = stats.attackDamage;
@@ -71,7 +74,7 @@ public class MonsterStateSnapshot
         {
             stats.maxHp = maxHp;
             stats.currentHp = currentHp;
-            stats.currentBlock = currentBlock;
+            stats.currentArmor = currentArmor;
             stats.mobility = mobility;
             stats.attackRange = attackRange;
             stats.attackDamage = attackDamage;
@@ -106,7 +109,8 @@ public class TurnStartSnapshotData
     // ==========================================
     public int roundCount;
     public int hp;
-    public int block;
+    [FormerlySerializedAs("block")]
+    public int armor;
     public int energy;
     public int actionPoint;
     public int usedActionPointCount;
@@ -130,7 +134,7 @@ public class TurnStartSnapshotData
 ///
 /// 【职责边界】本类只负责数值的记录与增减计算（护甲/生命/能量/行动点等）。
 /// 伤害减免等战斗规则由调用方（如 PlayerOrientationDamageController）在调用前算好；
-/// 格挡获取统一经过 PlayerBuffManager，以便坚固等 Buff 影响所有格挡来源。
+/// 护甲获取统一经过 PlayerBuffManager，以便坚固等 Buff 影响所有护甲来源。
 /// </summary>
 public class CombatStatsManager : MonoBehaviour
 {
@@ -157,7 +161,8 @@ public class CombatStatsManager : MonoBehaviour
     [Header("--- 玩家战斗临时属性 ---")]
     public int maxHP = 50;
     public int currentHP;
-    public int currentBlock;
+    [FormerlySerializedAs("currentBlock")]
+    public int currentArmor;
     public int maxEnergy = 3;
     public int currentEnergy;
     public int maxActionPoint = 5;
@@ -227,7 +232,7 @@ public class CombatStatsManager : MonoBehaviour
         currentHP = maxHP;
         currentEnergy = maxEnergy;
         currentActionPoint = maxActionPoint;
-        currentBlock = 0;
+        currentArmor = 0;
         savedSturdy = 0;
         savedComboCount = 0;
         PlayerBuffManager.Instance?.ResetForNewLevel();
@@ -290,15 +295,15 @@ public class CombatStatsManager : MonoBehaviour
         return false;
     }
 
-    public void AddBlock(int amount)
+    public void AddArmor(int amount)
     {
         PlayerBuffManager buffManager = PlayerBuffManager.Instance;
         if (amount > 0 && buffManager != null)
         {
-            amount = buffManager.ApplyBlockGainBonus(amount);
+            amount = buffManager.ApplyArmorGainBonus(amount);
         }
 
-        currentBlock += amount;
+        currentArmor += amount;
         TriggerStatsChanged();
     }
 
@@ -435,7 +440,7 @@ public class CombatStatsManager : MonoBehaviour
         {
             MonsterStats stats = monster.GetComponent<MonsterStats>();
             int currentHp = stats != null ? stats.currentHp : 20;
-            int currentBlock = stats != null ? stats.currentBlock : 0;
+            int currentArmor = stats != null ? stats.currentArmor : 0;
 
             savedMonsters.Add(new MonsterSaveData
             {
@@ -443,7 +448,7 @@ public class CombatStatsManager : MonoBehaviour
                 monsterFaction = monster.faction,
                 position = monster.transform.position,
                 hp = currentHp,
-                block = currentBlock
+                armor = currentArmor
             });
         }
 
@@ -523,17 +528,17 @@ public class CombatStatsManager : MonoBehaviour
     {
         int remainingDamage = damageAmount;
 
-        if (currentBlock > 0)
+        if (currentArmor > 0)
         {
-            if (currentBlock >= remainingDamage)
+            if (currentArmor >= remainingDamage)
             {
-                currentBlock -= remainingDamage;
+                currentArmor -= remainingDamage;
                 remainingDamage = 0;
             }
             else
             {
-                remainingDamage -= currentBlock;
-                currentBlock = 0;
+                remainingDamage -= currentArmor;
+                currentArmor = 0;
             }
         }
 

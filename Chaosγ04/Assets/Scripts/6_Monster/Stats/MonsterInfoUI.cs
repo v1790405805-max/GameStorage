@@ -95,10 +95,10 @@ public class MonsterInfoUI : MonoBehaviour
 
         int currentHp = monsterStats.currentHp;
         int maxHp = monsterStats.maxHp;
-        int currentBlock = monsterStats.currentBlock;
+        int currentArmor = monsterStats.currentArmor;
 
         // 计算穿透护盾后的预计掉血
-        int realHpDamage = Mathf.Max(0, estimatedDamage - currentBlock);
+        int realHpDamage = Mathf.Max(0, estimatedDamage - currentArmor);
         int expectedHp = Mathf.Max(0, currentHp - realHpDamage);
 
         // 刷新预估血条：主血条缩到预期值，底层预览条保留当前血量，形成扣血空隙

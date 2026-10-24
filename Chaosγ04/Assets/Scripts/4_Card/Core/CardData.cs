@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 /// <summary>卡牌类型</summary>
 public enum CardType
@@ -41,13 +42,13 @@ public enum CardEffectType
     None = 0,
     Movement = 1 << 0,   // 位移
     Attack = 1 << 1,   // 攻击
-    Defense = 1 << 2,   // 防御（格挡）
+    Armor = 1 << 2,     // 护甲
     Health = 1 << 3,   // 血量（治疗/自损）
     Energy = 1 << 4,   // 能量（增减）
     ActionPoint = 1 << 5,   // 行动点（增减）
     DrawCard = 1 << 6,   // 摸牌
     DiscardCard = 1 << 7,   // 弃牌
-    Sturdy = 1 << 8,   // 坚固（提高之后获得的格挡值）
+    Sturdy = 1 << 8,   // 坚固（提高之后获得的护甲值）
     Combo = 1 << 9    // 连击（本回合已打出卡牌数达到要求）
 }
 
@@ -98,8 +99,9 @@ public class CardData : ScriptableObject
     public int moveDistance;
     [Tooltip("攻击伤害值")]
     public int damage;
-    [Tooltip("格挡/护盾值（正数添加，负数移除）")]
-    public int block;
+    [FormerlySerializedAs("block")]
+    [Tooltip("护甲值（正数添加，负数移除）")]
+    public int armor;
     [Tooltip("血量变化值（正数恢复，负数自损/扣血）")]
     public int healthChange;
     [Tooltip("能量变化值（正数增加，负数消耗）")]
@@ -110,7 +112,7 @@ public class CardData : ScriptableObject
     public int drawAmount;
     [Tooltip("弃牌数量")]
     public int discardAmount;
-    [Tooltip("坚固值（正数增加之后获得的格挡值）")]
+    [Tooltip("坚固值（正数增加之后获得的护甲值）")]
     public int sturdy;
     [Tooltip("连击需求：本回合第几张及之后可以满足该连击条件")]
     public int combo;
@@ -216,7 +218,7 @@ public class CardData : ScriptableObject
         clone.vfxEffects = vfxEffects == null ? null : new List<CardPresentationEffectReference>(vfxEffects);
         clone.moveDistance = moveDistance;
         clone.damage = damage;
-        clone.block = block;
+        clone.armor = armor;
         clone.healthChange = healthChange;
         clone.energyChange = energyChange;
         clone.actionPointChange = actionPointChange;

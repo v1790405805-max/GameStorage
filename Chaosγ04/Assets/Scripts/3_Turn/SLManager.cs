@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class SLManager : MonoBehaviour, ITurnStateListener
 {
@@ -19,7 +20,8 @@ public class SLManager : MonoBehaviour, ITurnStateListener
     // ================= 快照数据字段 =================
     [Header("快照 - 玩家状态（仅供 Inspector 预览）")]
     [SerializeField] private int snapshotHP;
-    [SerializeField] private int snapshotBlock;
+    [FormerlySerializedAs("snapshotBlock")]
+    [SerializeField] private int snapshotArmor;
     [SerializeField] private int snapshotEnergy;
     [SerializeField] private int snapshotActionPoint;
     [SerializeField] private int snapshotUsedActionPointCount;
@@ -118,7 +120,7 @@ public class SLManager : MonoBehaviour, ITurnStateListener
 
         stats.CapturePlayerFacing();
         snapshotHP = stats.currentHP;
-        snapshotBlock = stats.currentBlock;
+        snapshotArmor = stats.currentArmor;
         snapshotEnergy = stats.currentEnergy;
         snapshotActionPoint = stats.currentActionPoint;
         snapshotUsedActionPointCount = stats.UsedActionPointCount;
@@ -184,7 +186,7 @@ public class SLManager : MonoBehaviour, ITurnStateListener
 
         data.roundCount = snapshotRoundCount;
         data.hp = snapshotHP;
-        data.block = snapshotBlock;
+        data.armor = snapshotArmor;
         data.energy = snapshotEnergy;
         data.actionPoint = snapshotActionPoint;
         data.usedActionPointCount = snapshotUsedActionPointCount;
@@ -210,7 +212,7 @@ public class SLManager : MonoBehaviour, ITurnStateListener
         hasSnapshot = true;
         snapshotRoundCount = data.roundCount;
         snapshotHP = data.hp;
-        snapshotBlock = data.block;
+        snapshotArmor = data.armor;
         snapshotEnergy = data.energy;
         snapshotActionPoint = data.actionPoint;
         snapshotUsedActionPointCount = data.usedActionPointCount;
@@ -279,7 +281,7 @@ public class SLManager : MonoBehaviour, ITurnStateListener
         var stats = CombatStatsManager.Instance;
         if (stats == null) return;
         stats.currentHP = snapshotHP;
-        stats.currentBlock = snapshotBlock;
+        stats.currentArmor = snapshotArmor;
         stats.currentEnergy = snapshotEnergy;
         stats.currentActionPoint = snapshotActionPoint;
         stats.RestoreUsedActionPointCount(snapshotUsedActionPointCount);

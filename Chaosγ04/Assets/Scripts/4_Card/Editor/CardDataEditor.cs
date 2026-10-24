@@ -26,7 +26,7 @@ public class CardDataEditor : Editor
     // 效果数值
     private SerializedProperty moveDistance;
     private SerializedProperty damage;
-    private SerializedProperty block;
+    private SerializedProperty armor;
     private SerializedProperty healthChange;
     private SerializedProperty energyChange;
     private SerializedProperty actionPointChange;
@@ -63,7 +63,7 @@ public class CardDataEditor : Editor
 
         moveDistance = serializedObject.FindProperty("moveDistance");
         damage = serializedObject.FindProperty("damage");
-        block = serializedObject.FindProperty("block");
+        armor = serializedObject.FindProperty("armor");
         healthChange = serializedObject.FindProperty("healthChange");
         energyChange = serializedObject.FindProperty("energyChange");
         actionPointChange = serializedObject.FindProperty("actionPointChange");
@@ -119,7 +119,7 @@ public class CardDataEditor : Editor
 
             if ((flags & CardEffectType.Movement) != 0) EditorGUILayout.PropertyField(moveDistance, new GUIContent("Move Distance"));
             if ((flags & CardEffectType.Attack) != 0) EditorGUILayout.PropertyField(damage, new GUIContent("Damage"));
-            if ((flags & CardEffectType.Defense) != 0) EditorGUILayout.PropertyField(block, new GUIContent("Block"));
+            if ((flags & CardEffectType.Armor) != 0) EditorGUILayout.PropertyField(armor, new GUIContent("Armor"));
             if ((flags & CardEffectType.Health) != 0) EditorGUILayout.PropertyField(healthChange, new GUIContent("Health Change"));
             if ((flags & CardEffectType.Energy) != 0) EditorGUILayout.PropertyField(energyChange, new GUIContent("Energy Change"));
             if ((flags & CardEffectType.ActionPoint) != 0) EditorGUILayout.PropertyField(actionPointChange, new GUIContent("Action Point Change"));

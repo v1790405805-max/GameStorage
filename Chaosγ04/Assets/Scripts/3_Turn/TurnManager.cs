@@ -127,7 +127,7 @@ public class TurnManager : MonoBehaviour
                 if (stats != null)
                 {
                     stats.currentHp = savedData.hp;
-                    stats.currentBlock = savedData.block;
+                    stats.currentArmor = savedData.armor;
                 }
 
                 unhandledSceneMonsters.Remove(targetMonster);

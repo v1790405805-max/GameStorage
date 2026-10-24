@@ -51739,7 +51739,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterStats
   maxHp: 60
   currentHp: 0
-  currentBlock: 0
+  currentArmor: 0
   mobility: 2
   attackRange: 1
   attackDamage: 12
@@ -72282,7 +72282,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterStats
   maxHp: 30
   currentHp: 0
-  currentBlock: 0
+  currentArmor: 0
   mobility: 3
   attackRange: 1
   attackDamage: 10
@@ -127994,7 +127994,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterStats
   maxHp: 15
   currentHp: 0
-  currentBlock: 0
+  currentArmor: 0
   mobility: 2
   attackRange: 1
   attackDamage: 8
@@ -142544,7 +142544,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterStats
   maxHp: 15
   currentHp: 0
-  currentBlock: 0
+  currentArmor: 0
   mobility: 2
   attackRange: 1
   attackDamage: 8
@@ -201076,7 +201076,7 @@ MonoBehaviour:
   logDebugInfo: 1
   hasSnapshot: 0
   snapshotHP: 0
-  snapshotBlock: 0
+  snapshotArmor: 0
   snapshotEnergy: 0
   snapshotActionPoint: 0
   snapshotUsedActionPointCount: 0
@@ -242177,7 +242177,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterStats
   maxHp: 1
   currentHp: 0
-  currentBlock: 0
+  currentArmor: 0
   mobility: 0
   attackRange: 0
   attackDamage: 0
@@ -245985,7 +245985,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterStats
   maxHp: 15
   currentHp: 0
-  currentBlock: 0
+  currentArmor: 0
   mobility: 2
   attackRange: 1
   attackDamage: 8

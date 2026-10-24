@@ -117,16 +117,16 @@ public sealed class PlayerBuffManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 对一次格挡获取应用坚固加成。负值（移除格挡）不受影响。
+    /// 对一次护甲获取应用坚固加成。负值（移除护甲）不受影响。
     /// </summary>
-    public int ApplyBlockGainBonus(int baseBlock)
+    public int ApplyArmorGainBonus(int baseArmor)
     {
-        if (baseBlock <= 0)
+        if (baseArmor <= 0)
         {
-            return baseBlock;
+            return baseArmor;
         }
 
-        return Mathf.Max(0, baseBlock + sturdy);
+        return Mathf.Max(0, baseArmor + sturdy);
     }
 
     public void ResetForNewLevel()

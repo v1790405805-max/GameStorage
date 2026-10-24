@@ -1,12 +1,14 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class MonsterStats : MonoBehaviour, IDamageable
 {
     [Header("生命数值")]
     public int maxHp = 20;
     public int currentHp;
-    public int currentBlock = 0;
+    [FormerlySerializedAs("currentBlock")]
+    public int currentArmor = 0;
 
     [Header("战斗属性")]
     [Tooltip("怪物一回合最多可以移动的格子数。")]
@@ -60,7 +62,7 @@ public class MonsterStats : MonoBehaviour, IDamageable
     }
 
     /// <summary>
-    /// 无视护盾与剩余生命值，直接判定该怪物死亡。
+    /// 无视护甲与剩余生命值，直接判定该怪物死亡。
     /// 用于推击落入致死地形（落点不存在 / 硬锁格 / 未注册可通过的水面）等效果。
     /// </summary>
     public void KillInstantly()
@@ -72,18 +74,18 @@ public class MonsterStats : MonoBehaviour, IDamageable
     {
         int remainingDamage = damageAmount;
 
-        // 1. 先扣护盾
-        if (currentBlock > 0)
+        // 1. 先扣护甲
+        if (currentArmor > 0)
         {
-            if (currentBlock >= remainingDamage)
+            if (currentArmor >= remainingDamage)
             {
-                currentBlock -= remainingDamage;
+                currentArmor -= remainingDamage;
                 remainingDamage = 0;
             }
             else
             {
-                remainingDamage -= currentBlock;
-                currentBlock = 0;
+                remainingDamage -= currentArmor;
+                currentArmor = 0;
             }
         }
 

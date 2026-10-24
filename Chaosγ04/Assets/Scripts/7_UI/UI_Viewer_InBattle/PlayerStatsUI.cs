@@ -82,11 +82,11 @@ public class PlayerStatsUI : MonoBehaviour
         // ================== 2. 更新护甲 (Armor) ==================[cite: 24]
         if (armorSlider != null && maxArmorVisual > 0)
         {
-            armorSlider.value = Mathf.Clamp01((float)stats.currentBlock / maxArmorVisual); //[cite: 24]
+            armorSlider.value = Mathf.Clamp01((float)stats.currentArmor / maxArmorVisual); //[cite: 24]
         }
         if (armorText != null)
         {
-            armorText.text = FormatSafe(armorFormat, stats.currentBlock);
+            armorText.text = FormatSafe(armorFormat, stats.currentArmor);
         }
 
         // ================== 3. 更新能量 (Energy) ==================[cite: 24]

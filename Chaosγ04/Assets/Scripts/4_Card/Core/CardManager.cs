@@ -393,10 +393,10 @@ public class CardManager : MonoBehaviour
             }
         }
 
-        // 3. 防御/护甲效果
-        if (card.effectFlags.HasFlag(CardEffectType.Defense) && card.block != 0)
+        // 3. 护甲效果
+        if (card.effectFlags.HasFlag(CardEffectType.Armor) && card.armor != 0)
         {
-            combatStats.AddBlock(card.block);
+            combatStats.AddArmor(card.armor);
         }
 
         // 4. 坚固增益

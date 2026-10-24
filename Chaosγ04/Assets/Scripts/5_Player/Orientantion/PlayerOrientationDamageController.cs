@@ -26,7 +26,7 @@ public class PlayerOrientationDamageController : MonoBehaviour
     /// Raised after a monster attack when the player's HP did not change.
     /// Parameters: attacking monster, attacker grid position.
     /// </summary>
-    public event Action<MonsterIdentityManager, Vector2Int> AttackFullyBlocked;
+    public event Action<MonsterIdentityManager, Vector2Int> AttackFullyAbsorbedByArmor;
 
     [Header("引用（留空则自动查找）")]
     [SerializeField] private GridManager gridManager;
@@ -95,7 +95,7 @@ public class PlayerOrientationDamageController : MonoBehaviour
 
             if (stats.currentHP == hpBeforeAttack && attacker != null && attackerGrid.HasValue)
             {
-                AttackFullyBlocked?.Invoke(attacker, attackerGrid.Value);
+                AttackFullyAbsorbedByArmor?.Invoke(attacker, attackerGrid.Value);
             }
         }
     }

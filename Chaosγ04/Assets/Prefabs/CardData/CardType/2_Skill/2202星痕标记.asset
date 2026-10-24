@@ -20,7 +20,7 @@ MonoBehaviour:
   effectFlags: 0
   moveDistance: 0
   damage: 6
-  block: 0
+  armor: 0
   healthChange: 0
   energyChange: 1
   actionPointChange: -3

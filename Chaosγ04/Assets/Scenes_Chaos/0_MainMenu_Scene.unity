@@ -5554,7 +5554,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CombatStatsManager
   maxHP: 66
   currentHP: 0
-  currentBlock: 0
+  currentArmor: 0
   maxEnergy: 3
   currentEnergy: 0
   maxActionPoint: 5
@@ -5573,7 +5573,7 @@ MonoBehaviour:
   savedTurnStartSnapshot:
     roundCount: 0
     hp: 0
-    block: 0
+    armor: 0
     energy: 0
     actionPoint: 0
     usedActionPointCount: 0

@@ -30,7 +30,7 @@ public sealed class DefenseAbility : AbilityCore
 
         if (damageController != null)
         {
-            damageController.AttackFullyBlocked += HandleAttackFullyBlocked;
+            damageController.AttackFullyAbsorbedByArmor += HandleAttackFullyAbsorbedByArmor;
         }
     }
 
@@ -38,7 +38,7 @@ public sealed class DefenseAbility : AbilityCore
     {
         if (damageController != null)
         {
-            damageController.AttackFullyBlocked -= HandleAttackFullyBlocked;
+            damageController.AttackFullyAbsorbedByArmor -= HandleAttackFullyAbsorbedByArmor;
             damageController = null;
         }
 
@@ -46,7 +46,7 @@ public sealed class DefenseAbility : AbilityCore
         playerMoveController = null;
     }
 
-    private void HandleAttackFullyBlocked(
+    private void HandleAttackFullyAbsorbedByArmor(
         MonsterIdentityManager attacker,
         Vector2Int attackerGrid)
     {
