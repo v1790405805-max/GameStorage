@@ -30,6 +30,22 @@ public class MapView : MonoBehaviour
     public Sprite eventIcon;
     public Sprite bossIcon;
 
+    [Header("--- 场景跳转配置 (支持多场景组随机筛选) ---")]
+    [Tooltip("商店对应的场景名称")]
+    public string shopSceneName = "3_Shop_Scene";
+
+    [Tooltip("随机事件场景池（有多个事件场景时在此追加，生成时随机筛选）")]
+    public List<string> eventScenes = new List<string>() { "4_Event_Scene" };
+
+    [Tooltip("普通战斗地图池（若后期有多张小怪地图，全填在这里，随机抽取）")]
+    public List<string> minorEnemyScenes = new List<string>() { "2_Battle_Scene" };
+
+    [Tooltip("精英怪地图池（若有专属精英战地图填在这里）")]
+    public List<string> eliteEnemyScenes = new List<string>() { "2_Battle_Scene" };
+
+    [Tooltip("Boss 关地图池")]
+    public List<string> bossScenes = new List<string>() { "2_Battle_Scene" };
+
     private List<List<MapNode>> uiNodes = new List<List<MapNode>>();
     private List<GameObject> drawnLines = new List<GameObject>();
 
@@ -220,40 +236,39 @@ public class MapView : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 根据节点类型赋予视觉图标、文本以及精准的跳转场景
+    /// </summary>
     private void SetupNodeVisualAndTarget(MapNode nodeScript, MapNodeType type)
     {
         nodeScript.myNodeType = type;
 
-        // ==========================================
-        // 【核心修改】：通过 MapNode.cs 提供的 nodeIcon 精准获取子物体的贴图
-        // 彻底切断与 Background 的瓜葛
-        // ==========================================
         Image img = nodeScript.nodeIcon;
-
         SceneLoader loader = nodeScript.GetComponent<SceneLoader>();
         UnityEngine.UI.Text uiText = nodeScript.GetComponentInChildren<UnityEngine.UI.Text>();
         TMPro.TextMeshProUGUI tmpText = nodeScript.GetComponentInChildren<TMPro.TextMeshProUGUI>();
 
         string nodeNameText = "";
+        string targetScene = "2_Battle_Scene";
 
         switch (type)
         {
             case MapNodeType.MinorEnemy:
                 nodeNameText = "普通战斗";
                 if (img != null) img.sprite = minorEnemyIcon;
-                if (loader != null) loader.targetSceneName = "2_Battle_Scene";
+                targetScene = GetRandomSceneFromList(minorEnemyScenes, "2_Battle_Scene");
                 break;
 
             case MapNodeType.EliteEnemy:
                 nodeNameText = "精英战斗";
                 if (img != null) img.sprite = eliteEnemyIcon;
-                if (loader != null) loader.targetSceneName = "2_Battle_Scene";
+                targetScene = GetRandomSceneFromList(eliteEnemyScenes, "2_Battle_Scene");
                 break;
 
             case MapNodeType.Shop:
                 nodeNameText = "商店";
                 if (img != null) img.sprite = shopIcon;
-                if (loader != null) loader.targetSceneName = "2_Battle_Scene";
+                targetScene = shopSceneName;
                 break;
 
             case MapNodeType.Event:
@@ -266,14 +281,20 @@ public class MapView : MonoBehaviour
                     nodeNameText = "未知事件";
                 }
                 if (img != null) img.sprite = eventIcon;
-                if (loader != null) loader.targetSceneName = "2_Battle_Scene";
+                // 从事件场景池中随机抽取一个目标场景
+                targetScene = GetRandomSceneFromList(eventScenes, "4_Event_Scene");
                 break;
 
             case MapNodeType.Boss:
                 nodeNameText = "BOSS战";
                 if (img != null) img.sprite = bossIcon;
-                if (loader != null) loader.targetSceneName = "2_Battle_Scene";
+                targetScene = GetRandomSceneFromList(bossScenes, "2_Battle_Scene");
                 break;
+        }
+
+        if (loader != null)
+        {
+            loader.targetSceneName = targetScene;
         }
 
         if (uiText != null)
@@ -284,5 +305,21 @@ public class MapView : MonoBehaviour
         {
             tmpText.text = nodeNameText;
         }
+    }
+
+    /// <summary>
+    /// 从场景名列表中随机抽取一个（空列表或异常时回退到 fallback 场景）
+    /// </summary>
+    private string GetRandomSceneFromList(List<string> sceneList, string fallbackScene)
+    {
+        if (sceneList != null && sceneList.Count > 0)
+        {
+            int randIndex = Random.Range(0, sceneList.Count);
+            if (!string.IsNullOrEmpty(sceneList[randIndex]))
+            {
+                return sceneList[randIndex];
+            }
+        }
+        return fallbackScene;
     }
 }

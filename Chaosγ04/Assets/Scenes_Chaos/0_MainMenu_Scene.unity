@@ -28131,9 +28131,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'CARD
-
-    WARFARE'
+  m_text: "Admatine's \nWedge"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c5d1daa08dab0fe4789007e0e451438e, type: 2}
   m_sharedMaterial: {fileID: -1214801926606253479, guid: c5d1daa08dab0fe4789007e0e451438e, type: 2}
@@ -28160,8 +28158,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 100
-  m_fontSizeBase: 100
+  m_fontSize: 80
+  m_fontSizeBase: 80
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -28173,7 +28171,7 @@ MonoBehaviour:
   m_characterSpacing: 10
   m_characterHorizontalScale: 1
   m_wordSpacing: 0
-  m_lineSpacing: -25
+  m_lineSpacing: 0
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
