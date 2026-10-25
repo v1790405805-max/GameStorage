@@ -13,6 +13,12 @@ public class MapView : MonoBehaviour
     [Tooltip("用于画线的预制体 (一个简单的白色 UI Image 即可)")]
     public GameObject linePrefab;
 
+    [Header("通关结算弹窗 (可选)")]
+    [Tooltip("如果你在大地图场景做了一个全屏通关结算弹窗，拖到这里；如果没有可留空")]
+    public GameObject victorySummaryPanel;
+    [Tooltip("通关弹窗里的重新开始/返回主菜单按钮")]
+    public Button restartRunButton;
+
     [Header("排布参数 (UI 坐标)")]
     public float horizontalSpacing = 150f;
     public float verticalSpacing = 200f;
@@ -51,6 +57,11 @@ public class MapView : MonoBehaviour
 
     private void Start()
     {
+        // ==========================================
+        // 【核心新增】：检测是否刚刚击败了 Boss 通关回来
+        // ==========================================
+        CheckBossVictorySummary();
+
         if (mapGenerator != null && (mapGenerator.currentMapData == null || mapGenerator.currentMapData.floors.Count == 0))
         {
             mapGenerator.GenerateNewMap();
@@ -58,6 +69,45 @@ public class MapView : MonoBehaviour
 
         DrawMapUI();
         StartCoroutine(InstantCenterOnCurrentFloor());
+    }
+
+    /// <summary>
+    /// 处理打死 Boss 回到大地图后的通关结算流程
+    /// </summary>
+    private void CheckBossVictorySummary()
+    {
+        if (RunDataManager.Instance != null && RunDataManager.Instance.pendingVictorySummary)
+        {
+            // 消耗掉通关标记，防止下次反复触发
+            RunDataManager.Instance.pendingVictorySummary = false;
+
+            Debug.Log($"<color=yellow>【通关大获全胜！】总击杀数: {RunDataManager.Instance.totalKills}, 总造成伤害: {RunDataManager.Instance.totalDamageDealt}</color>");
+
+            // 如果你在大地图 Canvas 里拖了通关弹窗，就激活弹窗
+            if (victorySummaryPanel != null)
+            {
+                victorySummaryPanel.SetActive(true);
+
+                if (restartRunButton != null)
+                {
+                    restartRunButton.onClick.RemoveAllListeners();
+                    restartRunButton.onClick.AddListener(() =>
+                    {
+                        // 清理单局存档并回到主菜单或新开一局
+                        RunDataManager.Instance.ResetRunData();
+                        UnityEngine.SceneManagement.SceneManager.LoadScene("0_MainMenu_Scene");
+                    });
+                }
+            }
+        }
+        else
+        {
+            // 平常状态隐藏通关弹窗
+            if (victorySummaryPanel != null)
+            {
+                victorySummaryPanel.SetActive(false);
+            }
+        }
     }
 
     public void DrawMapUI()
@@ -236,9 +286,6 @@ public class MapView : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 根据节点类型赋予视觉图标、文本以及精准的跳转场景
-    /// </summary>
     private void SetupNodeVisualAndTarget(MapNode nodeScript, MapNodeType type)
     {
         nodeScript.myNodeType = type;
@@ -281,7 +328,6 @@ public class MapView : MonoBehaviour
                     nodeNameText = "未知事件";
                 }
                 if (img != null) img.sprite = eventIcon;
-                // 从事件场景池中随机抽取一个目标场景
                 targetScene = GetRandomSceneFromList(eventScenes, "4_Event_Scene");
                 break;
 
@@ -307,9 +353,6 @@ public class MapView : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 从场景名列表中随机抽取一个（空列表或异常时回退到 fallback 场景）
-    /// </summary>
     private string GetRandomSceneFromList(List<string> sceneList, string fallbackScene)
     {
         if (sceneList != null && sceneList.Count > 0)

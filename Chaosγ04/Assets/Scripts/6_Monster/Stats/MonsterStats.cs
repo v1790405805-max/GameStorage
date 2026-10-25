@@ -95,16 +95,17 @@ public class MonsterStats : MonoBehaviour, IDamageable
             currentHp = Mathf.Max(0, currentHp - remainingDamage);
             Debug.Log($"[{gameObject.name}] 受到了 {remainingDamage} 点伤害，剩余HP: {currentHp}");
 
-            // 触发平滑受击闪红
-            hitFlash?.TriggerFlash();
+            // 【修改点】：只有生命值大于 0（还活着）才执行闪红，致死一击直接交给 Die() 处理
+            if (currentHp > 0)
+            {
+                hitFlash?.TriggerFlash();
+            }
 
-            // 只有玩家造成的伤害才计入玩家 RunData
             if (playerAttributed && RunDataManager.Instance != null)
             {
                 RunDataManager.Instance.totalDamageDealt += remainingDamage;
             }
 
-            // 受击后实时刷新血条 UI
             GetComponentInChildren<MonsterInfoUI>()?.UpdateHpDisplay(currentHp, maxHp);
         }
 

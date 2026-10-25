@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 通用受击闪烁组件：支持曲线平滑衰减与淡入淡出调优
+/// 通用受击闪烁组件：支持曲线平滑衰减与淡入淡出调优（带失活安全检测）
 /// </summary>
 public class UniversalHitFlash : MonoBehaviour
 {
@@ -63,11 +63,13 @@ public class UniversalHitFlash : MonoBehaviour
     /// <param name="customColor">可选：自定义颜色（如暴击纯白、中毒暗绿）</param>
     public void TriggerFlash(float? customDuration = null, Color? customColor = null)
     {
-        if (cachedRenderers.Count == 0) return;
+        // 【核心修复】：若物体在层级树中已经被隐藏，绝不启动协程，杜绝红字报错
+        if (!gameObject.activeInHierarchy || cachedRenderers.Count == 0) return;
 
         if (flashRoutine != null)
         {
             StopCoroutine(flashRoutine);
+            flashRoutine = null;
         }
 
         flashRoutine = StartCoroutine(FlashCoroutine(
@@ -112,6 +114,12 @@ public class UniversalHitFlash : MonoBehaviour
 
     private void OnDisable()
     {
+        // 物体隐藏或禁用时，立刻停掉协程并重置材质参数
+        if (flashRoutine != null)
+        {
+            StopCoroutine(flashRoutine);
+            flashRoutine = null;
+        }
         SetProperty(0f, defaultFlashColor);
     }
 
