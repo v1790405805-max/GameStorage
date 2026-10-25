@@ -5411,8 +5411,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\u5F00\u59CB\u6E38\u620F \n"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 3c052dbef53ce7449a1c59c2a0674f0a, type: 2}
-  m_sharedMaterial: {fileID: -3386891809991819874, guid: 3c052dbef53ce7449a1c59c2a0674f0a, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -5577,6 +5577,8 @@ MonoBehaviour:
     energy: 0
     actionPoint: 0
     usedActionPointCount: 0
+    sturdy: 0
+    comboCount: 0
     hand: []
     drawPile: []
     discardPile: []
@@ -5586,11 +5588,11 @@ MonoBehaviour:
     playerRotation: {x: 0, y: 0, z: 0, w: 0}
     horizontal: 0
     vertical: 0
-    enemyIds: []
-    enemyPositions: []
-    enemyRotations: []
+    monsters: []
   savedHorizontal: 0
   savedVertical: 0
+  savedSturdy: 0
+  savedComboCount: 0
 --- !u!1 &314067563
 GameObject:
   m_ObjectHideFlags: 0
@@ -16006,8 +16008,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: START OPERATION
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 3c052dbef53ce7449a1c59c2a0674f0a, type: 2}
-  m_sharedMaterial: {fileID: -3386891809991819874, guid: 3c052dbef53ce7449a1c59c2a0674f0a, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -16775,6 +16777,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RunDataManager
   initialDeckConfig: {fileID: 11400000, guid: 20ed6b214767e2f4a9f348a707dc4a88, type: 2}
   playerGlobalDeck: []
+  initialCurrency: 66
+  currency: 66
+  playerCurrentHP: 50
+  playerMaxHP: 50
   savedMapData:
     floors: []
   currentFloor: -1
@@ -17053,7 +17059,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ef666fe959dc934ea336f5dfc5c4ab2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainMenuUI
-  startGameButtonText: {fileID: 269588802}
+  startGameButtonText: {fileID: 462615645}
 --- !u!1 &1311319155
 GameObject:
   m_ObjectHideFlags: 0

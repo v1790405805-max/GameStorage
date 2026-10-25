@@ -12,11 +12,11 @@ public class MainMenuUI : MonoBehaviour
         // 检查是否有中途战斗存档
         if (CombatStatsManager.Instance != null && CombatStatsManager.Instance.hasSavedGame)
         {
-            if (startGameButtonText != null) startGameButtonText.text = "继续游戏";
+            if (startGameButtonText != null) startGameButtonText.text = "继续旅程\r\n<size=13><cspace=0.2em><color=#BFA175>JOURNEY</color></cspace></size>";
         }
         else
         {
-            if (startGameButtonText != null) startGameButtonText.text = "开始游戏";
+            if (startGameButtonText != null) startGameButtonText.text = "启程\r\n<size=13><cspace=0.2em><color=#BFA175>JOURNEY</color></cspace></size>";
         }
     }
 
