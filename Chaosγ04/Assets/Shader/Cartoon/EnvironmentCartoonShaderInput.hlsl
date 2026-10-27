@@ -50,6 +50,17 @@ half4 SampleAlbedo(float2 uv, half4 vertexColor)
     return albedo;
 }
 
+half4 SampleAlbedoAlpha(float2 uv, TEXTURE2D_PARAM(albedoAlphaMap, sampler_albedoAlphaMap))
+{
+    return SAMPLE_TEXTURE2D(albedoAlphaMap, sampler_albedoAlphaMap, uv);
+}
+
+half Alpha(half albedoAlpha, half4 color, half cutoff)
+{
+    half alpha = albedoAlpha * color.a;
+    return AlphaDiscard(alpha, cutoff);
+}
+
 half SampleOcclusion(float2 uv)
 {
     half occlusionSample = SAMPLE_TEXTURE2D(_OcclusionMap, sampler_OcclusionMap, uv).r;

@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Custom_StylizedSceneToon
+  m_Name: EnvironmentCartoonShader
   m_Shader: {fileID: 4800000, guid: 8445388342a648f4a309ec6294f74143, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0

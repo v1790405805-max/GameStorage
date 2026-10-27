@@ -1,4 +1,4 @@
-Shader "Custom/StylizedSceneToon"
+Shader "Custom/EnvironmentCartoonShader"
 {
     Properties
     {
@@ -81,7 +81,7 @@ Shader "Custom/StylizedSceneToon"
             #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Fog.hlsl"
 
-            #include "StylizedSceneToonInput.hlsl"
+            #include "EnvironmentCartoonShaderInput.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
             struct Attributes
@@ -308,7 +308,7 @@ Shader "Custom/StylizedSceneToon"
             #pragma fragment ShadowPassFragment
             #pragma shader_feature_local_fragment _ALPHATEST_ON
 
-            #include "StylizedSceneToonInput.hlsl"
+            #include "EnvironmentCartoonShaderInput.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/ShadowCasterPass.hlsl"
             ENDHLSL
         }
@@ -328,7 +328,7 @@ Shader "Custom/StylizedSceneToon"
             #pragma fragment DepthOnlyFragment
             #pragma shader_feature_local_fragment _ALPHATEST_ON
 
-            #include "StylizedSceneToonInput.hlsl"
+            #include "EnvironmentCartoonShaderInput.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/DepthOnlyPass.hlsl"
             ENDHLSL
         }
@@ -347,7 +347,7 @@ Shader "Custom/StylizedSceneToon"
             #pragma fragment DepthNormalsFragment
             #pragma shader_feature_local_fragment _ALPHATEST_ON
 
-            #include "StylizedSceneToonInput.hlsl"
+            #include "EnvironmentCartoonShaderInput.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/DepthNormalsPass.hlsl"
             ENDHLSL
         }
@@ -362,14 +362,14 @@ Shader "Custom/StylizedSceneToon"
             HLSLPROGRAM
             #pragma target 3.0
             #pragma vertex UniversalVertexMeta
-            #pragma fragment StylizedSceneToonMetaFragment
+            #pragma fragment EnvironmentCartoonMetaFragment
             #pragma shader_feature_local_fragment _ALPHATEST_ON
             #pragma shader_feature EDITOR_VISUALIZATION
 
-            #include "StylizedSceneToonInput.hlsl"
+            #include "EnvironmentCartoonShaderInput.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/UniversalMetaPass.hlsl"
 
-            half4 StylizedSceneToonMetaFragment(Varyings input) : SV_Target
+            half4 EnvironmentCartoonMetaFragment(Varyings input) : SV_Target
             {
                 half4 albedo = SampleAlbedo(input.uv, half4(1, 1, 1, 1));
 
@@ -386,5 +386,5 @@ Shader "Custom/StylizedSceneToon"
         }
     }
 
-    CustomEditor "StylizedSceneToonShaderGUI"
+    CustomEditor "EnvironmentCartoonShaderCustomGUI"
 }

@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 
-public class EnvironmentCartoonShaderGUI : ShaderGUI
+public class EnvironmentCartoonShader_HalfLambertTestGUI : ShaderGUI
 {
     private bool _showBase = true;
     private bool _showLighting = true;
@@ -12,7 +12,7 @@ public class EnvironmentCartoonShaderGUI : ShaderGUI
 
     public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] properties)
     {
-        EditorGUILayout.LabelField("环境卡通着色器", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField("环境卡通着色器（半伦勃朗测试）", EditorStyles.boldLabel);
         EditorGUILayout.Space();
 
         DrawBaseGroup(materialEditor, properties);

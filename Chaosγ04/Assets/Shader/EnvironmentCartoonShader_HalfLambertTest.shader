@@ -1,4 +1,4 @@
-Shader "Custom/EnvironmentCartoonShader"
+Shader "Custom/EnvironmentCartoonShader_HalfLambertTest"
 {
     Properties
     {
@@ -286,5 +286,5 @@ Shader "Custom/EnvironmentCartoonShader"
         }
 
     }
-    CustomEditor "EnvironmentCartoonShaderGUI"
+    CustomEditor "EnvironmentCartoonShader_HalfLambertTestGUI"
 }
