@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: TileWild1
-  m_Shader: {fileID: 4800000, guid: f01b40c9c6307e646b24621a1eb7eafb, type: 3}
+  m_Shader: {fileID: 4800000, guid: cd95625199704364f9b97d9b62cc7c45, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -193,7 +193,7 @@ Material:
     - _OutlineColor: {r: 1, g: 1, b: 1, a: 1}
     - _RimColor: {r: 0.55, g: 0.20428568, b: 0.16499998, a: 1}
     - _ShadowColor: {r: 0.1764706, g: 0.26727316, b: 0.3529412, a: 1}
-    - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
+    - _SpecColor: {r: 1, g: 0, b: 0, a: 1}
     - _SpecularColor: {r: 1, g: 0.08535453, b: 0, a: 0.85056}
     - _WarmColor: {r: 0.8509804, g: 0.5503268, b: 0.40000004, a: 1}
   m_BuildTextureStacks: []

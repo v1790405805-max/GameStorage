@@ -21,7 +21,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: TileWild2
-  m_Shader: {fileID: 4800000, guid: f01b40c9c6307e646b24621a1eb7eafb, type: 3}
+  m_Shader: {fileID: 4800000, guid: cd95625199704364f9b97d9b62cc7c45, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []

@@ -1,32 +1,27 @@
-Shader "Custom/Half_Lambert_LightTest"
+Shader "Custom/EnvironmentCartoonShader"
 {
     Properties
     {
         [MainColor] _MainColor ("Base Color", Color) = (1, 1, 1, 1)
         [MainTexture] _BaseMap ("Base Map", 2D) = "white" {}
         
-        [Header(Half Lambert Ramp)]
         _ShadowThreshold ("Threshold", Range(0, 1)) = 0.5   
         _Smoothness ("Shadow Transition Smoothness", Range(0.001, 0.2)) = 0.01   
 
-        [Header(Gooch Cool Warm Tone)]
         _CoolColor ("Cool Color", Color) = (0.1, 0.1, 0.35, 1)  
         _WarmColor ("Warm Color", Color) = (0.85, 0.7, 0.4, 1)   
         _CoolFactor ("Cool Factor", Range(0, 1)) = 0.3                    
         _WarmFactor ("Warm Factor", Range(0, 1)) = 0.2                    
 
-        [Header(Specular Highlight)]
         [HDR] _SpecColor ("Specular Color", Color) = (1, 1, 1, 1)
         _SpecGloss ("Specular Glossiness / Power", Range(1, 256)) = 32
         _SpecSmoothness ("Specular Smoothness (Toon)", Range(0.001, 0.2)) = 0.02
         
-        [Header(Fresnel And Rim Light)]
         [HDR] _RimColor ("Rim / Fresnel Color", Color) = (1, 1, 1, 1)
         _RimPower ("Rim / Fresnel Power", Range(0.1, 10)) = 3.0
         _RimThreshold ("Rim Threshold", Range(0, 1)) = 0.5
         _RimSmoothness ("Rim Smoothness", Range(0.001, 0.2)) = 0.05
         
-        [Header(Environment)]
         _EnvironmentIntensity ("Environment Intensity", Range(0, 2)) = 1.0               
     }
     SubShader
@@ -291,5 +286,5 @@ Shader "Custom/Half_Lambert_LightTest"
         }
 
     }
-    CustomEditor "CustomGoochShaderGUI"
+    CustomEditor "EnvironmentCartoonShaderGUI"
 }

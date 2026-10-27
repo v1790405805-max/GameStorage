@@ -112,7 +112,7 @@ Material:
     - _GoochCoolStrength: 1
     - _GoochWarmAlpha: 0
     - _IsUsedSingleColor: 0
-    - _LightIntensity: 0.7
+    - _LightIntensity: 1
     - _Metallic: 0
     - _NormalSphericalAmount: 0.6
     - _OcclusionStrength: 1
