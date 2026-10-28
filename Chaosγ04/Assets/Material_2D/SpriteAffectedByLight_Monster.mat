@@ -122,6 +122,7 @@ Material:
     - _ReceiveShadows: 1
     - _RimIntensity: 2
     - _RimPower: 0.5
+    - _ShadowStrength: 0.3
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1

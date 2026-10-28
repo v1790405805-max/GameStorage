@@ -230,7 +230,7 @@ Material:
     - _CausticsSpeed1: {r: 0.13, g: 0.07, b: 0, a: 0}
     - _CausticsSpeed2: {r: -0.07, g: -0.04, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _DeepColor: {r: 0, g: 0.4087048, b: 0.5019608, a: 0.9019608}
+    - _DeepColor: {r: 0, g: 0.49714154, b: 0.5019608, a: 0.92156863}
     - _DepthColor: {r: 0, g: 0, b: 0, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _FoamColor: {r: 0.855, g: 0.95, b: 0.93760866, a: 1}
@@ -243,7 +243,7 @@ Material:
     - _PBRSpecularColor: {r: 1, g: 1, b: 1, a: 1}
     - _SSSColor: {r: 0.194, g: 0.991, b: 1, a: 1}
     - _SecondNormalScale: {r: 5, g: 5, b: 0, a: 0}
-    - _ShallowColor: {r: 0.34509805, g: 0.47810465, b: 0.55, a: 1}
+    - _ShallowColor: {r: 0.3137255, g: 0.43529406, b: 0.5, a: 0.24705882}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
     - _Speed: {r: -0.5, g: -0.1, b: 0, a: 0}
     - _WaterCenter: {r: 0, g: 0, b: 0, a: 0}
