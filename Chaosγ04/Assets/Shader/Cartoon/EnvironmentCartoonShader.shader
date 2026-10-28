@@ -30,6 +30,10 @@ Shader "Custom/EnvironmentCartoonShader"
         _RimSmoothness ("Rim Smoothness", Range(0.001, 0.2)) = 0.04
         _RimStrength ("Rim Strength", Range(0, 2)) = 0.5
 
+        [ToggleUI] _OutlineEnabled ("Outline Enabled", Float) = 0
+        _OutlineColor ("Outline Color", Color) = (0.08, 0.08, 0.1, 1)
+        [IntRange] _OutlineWidth ("Outline Width (Pixels)", Range(1, 10)) = 2
+
         [NoScaleOffset] _EmissionMap ("Emission Map", 2D) = "white" {}
         [HDR] _EmissionColor ("Emission Color", Color) = (0, 0, 0, 1)
 
@@ -188,6 +192,24 @@ Shader "Custom/EnvironmentCartoonShader"
                     halfLambert);
             }
 
+            float3 GetOutlineCameraSignature()
+            {
+                uint hash = 2166136261u;
+                hash = (hash ^ asuint(unity_MatrixVP._m00)) * 16777619u;
+                hash = (hash ^ asuint(unity_MatrixVP._m03)) * 16777619u;
+                hash = (hash ^ asuint(unity_MatrixVP._m11)) * 16777619u;
+                hash = (hash ^ asuint(unity_MatrixVP._m13)) * 16777619u;
+                hash = (hash ^ asuint(unity_MatrixVP._m22)) * 16777619u;
+                hash = (hash ^ asuint(unity_MatrixVP._m23)) * 16777619u;
+                hash = (hash ^ asuint(_WorldSpaceCameraPos.x)) * 16777619u;
+                hash = (hash ^ asuint(_WorldSpaceCameraPos.y)) * 16777619u;
+                hash = (hash ^ asuint(_WorldSpaceCameraPos.z)) * 16777619u;
+                return float3(
+                    (hash & 255u) / 255.0,
+                    ((hash >> 8u) & 255u) / 255.0,
+                    ((hash >> 16u) & 255u) / 255.0);
+            }
+
             half4 frag(Varyings input) : SV_Target
             {
                 UNITY_SETUP_INSTANCE_ID(input);
@@ -285,9 +307,110 @@ Shader "Custom/EnvironmentCartoonShader"
                     + emission;
                 finalColor = max(finalColor, 0.0h);
 
+                if (_OutlineEnabled > 0.5h)
+                {
+                    half4 outlineData = SAMPLE_TEXTURE2D(
+                        _EnvironmentCartoonOutlineTex,
+                        sampler_EnvironmentCartoonOutlineTex,
+                        inputData.normalizedScreenSpaceUV);
+                    half outlineReady = step(distance(outlineData.gba, GetOutlineCameraSignature()), 0.002h);
+                    finalColor = lerp(
+                        finalColor,
+                        _OutlineColor.rgb,
+                        saturate(_OutlineColor.a * outlineData.r) * outlineReady);
+                }
+
                 half fogFactor = saturate(input.fogFactor * _FogInfluence);
                 finalColor = MixFog(finalColor, fogFactor);
                 return half4(finalColor, 1.0h);
+            }
+            ENDHLSL
+        }
+
+        Pass
+        {
+            Name "EnvironmentOutlines"
+            Tags { "LightMode" = "EnvironmentOutlines" }
+
+            Cull Back
+            ZWrite On
+            ZTest LEqual
+            ColorMask RGBA
+
+            HLSLPROGRAM
+            #pragma target 3.0
+            #pragma vertex OutlineVert
+            #pragma fragment OutlineFrag
+            #pragma shader_feature_local_fragment _ALPHATEST_ON
+
+            #include "EnvironmentCartoonShaderInput.hlsl"
+
+            struct OutlineAttributes
+            {
+                float4 positionOS : POSITION;
+                float2 uv         : TEXCOORD0;
+                half4 color       : COLOR;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
+
+            // 注意：objectID 不再作为插值变量传递，
+            // 否则在透视相机下透视校正插值会破坏 float 尾数中编码的 ID。
+            struct OutlineVaryings
+            {
+                float4 positionCS  : SV_POSITION;
+                float4 positionNDC : TEXCOORD0;
+                float2 uv          : TEXCOORD1;
+                half4 color        : TEXCOORD2;
+                UNITY_VERTEX_OUTPUT_STEREO
+            };
+
+            float GetObjectID()
+            {
+                uint hash = 2166136261u;
+                hash = (hash ^ asuint(unity_ObjectToWorld._m03)) * 16777619u;
+                hash = (hash ^ asuint(unity_ObjectToWorld._m13)) * 16777619u;
+                hash = (hash ^ asuint(unity_ObjectToWorld._m23)) * 16777619u;
+                hash = (hash ^ asuint(unity_ObjectToWorld._m00)) * 16777619u;
+                hash = (hash ^ asuint(unity_ObjectToWorld._m11)) * 16777619u;
+                hash = (hash ^ asuint(unity_ObjectToWorld._m22)) * 16777619u;
+                uint objectID = hash & 0x007FFFFFu;
+                objectID = objectID == 0u ? 1u : objectID;
+                return asfloat(0x3F800000u | objectID);
+            }
+
+            OutlineVaryings OutlineVert(OutlineAttributes input)
+            {
+                OutlineVaryings output = (OutlineVaryings)0;
+                UNITY_SETUP_INSTANCE_ID(input);
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
+
+                VertexPositionInputs positionInputs = GetVertexPositionInputs(input.positionOS.xyz);
+                output.positionCS = positionInputs.positionCS;
+                output.positionNDC = positionInputs.positionNDC;
+                output.uv = TRANSFORM_TEX(input.uv, _BaseMap);
+                output.color = input.color;
+                return output;
+            }
+
+            float4 OutlineFrag(OutlineVaryings input) : SV_Target
+            {
+                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+
+                clip(_OutlineEnabled - 0.5h);
+
+                half4 albedo = SampleAlbedo(input.uv, input.color);
+
+            #if defined(_ALPHATEST_ON)
+                clip(albedo.a - _Cutoff);
+            #endif
+
+                float depth = input.positionNDC.z / input.positionNDC.w;
+                float width = max(1.0h, _OutlineWidth);
+                return float4(
+                    width + saturate(depth),
+                    0.0,
+                    0.0,
+                    GetObjectID());
             }
             ENDHLSL
         }

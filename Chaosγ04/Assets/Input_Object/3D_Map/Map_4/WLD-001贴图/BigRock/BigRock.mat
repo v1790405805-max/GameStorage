@@ -100,6 +100,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _AddLineEdge: 0
     - _AddPrecomputedVelocity: 0
     - _AdditionalLightStrength: 1
     - _AlphaClip: 0
@@ -115,6 +116,7 @@ Material:
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _DstBlendAlpha: 0
+    - _EdgeAngle: 60
     - _EnvironmentIntensity: 1
     - _EnvironmentReflectionFresnelPower: 4
     - _EnvironmentReflectionIntensity: 0.25
@@ -127,6 +129,10 @@ Material:
     - _Metallic: 0
     - _NormalScale: 1
     - _OcclusionStrength: 1
+    - _OutlineEnabled: 1
+    - _OutlineNormalSmoothing: 0.75
+    - _OutlineSort: 8
+    - _OutlineWidth: 2
     - _Parallax: 0.005
     - _QueueOffset: 0
     - _ReceiveShadows: 1
@@ -151,9 +157,12 @@ Material:
     - _XRMotionVectorsPass: 1
     - _ZWrite: 1
     m_Colors:
+    - _AddLineColor: {r: 0, g: 0, b: 0, a: 0}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _EdgeColor: {r: 0, g: 0, b: 0, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _OutlineColor: {r: 1, g: 0.33333328, b: 0, a: 0.6}
     - _RimColor: {r: 1, g: 1, b: 1, a: 1}
     - _ShadowColor: {r: 0.54999995, g: 0.58, b: 0.72, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}

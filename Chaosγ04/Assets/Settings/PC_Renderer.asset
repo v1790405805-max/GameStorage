@@ -1,18 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-5800922117005984323
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2696be5024ca42044bd89c5e730bd7fe, type: 3}
-  m_Name: SdfLightFeature
-  m_EditorClassIdentifier: Assembly-CSharp::PixelRender.SdfLightFeature
-  m_Active: 1
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -39,9 +26,8 @@ MonoBehaviour:
     probeVolumeBlendStatesCS: {fileID: 7200000, guid: b9a23f869c4fd45f19c5ada54dd82176, type: 3}
   m_RendererFeatures:
   - {fileID: 7833122117494664109}
-  - {fileID: -5800922117005984323}
-  - {fileID: 5538146822934513517}
-  m_RendererFeatureMap: ad6b866f10d7b46cbdbd26b611fc7eaf6d47f86e3173db4c
+  - {fileID: 5522868694205670217}
+  m_RendererFeatureMap: ad6b866f10d7b46c492341e3d02ba54c
   m_UseNativeRenderPass: 1
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
@@ -70,19 +56,6 @@ MonoBehaviour:
   m_DepthTextureFormat: 0
   m_AccurateGbufferNormals: 0
   m_IntermediateTextureMode: 0
---- !u!114 &5538146822934513517
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: af2187d6d4fe9044eb8abfef8c28e614, type: 3}
-  m_Name: PixelRenderFeature
-  m_EditorClassIdentifier: Assembly-CSharp::PixelRender.PixelRenderFeature
-  m_Active: 1
 --- !u!114 &7833122117494664109
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -109,3 +82,17 @@ MonoBehaviour:
     BlurQuality: 0
     Falloff: 100
     SampleCount: -1
+--- !u!114 &5522868694205670217
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c9ad5f985124bc8a56066dc732b1fbd, type: 3}
+  m_Name: EnvironmentCartoonOutlineFeature
+  m_EditorClassIdentifier: Assembly-CSharp::EnvironmentCartoon.EnvironmentCartoonOutlineFeature
+  m_Active: 1
+  _outlineShader: {fileID: 4800000, guid: 9c2c4eb6e5a24906b2d9a378493c4352, type: 3}

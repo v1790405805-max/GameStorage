@@ -50,6 +50,10 @@ public class MapInspector : MonoBehaviour
     private Vector3 dragOrigin;
     private Vector3 cameraOffset;
 
+    // 相机自身 XY 平面经过的世界坐标点（初始相机位置），平面法线为 camera.forward
+    private Vector3 mapPlaneOrigin;
+    private bool hasMapPlane;
+
     /// <summary>当前主相机：场景中名为 "Main Camera" 的相机（见 MainCameraAppoint 静态类）。</summary>
     private Camera mainCamera => MainCameraAppoint.Current;
 
@@ -76,6 +80,8 @@ public class MapInspector : MonoBehaviour
     {
         if (mainCamera != null)
         {
+            CacheMapPlane();
+
             Ray centerRay = mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
             Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
             if (groundPlane.Raycast(centerRay, out float enter))
@@ -176,16 +182,12 @@ public class MapInspector : MonoBehaviour
         Vector3 delta = clickWorldPos - centerWorldPos;
         delta.y = 0f;
 
-        Vector3 targetCamPos = mainCamera.transform.position + delta;
-
-        if (enableBounds)
-        {
-            targetCamPos.x = Mathf.Clamp(targetCamPos.x, minX, maxX);
-            targetCamPos.z = Mathf.Clamp(targetCamPos.z, minY, maxY);
-        }
+        Vector3 targetLocalPos = mainCamera.transform.localPosition
+            + GetCameraLocalDelta(delta);
+        targetLocalPos = GetClampedCameraLocalPosition(targetLocalPos);
 
         mainCamera.transform.DOKill();
-        mainCamera.transform.DOMove(targetCamPos, 0.4f).SetEase(Ease.OutCubic);
+        mainCamera.transform.DOLocalMove(targetLocalPos, 0.4f).SetEase(Ease.OutCubic);
     }
 
     private void HandleCameraDrag()
@@ -207,9 +209,7 @@ public class MapInspector : MonoBehaviour
             if (TryGetGroundPoint(Mouse.current.position.ReadValue(), out Vector3 currentPos))
             {
                 Vector3 difference = dragOrigin - currentPos;
-                mainCamera.transform.position += difference;
-
-                if (enableBounds) ClampCameraPosition();
+                TranslateCameraInLocalXY(difference);
             }
         }
     }
@@ -239,9 +239,7 @@ public class MapInspector : MonoBehaviour
         if (TryGetGroundPoint(screenCenter, out Vector3 before) &&
             TryGetGroundPoint(screenCenter + screenDelta, out Vector3 after))
         {
-            mainCamera.transform.position += after - before;
-
-            if (enableBounds) ClampCameraPosition();
+            TranslateCameraInLocalXY(after - before);
         }
     }
 
@@ -283,21 +281,87 @@ public class MapInspector : MonoBehaviour
                 if (groundPlane.Raycast(rayAfter, out float enterAfter))
                 {
                     Vector3 worldPosAfter = rayAfter.GetPoint(enterAfter);
-                    mainCamera.transform.position += (worldPosBefore - worldPosAfter);
+                    TranslateCameraInLocalXY(worldPosBefore - worldPosAfter);
                 }
             }
 
-            if (enableBounds) ClampCameraPosition();
+            if (enableBounds) ClampCameraLocalPosition();
         }
     }
 
-    private void ClampCameraPosition()
+    // ------------------------------------------------------------------
+    // 相机平面约束：相机始终停留在"自身 XY 平面"内（法线 = camera.forward）
+    // ------------------------------------------------------------------
+
+    private void CacheMapPlane()
     {
-        Vector3 pos = mainCamera.transform.position;
-        pos.x = Mathf.Clamp(pos.x, minX, maxX);
-        pos.z = Mathf.Clamp(pos.z, minY, maxY);
-        mainCamera.transform.position = pos;
+        if (hasMapPlane || mainCamera == null) return;
+        mapPlaneOrigin = mainCamera.transform.position;
+        hasMapPlane = true;
     }
+
+    /// <summary>
+    /// 把地面上的世界位移，投影到相机自身 XY 平面（垂直于 camera.forward）上，
+    /// 再转换为父空间下的位移。正交相机下，这等价于屏幕上的对应位移。
+    /// </summary>
+    private Vector3 GetCameraLocalDelta(Vector3 worldDelta)
+    {
+        Transform cam = mainCamera.transform;
+        Vector3 f = cam.forward;
+        Vector3 planeDelta = worldDelta - f * Vector3.Dot(worldDelta, f);
+
+        return cam.parent != null
+            ? cam.parent.InverseTransformVector(planeDelta)
+            : planeDelta;
+    }
+
+    private void TranslateCameraInLocalXY(Vector3 worldDelta)
+    {
+        Transform cam = mainCamera.transform;
+        Vector3 targetLocalPos = cam.localPosition + GetCameraLocalDelta(worldDelta);
+        cam.localPosition = GetClampedCameraLocalPosition(targetLocalPos);
+    }
+
+    /// <summary>
+    /// 先按 minX/maxX/minY/maxY 限制 X、Y，
+    /// 再沿父物体的本地 Z 轴调整，使结果始终落在相机自身的 XY 平面内。
+    /// </summary>
+    private Vector3 GetClampedCameraLocalPosition(Vector3 localPosition)
+    {
+        CacheMapPlane();
+
+        if (enableBounds)
+        {
+            localPosition.x = Mathf.Clamp(localPosition.x, minX, maxX);
+            localPosition.y = Mathf.Clamp(localPosition.y, minY, maxY);
+        }
+
+        Transform cam = mainCamera.transform;
+        Transform parent = cam.parent;
+
+        Vector3 f = cam.forward;
+        Vector3 worldPos = parent != null ? parent.TransformPoint(localPosition) : localPosition;
+        Vector3 zAxisWorld = parent != null ? parent.TransformVector(Vector3.forward) : Vector3.forward;
+
+        float denom = Vector3.Dot(zAxisWorld, f);
+        if (Mathf.Abs(denom) < 0.0001f) return localPosition; // 退化情况：无法补偿
+
+        // 沿父物体 Z 轴移动 t，使 (worldPos + t * zAxis - origin) · f = 0
+        float t = -Vector3.Dot(worldPos - mapPlaneOrigin, f) / denom;
+        worldPos += zAxisWorld * t;
+
+        return parent != null ? parent.InverseTransformPoint(worldPos) : worldPos;
+    }
+
+    private void ClampCameraLocalPosition()
+    {
+        Transform cam = mainCamera.transform;
+        cam.localPosition = GetClampedCameraLocalPosition(cam.localPosition);
+    }
+
+    // ------------------------------------------------------------------
+    // 地图模式切换
+    // ------------------------------------------------------------------
 
     public void ToggleMapMode()
     {
@@ -367,7 +431,12 @@ public class MapInspector : MonoBehaviour
                     Vector3 focusPoint = playerCol != null ? playerCol.bounds.center : battleFocusTarget.position;
 
                     Vector3 targetCamPos = focusPoint + cameraOffset;
-                    mainCamera.transform.DOMove(targetCamPos, 0.4f).SetEase(Ease.OutCubic);
+                    Vector3 targetLocalPos = mainCamera.transform.parent != null
+                        ? mainCamera.transform.parent.InverseTransformPoint(targetCamPos)
+                        : targetCamPos;
+                    targetLocalPos = GetClampedCameraLocalPosition(targetLocalPos);
+
+                    mainCamera.transform.DOLocalMove(targetLocalPos, 0.4f).SetEase(Ease.OutCubic);
                 }
             }
         }

@@ -8,6 +8,7 @@ public class EnvironmentCartoonShaderCustomGUI : ShaderGUI
     private bool _showLighting = true;
     private bool _showSpecular;
     private bool _showRim;
+    private bool _showOutline = true;
     private bool _showEmission;
     private bool _showEnvironment = true;
 
@@ -20,6 +21,7 @@ public class EnvironmentCartoonShaderCustomGUI : ShaderGUI
         DrawLightingGroup(materialEditor, properties);
         DrawSpecularGroup(materialEditor, properties);
         DrawRimGroup(materialEditor, properties);
+        DrawOutlineGroup(materialEditor, properties);
         DrawEmissionGroup(materialEditor, properties);
         DrawEnvironmentGroup(materialEditor, properties);
     }
@@ -115,6 +117,16 @@ public class EnvironmentCartoonShaderCustomGUI : ShaderGUI
                 DrawProperty(editor, emissionMap, "自发光贴图");
                 DrawProperty(editor, emissionColor, "自发光颜色");
             }
+        });
+    }
+
+    private void DrawOutlineGroup(MaterialEditor editor, MaterialProperty[] properties)
+    {
+        DrawFoldoutGroup(ref _showOutline, "描边", () =>
+        {
+            DrawProperty(editor, FindMaterialProperty("_OutlineEnabled", properties), "启用描边");
+            DrawProperty(editor, FindMaterialProperty("_OutlineColor", properties), "描边颜色");
+            DrawProperty(editor, FindMaterialProperty("_OutlineWidth", properties), "描边宽度（像素）");
         });
     }
 

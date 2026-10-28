@@ -11,6 +11,8 @@ TEXTURE2D(_OcclusionMap);
 SAMPLER(sampler_OcclusionMap);
 TEXTURE2D(_EmissionMap);
 SAMPLER(sampler_EmissionMap);
+TEXTURE2D(_EnvironmentCartoonOutlineTex);
+SAMPLER(sampler_EnvironmentCartoonOutlineTex);
 
 CBUFFER_START(UnityPerMaterial)
     half4 _BaseColor;
@@ -34,6 +36,9 @@ CBUFFER_START(UnityPerMaterial)
     half _RimThreshold;
     half _RimSmoothness;
     half _RimStrength;
+    half _OutlineEnabled;
+    half4 _OutlineColor;
+    half _OutlineWidth;
     half4 _EmissionColor;
     half _EnvironmentIntensity;
     half _EnvironmentReflectionIntensity;
