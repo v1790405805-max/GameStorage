@@ -240552,21 +240552,27 @@ MonoBehaviour:
   baseAngleStep: 3.2
   arrangeDuration: 0.25
   arrangeEase: 9
-  drawPileTarget: {fileID: 0}
-  discardPileTarget: {fileID: 0}
-  handGatherDuration: 0.2
+  drawPileTarget: {fileID: 2066089807}
+  discardPileTarget: {fileID: 1081275046}
+  handGatherDuration: 0.25
   pileShrinkDuration: 0.13
-  discardArcDuration: 0.35
-  discardArcInterval: 0.035
-  drawMoveDuration: 0.3
-  drawPileHoldDuration: 0.08
-  drawLaunchInterval: 0.038
+  discardArcDuration: 0.42
+  discardArcInterval: 0.075
+  drawMoveDuration: 0.42
+  drawPileHoldDuration: 0.075
+  drawLaunchInterval: 0.1
   revealSpacing: 135
   maxRevealWidth: 900
-  lineSpreadDuration: 0.33
+  lineSpreadDuration: 0.35
   arcHeight: 180
-  finalSpreadDuration: 0.28
+  finalSpreadDuration: 0.4
   drawArrangeDuration: 0.24
+  runtimeDrawMoveDuration: 0.3
+  playedCardGatherDuration: 0.3
+  playedCardCenterHoldDuration: 0.7
+  playedCardDiscardDuration: 0.36
+  playedCardFocusScreenX: 0.88
+  playedCardFocusScreenY: 0.63
   pileArcEase: 10
   drawMoveEase: 9
   lineSpreadEase: 9
