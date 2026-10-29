@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a78281b4d3425b4b8b0e0a9fb05ed41, type: 3}
+  m_Name: "5101\u53CD\u51FB"
+  m_EditorClassIdentifier: Assembly-CSharp::CardData
+  cardID: 5101
+  cardName: "\u53CD\u51FB"
+  cardArtwork: {fileID: 0}
+  type: 4
+  isCounterCard: 1
+  cost: 1
+  effectFlags: 2
+  moveDistance: 1
+  damage: 3
+  armor: 0
+  healthChange: 0
+  energyChange: 0
+  actionPointChange: 0
+  drawAmount: 0
+  discardAmount: 0
+  sturdy: 0
+  combo: 0
+  rangeType: 1
+  rangeDistance: 1
+  targetSelectMode: 1
+  extraEffects: []
+  animationEffects: []
+  vfxEffects: []
+  hitVFXPrefab: {fileID: 0}
+  hitVFXOffset: {x: 0, y: 0.5, z: 0}
+  gridStyle: {fileID: 11400000, guid: c7730a9b49b1f8244b410ce1e2e6542b, type: 2}
+  description: "\u53CD\u51FB\uFF0C\u5982\u679C\u5728\u53CD\u51FB\u72B6\u6001\u4F7F\u7528\u672C\u5361\uFF0C\u5219\u4F24\u5BB3+2\uFF0C\u5BF9\u76EE\u6807\u9020\u6210\u865A\u5F312"

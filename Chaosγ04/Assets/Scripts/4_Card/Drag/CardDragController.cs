@@ -74,6 +74,11 @@ public class CardDragController : MonoBehaviour
     {
         if (data == null || gridManager == null || visualManager == null) return;
 
+        if (CardManager.Instance != null && CardManager.Instance.IsDealingCards)
+        {
+            return;
+        }
+
         if (movementController == null)
             movementController = FindFirstObjectByType<PlayerMoveController>();
 
@@ -171,6 +176,17 @@ public class CardDragController : MonoBehaviour
 
         // 先还原拖拽预览可能造成的假设性怪物位移，再做落点校验。
         ClearEffectDragPreview();
+
+        CounterTimeManager counterTimeManager = CounterTimeManager.Instance;
+        if (counterTimeManager != null &&
+            counterTimeManager.IsActive &&
+            !counterTimeManager.CanUseCard(data))
+        {
+            Debug.Log("[CardDragController] 反击时间中只能使用一张费用足够的反击卡。");
+            OnCardDragEnd();
+            cardUI.ResetToOriginalState();
+            return;
+        }
 
         bool canAfford = CombatStatsManager.Instance != null
             && CombatStatsManager.Instance.currentEnergy >= data.GetEffectiveCost();

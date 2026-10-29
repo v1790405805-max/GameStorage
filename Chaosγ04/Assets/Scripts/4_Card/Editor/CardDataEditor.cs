@@ -13,6 +13,7 @@ public class CardDataEditor : Editor
     private SerializedProperty cardName;
     private SerializedProperty cardArtwork; // 【新增】卡面插图属性引用
     private SerializedProperty type;
+    private SerializedProperty isCounterCard;
     private SerializedProperty cost;
     private SerializedProperty effectFlags;
     private SerializedProperty extraEffects;
@@ -52,6 +53,7 @@ public class CardDataEditor : Editor
         cardName = serializedObject.FindProperty("cardName");
         cardArtwork = serializedObject.FindProperty("cardArtwork"); // 【新增】绑定数据字段
         type = serializedObject.FindProperty("type");
+        isCounterCard = serializedObject.FindProperty("isCounterCard");
         cost = serializedObject.FindProperty("cost");
         effectFlags = serializedObject.FindProperty("effectFlags");
         extraEffects = serializedObject.FindProperty("extraEffects");
@@ -94,6 +96,9 @@ public class CardDataEditor : Editor
         EditorGUILayout.PropertyField(cardArtwork, new GUIContent("Card Artwork (卡面插图)"));
 
         EditorGUILayout.PropertyField(type, new GUIContent("Type"));
+        EditorGUILayout.PropertyField(
+            isCounterCard,
+            new GUIContent("Is Counter Card", "勾选后，该卡牌可在敌方攻击前的反击时间中使用"));
         DrawCostField();
 
         EditorGUILayout.Space(8f);
@@ -119,7 +124,7 @@ public class CardDataEditor : Editor
 
             if ((flags & CardEffectType.Movement) != 0) EditorGUILayout.PropertyField(moveDistance, new GUIContent("Move Distance"));
             if ((flags & CardEffectType.Attack) != 0) EditorGUILayout.PropertyField(damage, new GUIContent("Damage"));
-            if ((flags & CardEffectType.Armor) != 0) EditorGUILayout.PropertyField(armor, new GUIContent("Armor"));
+            if ((flags & CardEffectType.Defense) != 0) EditorGUILayout.PropertyField(armor, new GUIContent("Armor"));
             if ((flags & CardEffectType.Health) != 0) EditorGUILayout.PropertyField(healthChange, new GUIContent("Health Change"));
             if ((flags & CardEffectType.Energy) != 0) EditorGUILayout.PropertyField(energyChange, new GUIContent("Energy Change"));
             if ((flags & CardEffectType.ActionPoint) != 0) EditorGUILayout.PropertyField(actionPointChange, new GUIContent("Action Point Change"));

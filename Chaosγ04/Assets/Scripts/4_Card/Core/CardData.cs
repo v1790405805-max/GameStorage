@@ -42,7 +42,7 @@ public enum CardEffectType
     None = 0,
     Movement = 1 << 0,   // 位移
     Attack = 1 << 1,   // 攻击
-    Armor = 1 << 2,     // 护甲
+    Defense = 1 << 2,   // 防御
     Health = 1 << 3,   // 血量（治疗/自损）
     Energy = 1 << 4,   // 能量（增减）
     ActionPoint = 1 << 5,   // 行动点（增减）
@@ -88,6 +88,9 @@ public class CardData : ScriptableObject
     public Sprite cardArtwork;
 
     public CardType type;
+    [Tooltip("是否为反击卡；反击时间中只能使用此类卡牌")]
+    [FormerlySerializedAs("isDefense")]
+    public bool isCounterCard;
     [Tooltip("固定费用输入整数；变量费用输入 X（序列化值为 -1）")]
     public int cost;
 
@@ -100,7 +103,8 @@ public class CardData : ScriptableObject
     [Tooltip("攻击伤害值")]
     public int damage;
     [FormerlySerializedAs("block")]
-    [Tooltip("护甲值（正数添加，负数移除）")]
+    [FormerlySerializedAs("defense")]
+    [Tooltip("Defense 效果对应的护甲值（正数添加，负数移除）")]
     public int armor;
     [Tooltip("血量变化值（正数恢复，负数自损/扣血）")]
     public int healthChange;
@@ -211,6 +215,7 @@ public class CardData : ScriptableObject
         clone.cardName = cardName;
         clone.cardArtwork = cardArtwork; // 深拷贝卡面插图引用
         clone.type = type;
+        clone.isCounterCard = isCounterCard;
         clone.cost = cost;
         clone.effectFlags = effectFlags;
         clone.extraEffects = extraEffects == null ? null : new List<ExtraCardEffect>(extraEffects);

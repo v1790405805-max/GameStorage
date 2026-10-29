@@ -48,6 +48,9 @@ public class CardManager : MonoBehaviour
     public event Action<int, int> OnPileCountChanged;
 
     private int cardsPlayedThisTurn;
+    public bool IsDealingCards =>
+        HandCardArcLayout.Instance != null &&
+        HandCardArcLayout.Instance.IsPlaying;
     public bool HasPlayedCardThisTurn => cardsPlayedThisTurn > 0;
     public int CardsPlayedThisTurn => cardsPlayedThisTurn;
     /// <summary>本回合已打出的卡牌数；卡牌结算期间包含当前卡。</summary>
@@ -214,10 +217,33 @@ public class CardManager : MonoBehaviour
     }
     #endregion
 
-    public void StartTurn()
+    public void StartTurn(bool useDealAnimation = true)
+    {
+        if (IsDealingCards)
+        {
+            return;
+        }
+
+        ResetCardsPlayedThisTurn();
+
+        if (useDealAnimation &&
+            HandCardArcLayout.Instance != null &&
+            HandCardArcLayout.Instance.TryPlay(this))
+        {
+            return;
+        }
+
+        StartTurnImmediate();
+    }
+
+    public void ResetCardsPlayedThisTurn()
     {
         cardsPlayedThisTurn = 0;
+    }
 
+    private void StartTurnImmediate()
+    {
+        // 动画器不可用时的数据回退路径。
         if (hand.Count > 0) DiscardHand();
 
         foreach (CardData specialCard in specialCards)
@@ -227,27 +253,51 @@ public class CardManager : MonoBehaviour
             InstantiateCardUI(cardForHand);
         }
 
-        DrawCards(cardsDrawnEachTurn);
+        DrawCards(cardsDrawnEachTurn, false);
     }
 
-    public void DrawCards(int count)
+    public void DrawCards(int count, bool useDrawPileAnimation = true)
     {
         for (int i = 0; i < count; i++)
         {
-            if (drawPile.Count == 0)
-            {
-                if (discardPile.Count == 0) break;
-                drawPile.AddRange(discardPile);
-                discardPile.Clear();
-                Shuffle(drawPile);
-            }
+            if (!TryTakeNextDrawCard(out CardData drawnCard)) break;
+            CardData cardToAdd = drawnCard;
 
-            CardData drawnCard = drawPile[0];
-            drawPile.RemoveAt(0);
-            hand.Add(drawnCard);
-            InstantiateCardUI(drawnCard);
+            bool animationStarted =
+                useDrawPileAnimation &&
+                HandCardArcLayout.Instance != null &&
+                HandCardArcLayout.Instance.PlayDrawCardFromPile(
+                    cardToAdd,
+                    () => hand.Add(cardToAdd));
+            if (!animationStarted)
+            {
+                hand.Add(cardToAdd);
+                InstantiateCardUI(cardToAdd);
+            }
         }
         NotifyUIUpdate();
+    }
+
+    public bool TryTakeNextDrawCard(out CardData drawnCard)
+    {
+        drawnCard = null;
+
+        if (drawPile.Count == 0)
+        {
+            if (discardPile.Count == 0)
+            {
+                return false;
+            }
+
+            drawPile.AddRange(discardPile);
+            discardPile.Clear();
+            Shuffle(drawPile);
+        }
+
+        drawnCard = drawPile[0];
+        drawPile.RemoveAt(0);
+        NotifyUIUpdate();
+        return true;
     }
 
     private void InstantiateCardUI(CardData data)
@@ -275,7 +325,16 @@ public class CardManager : MonoBehaviour
         Vector2Int targetGrid,
         IReadOnlyCollection<Vector2Int> castTargetGrids = null)
     {
-        if (card == null) return;
+        if (card == null || IsDealingCards) return;
+
+        // 反击时间中不得绕过 UI 使用非反击卡，也不得在同一窗口使用第二张卡。
+        CounterTimeManager counterTimeManager = CounterTimeManager.Instance;
+        if (counterTimeManager != null &&
+            counterTimeManager.IsActive &&
+            !counterTimeManager.CanUseCard(card))
+        {
+            return;
+        }
 
         CombatStatsManager combatStats = CombatStatsManager.Instance;
         if (combatStats == null) return;
@@ -329,9 +388,19 @@ public class CardManager : MonoBehaviour
             discardPile.Add(card);
         }
 
-        Destroy(cardUIObj);
+        CardUI cardUI = cardUIObj != null ? cardUIObj.GetComponent<CardUI>() : null;
+        if (cardUI != null && HandCardArcLayout.Instance != null)
+        {
+            HandCardArcLayout.Instance.PlayCardDiscardAnimation(cardUI);
+        }
+        else if (cardUIObj != null)
+        {
+            Destroy(cardUIObj);
+        }
+
         combatStats.TriggerStatsChanged();
         NotifyUIUpdate();
+        CounterTimeManager.Instance?.NotifyCardPlayed(card);
     }
 
     private void ResolveCardEffects(
@@ -394,7 +463,7 @@ public class CardManager : MonoBehaviour
         }
 
         // 3. 护甲效果
-        if (card.effectFlags.HasFlag(CardEffectType.Armor) && card.armor != 0)
+        if (card.effectFlags.HasFlag(CardEffectType.Defense) && card.armor != 0)
         {
             combatStats.AddArmor(card.armor);
         }
@@ -513,6 +582,11 @@ public class CardManager : MonoBehaviour
     {
         UpdateAllCardsInGamePreview();
         OnPileCountChanged?.Invoke(drawPile.Count, discardPile.Count);
+    }
+
+    public void NotifyPileStateChanged()
+    {
+        NotifyUIUpdate();
     }
 
     public void RestoreDeckFromSave(

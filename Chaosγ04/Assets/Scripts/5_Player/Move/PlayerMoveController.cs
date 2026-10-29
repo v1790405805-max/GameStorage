@@ -108,7 +108,12 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
 
     private void Update()
     {
-        if (TurnManager.Instance != null && TurnManager.Instance.CurrentTurn != TurnState.Player)
+        bool isDealingCards =
+            CardManager.Instance != null &&
+            CardManager.Instance.IsDealingCards;
+
+        if ((TurnManager.Instance != null && TurnManager.Instance.CurrentTurn != TurnState.Player) ||
+            isDealingCards)
         {
             pendingPressCell = null;
             pressStartTime = -1f;

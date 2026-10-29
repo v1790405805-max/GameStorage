@@ -293,7 +293,24 @@ public class CardUI : MonoBehaviour,
     // --- 2. 拖拽交互 ---
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (isDisplayOnly || isSelectingMode) return;
+        if (isDisplayOnly || isSelectingMode)
+            return;
+
+        if (CardManager.Instance != null && CardManager.Instance.IsDealingCards)
+            return;
+
+        bool isOutsidePlayerTurn =
+            TurnManager.Instance != null &&
+            TurnManager.Instance.CurrentTurn != TurnState.Player;
+
+        if (isOutsidePlayerTurn)
+        {
+            CounterTimeManager counterTimeManager = CounterTimeManager.Instance;
+            if (counterTimeManager == null || !counterTimeManager.CanUseCard(currentCardData))
+            {
+                return;
+            }
+        }
 
         currentlySelectedCard = this;
         isDragging = true;
@@ -417,6 +434,11 @@ public class CardUI : MonoBehaviour,
         {
             CardDragController.Instance.OnCardDragEnd();
         }
+    }
+
+    public void ClearHighlightForPlayedAnimation()
+    {
+        UpdateHighlightState(false);
     }
 
     private void UpdateHighlightState(bool active)

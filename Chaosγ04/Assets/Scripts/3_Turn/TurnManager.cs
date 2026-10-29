@@ -47,6 +47,18 @@ public class TurnManager : MonoBehaviour
             return;
         }
         Instance = this;
+
+        CounterTimeManager.EnsureInstance(gameObject);
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance != this)
+        {
+            return;
+        }
+
+        Instance = null;
     }
 
     private void Start()
@@ -166,6 +178,11 @@ public class TurnManager : MonoBehaviour
 
     public void OnEndRoundButtonPressed()
     {
+        if (CardManager.Instance != null && CardManager.Instance.IsDealingCards)
+        {
+            return;
+        }
+
         if (currentTurn == TurnState.Player)
         {
             SetTurn(TurnState.Enemy);
@@ -240,7 +257,8 @@ public class TurnManager : MonoBehaviour
 
         if (CardManager.Instance != null)
         {
-            CardManager.Instance.StartTurn();
+            bool useDealAnimation = currentRoundCount > 1;
+            CardManager.Instance.StartTurn(useDealAnimation);
         }
     }
 
@@ -258,11 +276,6 @@ public class TurnManager : MonoBehaviour
         foreach (var monsterUI in allMonsterUIs)
         {
             monsterUI.HideIntent();
-        }
-
-        if (CardManager.Instance != null)
-        {
-            CardManager.Instance.DiscardHand();
         }
 
         enemyTurnCoroutine = StartCoroutine(ExecuteEnemyTurnSequence());

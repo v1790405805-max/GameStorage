@@ -24,6 +24,10 @@ public class MonsterAttackAction : MonsterActionBase
     [Tooltip("击中判定后，等待收招动作播放完毕的时长（秒），之后结束怪物行动")]
     [SerializeField] private float postAttackDuration = 0.25f;
 
+    [Header("反击时间")]
+    [Tooltip("反击卡打出后，等待其效果和动画表现再继续攻击的时长（秒）")]
+    [SerializeField, Min(0f)] private float counterCardPresentationDelay = 0.4f;
+
     private MonsterIdentityManager selfIdentity;
     private MonsterHateSystem hateSystem;
     private MonsterStats monsterStats;
@@ -49,6 +53,7 @@ public class MonsterAttackAction : MonsterActionBase
     private void OnDisable()
     {
         StopAttackRoutine();
+        CounterTimeManager.Instance?.CancelPending(this);
     }
 
     /// <summary>
@@ -130,14 +135,23 @@ public class MonsterAttackAction : MonsterActionBase
         currentAttackTarget = target;
         hasDealtDamage = false;
 
-        PlayAttackAnimation();
-
         StopAttackRoutine();
         attackRoutine = StartCoroutine(AttackSequenceRoutine());
     }
 
     private IEnumerator AttackSequenceRoutine()
     {
+        CounterTimeManager counterTimeManager = CounterTimeManager.Instance;
+        if (currentAttackTarget != null &&
+            currentAttackTarget.IsPlayer &&
+            counterTimeManager != null &&
+            counterTimeManager.TryOpen(this))
+        {
+            yield return counterTimeManager.WaitForResolution(counterCardPresentationDelay);
+        }
+
+        PlayAttackAnimation();
+
         // 等待动画中的 Hit 事件触发，若超时则通过 fallback 自动保底执行
         yield return new WaitForSeconds(hitDelayFallback);
 
@@ -324,6 +338,7 @@ public class MonsterAttackAction : MonsterActionBase
     {
         base.CancelAction();
         StopAttackRoutine();
+        CounterTimeManager.Instance?.CancelPending(this);
 
         if (monsterAnimator != null)
         {

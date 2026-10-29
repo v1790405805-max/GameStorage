@@ -1,45 +1,95 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 
 /// <summary>
-/// ×¨Òµ¼¶ÊÖÅÆ»¡ĞÎ/ÉÈĞÎÅÅ²¼¿ØÖÆÆ÷£º
-/// Î¬»¤¶ÀÁ¢µÄÎÈ¶¨Âß¼­¶ÓÁĞ£¬Ö§³Ö¿¨ÅÆ´¿Ô­ÉúÖÃ¶¥ÇÒ»¡Ïß×ø±ê¾ø²»ÂÒÅÜ¡£
+/// æ‰‹ç‰Œå¼§å½¢æ’å¸ƒä¸å›åˆæ¢æ‰‹åŠ¨ç”»æ§åˆ¶å™¨ã€‚
 /// </summary>
 public class HandCardArcLayout : MonoBehaviour
 {
+    private sealed class RuntimeDrawRequest
+    {
+        public CardData CardData;
+        public Action OnArrived;
+    }
+
     public static HandCardArcLayout Instance { get; private set; }
 
-    [Header("--- 1. ¿Õ¼äÓë°²È«ÇøÔ¼Êø ---")]
-    [Tooltip("ÊÖÅÆ¾ø¶ÔÔÊĞíÕ¼ÓÃµÄ×î´ó×Ü¿í¶È£¨º¬¿¨ÅÆ×ÔÉí¿í¶È£¬×óÓÒ±ßÔµ¾ø²»»á³¬³ö´Ë·¶Î§£©")]
+    [Header("--- 1. ç©ºé—´ä¸å®‰å…¨åŒºçº¦æŸ ---")]
+    [Tooltip("æ‰‹ç‰Œå…è®¸å ç”¨çš„æœ€å¤§æ€»å®½åº¦")]
     [SerializeField] private float maxSafeVisualWidth = 720f;
 
-    [Tooltip("µ¥ÕÅ¿¨ÅÆµÄ´óÖÂÊÓ¾õ¿í¶È£¨ÏñËØ£¬ÓÃÓÚ¼ÆËã±ßÔµ·ÀÔ½½ç£©")]
+    [Tooltip("å•å¼ å¡ç‰Œçš„å¤§è‡´è§†è§‰å®½åº¦")]
     [SerializeField] private float cardVisualWidth = 140f;
 
-    [Tooltip("ÊÖÅÆ½ÏÉÙÊ±µÄ×ÔÈ»»ù´¡¼ä¾à£¨ÏñËØ£¬±£Ö¤ÉÙÅÆÊ±½ôÃÜ²»É¢¿ª£©")]
+    [Tooltip("æ‰‹ç‰Œè¾ƒå°‘æ—¶çš„è‡ªç„¶åŸºç¡€é—´è·")]
     [SerializeField] private float naturalSpacing = 135f;
 
-    [Tooltip("¼«¶Ë¶àÅÆÊ±ÔÊĞíÑ¹Ëõµ½µÄ×îĞ¡¼«ÏŞ¼ä¾à£¨ÏñËØ£©")]
+    [Tooltip("æç«¯å¤šç‰Œæ—¶å…è®¸å‹ç¼©åˆ°çš„æœ€å°é—´è·")]
     [SerializeField] private float minAllowedSpacing = 45f;
 
-    [Header("--- 2. »¡ĞÎ¼¸ºÎ²ÎÊı ---")]
-    [Tooltip("Å×ÎïÏß¹°Æğ¸ß¶ÈÏµÊı£¨½¨Òé 8 ~ 14£©")]
+    [Header("--- 2. å¼§å½¢å‡ ä½•å‚æ•° ---")]
+    [Tooltip("æŠ›ç‰©çº¿æ‹±èµ·é«˜åº¦ç³»æ•°")]
     [SerializeField] private float curveHeightFactor = 10f;
 
-    [Tooltip("¿¨ÅÆĞı×ªÇã½Ç²½³¤£¨¶ÈÊı£¬½¨Òé 2.5 ~ 4.0£©")]
+    [Tooltip("å¡ç‰Œæ—‹è½¬å€¾è§’æ­¥é•¿")]
     [SerializeField] private float baseAngleStep = 3.2f;
 
-    [Header("--- 3. ²¹¼ä¶¯»­ÅäÖÃ ---")]
-    [Tooltip("¿¨ÅÆ¹éÎ»¶¯»­Ê±³¤£¨Ãë£©")]
+    [Header("--- 3. è¡¥é—´åŠ¨ç”»é…ç½® ---")]
+    [Tooltip("å¡ç‰Œå½’ä½åŠ¨ç”»æ—¶é•¿")]
     [SerializeField] private float arrangeDuration = 0.22f;
 
-    [Tooltip("ÅÅ²¼»º¶¯ÇúÏß")]
+    [Tooltip("æ’å¸ƒç¼“åŠ¨æ›²çº¿")]
     [SerializeField] private Ease arrangeEase = Ease.OutCubic;
 
-    // ÄÚ²¿ÎÈ¶¨µÄÊÖÅÆÂß¼­¶ÓÁĞ£¬¾ø²»Ëæ Hierarchy Ë³Ğò±ä¸ü¶øÂÒĞò
+    [Header("--- 4. å›åˆæ¢æ‰‹åŠ¨ç”» ---")]
+    [Tooltip("æŠ½ç‰Œå †çš„ UI ç›®æ ‡ï¼›ç•™ç©ºæ—¶è‡ªåŠ¨æŸ¥æ‰¾åä¸º DrawPile çš„å¯¹è±¡")]
+    [SerializeField] private RectTransform drawPileTarget;
+
+    [Tooltip("å¼ƒç‰Œå †çš„ UI ç›®æ ‡ï¼›ç•™ç©ºæ—¶è‡ªåŠ¨æŸ¥æ‰¾åä¸º DiscardPile çš„å¯¹è±¡")]
+    [SerializeField] private RectTransform discardPileTarget;
+
+    [SerializeField, Min(0.01f)] private float handGatherDuration = 0.2f;
+    [SerializeField, Min(0.01f)] private float pileShrinkDuration = 0.13f;
+    [SerializeField, Min(0.01f)] private float discardArcDuration = 0.35f;
+    [SerializeField, Min(0f)] private float discardArcInterval = 0.035f;
+    [SerializeField, Min(0.01f)] private float drawMoveDuration = 0.3f;
+    [SerializeField, Min(0f)] private float drawPileHoldDuration = 0.08f;
+    [Tooltip("æ–°å¡é€å¼ ä» DrawPile ç§»åŠ¨åˆ°ä¸­å¿ƒçš„é—´éš”")]
+    [SerializeField, Min(0f)] private float drawLaunchInterval = 0.038f;
+    [SerializeField, Min(1f)] private float revealSpacing = 135f;
+    [SerializeField, Min(1f)] private float maxRevealWidth = 900f;
+    [SerializeField, Min(0.01f)] private float lineSpreadDuration = 0.33f;
+    [SerializeField, Min(0f)] private float arcHeight = 180f;
+    [SerializeField, Min(0.01f)] private float finalSpreadDuration = 0.28f;
+    [Tooltip("æ¢æ‰‹åŠ¨ç”»æœŸé—´å¼§å½¢å½’ä½ä½¿ç”¨çš„å›ºå®šæ—¶é•¿")]
+    [SerializeField, Min(0.01f)] private float drawArrangeDuration = 0.24f;
+
+    [Header("--- 5. å‡ºç‰Œç¦»åœºåŠ¨ç”» ---")]
+    [SerializeField, Min(0.01f)] private float playedCardGatherDuration = 0.3f;
+    [SerializeField, Min(0f)] private float playedCardCenterHoldDuration = 0.7f;
+    [SerializeField, Min(0.01f)] private float playedCardDiscardDuration = 0.36f;
+    [Tooltip("å‡ºç‰Œèšæ‹¢ç‚¹åœ¨ç”»é¢å®½åº¦ä¸Šçš„å½’ä¸€åŒ–ä½ç½®")]
+    [SerializeField, Range(0f, 1f)] private float playedCardFocusScreenX = 0.88f;
+    [Tooltip("å‡ºç‰Œèšæ‹¢ç‚¹åœ¨ç”»é¢é«˜åº¦ä¸Šçš„å½’ä¸€åŒ–ä½ç½®")]
+    [SerializeField, Range(0f, 1f)] private float playedCardFocusScreenY = 0.63f;
+    [SerializeField] private Ease pileArcEase = Ease.InOutCubic;
+    [SerializeField] private Ease drawMoveEase = Ease.OutCubic;
+    [SerializeField] private Ease lineSpreadEase = Ease.OutCubic;
+
     private readonly List<CardUI> trackedCards = new List<CardUI>();
+    private readonly Queue<RuntimeDrawRequest> runtimeDrawQueue =
+        new Queue<RuntimeDrawRequest>();
     private int lastChildCount = -1;
+
+    private CardManager cardManager;
+    private RectTransform flightLayer;
+    private Coroutine runtimeDrawCoroutine;
+    private bool isPlaying;
+
+    public bool IsPlaying => isPlaying;
 
     private void Awake()
     {
@@ -53,8 +103,6 @@ public class HandCardArcLayout : MonoBehaviour
 
     private void OnTransformChildrenChanged()
     {
-        // ¹Ø¼ü±£»¤£º½öµ±¿¨ÅÆÊıÁ¿ÕæÕı·¢ÉúÔö¼õ£¨³éÅÆ/´ò³ö£©Ê±²ÅË¢ĞÂ²¼¾Ö£¬
-        // ĞüÍ£ÖÃ¶¥ÒıÆğµÄĞÖµÜ½ÚµãË³Ğòµ÷»»Ö±½ÓºöÂÔ£¬¶Å¾øËÀÑ­»·ÓëÎ»ÖÃÂÒ·É£¡
         if (transform.childCount != lastChildCount)
         {
             lastChildCount = transform.childCount;
@@ -71,14 +119,13 @@ public class HandCardArcLayout : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Í¬²½ÎÈ¶¨µÄÊÖÅÆÁĞ±í£ºÒÆ³ıÊ§Ğ§¿¨ÅÆ£¬°´Ìí¼ÓË³Ğò×·¼ÓĞÂ³éµ½µÄ¿¨ÅÆ
-    /// </summary>
     private void SyncTrackedCards()
     {
         for (int i = trackedCards.Count - 1; i >= 0; i--)
         {
-            if (trackedCards[i] == null || !trackedCards[i].gameObject.activeSelf || trackedCards[i].transform.parent != transform)
+            if (trackedCards[i] == null ||
+                !trackedCards[i].gameObject.activeSelf ||
+                trackedCards[i].transform.parent != transform)
             {
                 trackedCards.RemoveAt(i);
             }
@@ -94,18 +141,12 @@ public class HandCardArcLayout : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// ¿¨ÅÆÖÃ¶¥£ºÖ±½ÓÒÆµ½Í¬¼¶Ä©Î²£¬ÔÚ UGUI ÖĞÓÀÔ¶äÖÈ¾ÔÚÍ¬²ã×î±íÃæ
-    /// </summary>
     public void BringCardToFront(CardUI card)
     {
         if (card == null || card.transform.parent != transform) return;
         card.transform.SetAsLastSibling();
     }
 
-    /// <summary>
-    /// ¿¨ÅÆ»¹Ô­£º¸ù¾İËüÔÚÂß¼­¶ÓÁĞÖĞµÄÕıÈ·²ÛÎ»»¹Ô­ÎïÀí²ã¼¶
-    /// </summary>
     public void RestoreCardOrder(CardUI card)
     {
         if (card == null || card.transform.parent != transform) return;
@@ -117,7 +158,7 @@ public class HandCardArcLayout : MonoBehaviour
     }
 
     /// <summary>
-    /// È«¾ÖË¢ĞÂÊÖÅÆ»¡ÏßÅÅ²¼
+    /// åˆ·æ–°å…¨éƒ¨æ‰‹ç‰Œçš„å¼§å½¢ä½ç½®ã€‚
     /// </summary>
     public void RefreshLayout()
     {
@@ -125,8 +166,8 @@ public class HandCardArcLayout : MonoBehaviour
 
         int count = trackedCards.Count;
         if (count == 0) return;
+        float layoutDuration = isPlaying ? drawArrangeDuration : arrangeDuration;
 
-        // 1. µ¥ÕÅÊÖÅÆÖ±½ÓÕıÖĞ¾ÓÖĞ
         if (count == 1)
         {
             CardUI singleCard = trackedCards[0];
@@ -134,31 +175,30 @@ public class HandCardArcLayout : MonoBehaviour
             {
                 singleCard.UpdateHomeTransform(Vector3.zero, Vector3.zero);
                 singleCard.transform.DOKill();
-                singleCard.transform.DOLocalMove(Vector3.zero, arrangeDuration).SetEase(arrangeEase);
-                singleCard.transform.DOLocalRotate(Vector3.zero, arrangeDuration).SetEase(arrangeEase);
+                singleCard.transform.DOLocalMove(Vector3.zero, layoutDuration).SetEase(arrangeEase);
+                singleCard.transform.DOLocalRotate(Vector3.zero, layoutDuration).SetEase(arrangeEase);
             }
             return;
         }
 
-        // 2. ºËĞÄËã·¨£º°²È«ÇøÏŞÖÆÓë×ÔÊÊÓ¦Ñ¹Ëõ±È¼ÆËã
         float maxCenterSpan = Mathf.Max(0f, maxSafeVisualWidth - cardVisualWidth);
         float autoSpacing = maxCenterSpan / (count - 1);
-        float effectiveSpacing = Mathf.Clamp(Mathf.Min(naturalSpacing, autoSpacing), minAllowedSpacing, naturalSpacing);
+        float effectiveSpacing = Mathf.Clamp(
+            Mathf.Min(naturalSpacing, autoSpacing),
+            minAllowedSpacing,
+            naturalSpacing);
 
         float compressFactor = Mathf.Clamp01(effectiveSpacing / naturalSpacing);
         float currentAngleStep = baseAngleStep * Mathf.Lerp(0.65f, 1f, compressFactor);
         float currentHeightFactor = curveHeightFactor * Mathf.Lerp(0.7f, 1f, compressFactor);
-
         float midIndex = (count - 1) / 2f;
 
-        // 3. ÑÏ¸ñ±éÀú trackedCards£¨¶ø²»ÊÇ transform ±éÀú£©£¬±£Ö¤¿¨ÅÆ×ø±ê¾ø¶ÔËø¶¨ÔÚÔ­²ÛÎ»
         for (int i = 0; i < count; i++)
         {
             CardUI card = trackedCards[i];
             if (card == null || card.IsDragging) continue;
 
             float offset = i - midIndex;
-
             float targetX = offset * effectiveSpacing;
             float targetY = -Mathf.Pow(offset, 2f) * currentHeightFactor;
             float targetAngle = -offset * currentAngleStep;
@@ -168,11 +208,827 @@ public class HandCardArcLayout : MonoBehaviour
 
             card.transform.SetSiblingIndex(i);
             card.UpdateHomeTransform(targetPos, targetRot);
-
             card.transform.DOKill();
-            card.transform.DOLocalMove(targetPos, arrangeDuration).SetEase(arrangeEase);
-            card.transform.DOLocalRotate(targetRot, arrangeDuration).SetEase(arrangeEase);
+            card.transform.DOLocalMove(targetPos, layoutDuration).SetEase(arrangeEase);
+            card.transform.DOLocalRotate(targetRot, layoutDuration).SetEase(arrangeEase);
         }
+    }
+
+    /// <summary>
+    /// å‡ºç‰Œç¡®è®¤åçš„ç¦»åœºåŠ¨ç”»ï¼šèšæ‹¢ã€ç¼©å°ã€æ²¿å¼§çº¿è¿›å…¥å¼ƒç‰Œå †å¹¶é”€æ¯ã€‚
+    /// </summary>
+    public void PlayCardDiscardAnimation(CardUI card)
+    {
+        if (card == null)
+        {
+            return;
+        }
+
+        if (cardManager == null)
+        {
+            cardManager = CardManager.Instance;
+        }
+
+        ResolvePileTargets();
+        StartCoroutine(PlayCardDiscardRoutine(card));
+    }
+
+    /// <summary>
+    /// å›åˆä¸­æŠ½ç‰Œï¼šä» DrawPile åŸä½ç”Ÿæˆï¼Œç›´çº¿è¿›å…¥æ‰‹ç‰ŒåŒºåŸŸæœ€å³ä¾§ã€‚
+    /// </summary>
+    public bool PlayDrawCardFromPile(CardData cardData, Action onArrived = null)
+    {
+        if (cardData == null)
+        {
+            return false;
+        }
+
+        if (cardManager == null)
+        {
+            cardManager = CardManager.Instance;
+        }
+
+        if (cardManager == null ||
+            cardManager.cardPrefab == null ||
+            cardManager.handUIContainer == null)
+        {
+            return false;
+        }
+
+        ResolvePileTargets();
+        runtimeDrawQueue.Enqueue(new RuntimeDrawRequest
+        {
+            CardData = cardData,
+            OnArrived = onArrived
+        });
+        if (runtimeDrawCoroutine == null)
+        {
+            runtimeDrawCoroutine = StartCoroutine(ProcessRuntimeDrawQueue());
+        }
+
+        return true;
+    }
+
+    private IEnumerator ProcessRuntimeDrawQueue()
+    {
+        while (runtimeDrawQueue.Count > 0)
+        {
+            RuntimeDrawRequest request = runtimeDrawQueue.Dequeue();
+            if (request.CardData != null)
+            {
+                yield return AnimateRuntimeDrawCard(request);
+            }
+        }
+
+        runtimeDrawCoroutine = null;
+    }
+
+    private IEnumerator AnimateRuntimeDrawCard(RuntimeDrawRequest request)
+    {
+        CardData cardData = request.CardData;
+        RectTransform animationLayer = CreateCardAnimationLayer("RuntimeDrawCardFlightLayer");
+        Vector3 drawWorldPosition = GetPileWorldPosition(
+            drawPileTarget,
+            Vector3.zero);
+        float pileScale = GetPileCardScale();
+
+        CardUI card = InstantiateCardView(
+            cardData,
+            drawWorldPosition,
+            pileScale,
+            animationLayer);
+        if (card == null)
+        {
+            if (animationLayer != null && animationLayer != transform)
+            {
+                Destroy(animationLayer.gameObject);
+            }
+            yield break;
+        }
+
+        SetCardRaycasts(card, false);
+        GetCardCanvasGroup(card).alpha = 1f;
+        yield return null;
+
+        Vector3 entryPosition = GetHandRightEntryLocalPosition(animationLayer);
+        Sequence moveSequence = DOTween.Sequence();
+        moveSequence.Append(
+            card.transform.DOLocalMove(entryPosition, drawMoveDuration)
+                .SetEase(drawMoveEase));
+        moveSequence.Join(
+            card.transform.DOScale(Vector3.one * cardManager.cardSpawnScale, drawMoveDuration)
+                .SetEase(drawMoveEase));
+        moveSequence.Join(
+            card.transform.DOLocalRotate(Vector3.zero, drawMoveDuration)
+                .SetEase(drawMoveEase));
+        yield return moveSequence.WaitForCompletion();
+
+        if (card == null)
+        {
+            if (animationLayer != null && animationLayer != transform)
+            {
+                Destroy(animationLayer.gameObject);
+            }
+            yield break;
+        }
+
+        card.transform.SetParent(cardManager.handUIContainer, false);
+        RectTransform rect = card.GetComponent<RectTransform>();
+        if (rect != null)
+        {
+            rect.localPosition = entryPosition;
+            rect.localScale = Vector3.one * cardManager.cardSpawnScale;
+        }
+
+        request.OnArrived?.Invoke();
+        card.handAreaRect = cardManager.handUIContainer as RectTransform;
+        RefreshLayout();
+
+        if (arrangeDuration > 0f)
+        {
+            yield return new WaitForSeconds(arrangeDuration);
+        }
+
+        SetCardRaycasts(card, true);
+        if (animationLayer != null && animationLayer != transform)
+        {
+            Destroy(animationLayer.gameObject);
+        }
+    }
+
+    private Vector3 GetHandRightEntryLocalPosition(RectTransform coordinateSpace)
+    {
+        RectTransform handRect = cardManager.handUIContainer as RectTransform;
+        float halfCardWidth = cardVisualWidth * 0.5f;
+        float rightX = handRect != null && handRect.rect.width > 0f
+            ? handRect.rect.xMax - halfCardWidth
+            : maxSafeVisualWidth * 0.5f - halfCardWidth;
+
+        if (coordinateSpace == null)
+        {
+            return new Vector3(rightX, 0f, 0f);
+        }
+
+        Vector3 worldPosition = cardManager.handUIContainer.TransformPoint(
+            new Vector3(rightX, 0f, 0f));
+        return coordinateSpace.InverseTransformPoint(worldPosition);
+    }
+
+    private IEnumerator PlayCardDiscardRoutine(CardUI card)
+    {
+        RectTransform animationLayer = CreateCardAnimationLayer("PlayedCardFlightLayer");
+        card.transform.DOKill();
+        card.ClearHighlightForPlayedAnimation();
+        SetCardRaycasts(card, false);
+
+        if (animationLayer != null && animationLayer != transform)
+        {
+            card.transform.SetParent(animationLayer, true);
+        }
+
+        RefreshLayout();
+
+        Vector3 centerPosition = GetPlayedCardFocusLocalPosition(animationLayer);
+        float pileScale = GetPileCardScale();
+        float normalScale = cardManager != null ? cardManager.cardSpawnScale : 1f;
+        card.transform.localScale = Vector3.one * normalScale;
+
+        Sequence gatherSequence = DOTween.Sequence();
+        gatherSequence.Append(
+            card.transform.DOLocalMove(centerPosition, playedCardGatherDuration)
+                .SetEase(arrangeEase));
+        gatherSequence.Join(
+            card.transform.DOLocalRotate(Vector3.zero, playedCardGatherDuration)
+                .SetEase(arrangeEase));
+        gatherSequence.Join(
+            card.transform.DOScale(Vector3.one * normalScale * 1.5f, playedCardGatherDuration)
+                .SetEase(Ease.OutCubic));
+        yield return gatherSequence.WaitForCompletion();
+
+        if (playedCardCenterHoldDuration > 0f)
+        {
+            yield return new WaitForSeconds(playedCardCenterHoldDuration);
+        }
+
+        RectTransform coordinateSpace = animationLayer != null
+            ? animationLayer
+            : transform as RectTransform;
+        Vector3 discardPosition = GetPileLocalPosition(
+            discardPileTarget,
+            coordinateSpace,
+            centerPosition);
+        Vector3[] path = BuildArcPath(centerPosition, discardPosition);
+
+        CanvasGroup canvasGroup = GetCardCanvasGroup(card);
+        canvasGroup.alpha = 1f;
+
+        Sequence discardSequence = DOTween.Sequence();
+        discardSequence.Append(
+            card.transform.DOLocalPath(
+                    path,
+                    playedCardDiscardDuration,
+                    PathType.CatmullRom)
+                .SetEase(pileArcEase));
+        discardSequence.Join(
+            card.transform.DOLocalRotate(Vector3.zero, playedCardDiscardDuration)
+                .SetEase(pileArcEase));
+        discardSequence.Join(
+            card.transform.DOScale(Vector3.one * pileScale, playedCardDiscardDuration)
+                .SetEase(Ease.InOutQuad));
+
+        float fadeDuration = Mathf.Min(0.12f, playedCardDiscardDuration * 0.3f);
+        discardSequence.Join(
+            canvasGroup.DOFade(0f, fadeDuration)
+                .SetDelay(Mathf.Max(0f, playedCardDiscardDuration - fadeDuration)));
+        yield return discardSequence.WaitForCompletion();
+
+        if (card != null)
+        {
+            Destroy(card.gameObject);
+        }
+
+        if (animationLayer != null && animationLayer != transform)
+        {
+            Destroy(animationLayer.gameObject);
+        }
+    }
+
+    private Vector3 GetPlayedCardFocusLocalPosition(RectTransform coordinateSpace)
+    {
+        if (cardManager == null || cardManager.handUIContainer == null)
+        {
+            return Vector3.zero;
+        }
+
+        RectTransform targetSpace = coordinateSpace != null
+            ? coordinateSpace
+            : cardManager.handUIContainer as RectTransform;
+        if (targetSpace == null)
+        {
+            return Vector3.zero;
+        }
+
+        Canvas canvas = cardManager.handUIContainer.GetComponentInParent<Canvas>();
+        Camera uiCamera = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay
+            ? canvas.worldCamera
+            : null;
+
+        Vector2 screenPoint = new Vector2(
+            Screen.width * playedCardFocusScreenX,
+            Screen.height * playedCardFocusScreenY);
+
+        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                targetSpace,
+                screenPoint,
+                uiCamera,
+                out Vector2 localPoint))
+        {
+            return new Vector3(localPoint.x, localPoint.y, 0f);
+        }
+
+        return Vector3.zero;
+    }
+
+    /// <summary>
+    /// å°è¯•æ’­æ”¾æ•Œæ–¹å›åˆç»“æŸåçš„å®Œæ•´æ¢æ‰‹åŠ¨ç”»ã€‚
+    /// </summary>
+    public bool TryPlay(CardManager manager)
+    {
+        if (isPlaying)
+        {
+            return true;
+        }
+
+        cardManager = manager;
+        if (cardManager == null ||
+            cardManager.handUIContainer == null ||
+            cardManager.cardPrefab == null)
+        {
+            return false;
+        }
+
+        isPlaying = true;
+        StartCoroutine(PlayRoutine());
+        return true;
+    }
+
+    private IEnumerator PlayRoutine()
+    {
+        try
+        {
+            cardManager.ResetCardsPlayedThisTurn();
+            ResolvePileTargets();
+            flightLayer = CreateCardAnimationLayer("CardDealFlightLayer");
+            Vector3 handCenter = new Vector3(0f, cardManager.cardHeightOffset, 0f);
+
+            yield return AnimateDiscardHandToPile(handCenter);
+            yield return AnimateDrawNewHandFromPile(handCenter);
+
+            foreach (CardUI card in GetHandCardViews())
+            {
+                SetCardRaycasts(card, true);
+                GetCardCanvasGroup(card).alpha = 1f;
+            }
+
+            cardManager.NotifyPileStateChanged();
+        }
+        finally
+        {
+            if (flightLayer != null)
+            {
+                Destroy(flightLayer.gameObject);
+                flightLayer = null;
+            }
+
+            isPlaying = false;
+        }
+    }
+
+    private IEnumerator AnimateDiscardHandToPile(Vector3 handCenter)
+    {
+        List<CardUI> oldCards = GetHandCardViews();
+        if (oldCards.Count == 0)
+        {
+            cardManager.hand.Clear();
+            cardManager.NotifyPileStateChanged();
+            yield break;
+        }
+
+        foreach (CardUI card in oldCards)
+        {
+            if (card == null) continue;
+            card.transform.DOKill();
+            SetCardRaycasts(card, false);
+            if (flightLayer != null)
+            {
+                card.transform.SetParent(flightLayer, true);
+            }
+        }
+
+        Sequence gatherSequence = DOTween.Sequence();
+        foreach (CardUI card in oldCards)
+        {
+            if (card == null) continue;
+            gatherSequence.Join(
+                card.transform.DOLocalMove(handCenter, handGatherDuration)
+                    .SetEase(Ease.OutCubic));
+            gatherSequence.Join(
+                card.transform.DOLocalRotate(Vector3.zero, handGatherDuration)
+                    .SetEase(Ease.OutCubic));
+        }
+
+        if (gatherSequence.IsActive())
+        {
+            yield return gatherSequence.WaitForCompletion();
+        }
+
+        float pileScale = GetPileCardScale();
+        Sequence shrinkSequence = DOTween.Sequence();
+        foreach (CardUI card in oldCards)
+        {
+            if (card == null) continue;
+            shrinkSequence.Join(
+                card.transform.DOScale(Vector3.one * pileScale, pileShrinkDuration)
+                    .SetEase(Ease.InOutQuad));
+        }
+
+        if (shrinkSequence.IsActive())
+        {
+            yield return shrinkSequence.WaitForCompletion();
+        }
+
+        Vector3 discardPosition = GetPileLocalPosition(discardPileTarget, handCenter);
+        List<Tween> discardTweens = new List<Tween>();
+
+        for (int i = 0; i < oldCards.Count; i++)
+        {
+            CardUI card = oldCards[i];
+            if (card == null) continue;
+
+            CardUI cardToDiscard = card;
+            Vector3 startPosition = card.transform.localPosition;
+            Vector3[] path = BuildArcPath(startPosition, discardPosition);
+            float targetAngle = Mathf.Lerp(
+                -12f,
+                12f,
+                oldCards.Count > 1 ? (float)i / (oldCards.Count - 1) : 0.5f);
+
+            CanvasGroup canvasGroup = GetCardCanvasGroup(card);
+            canvasGroup.alpha = 1f;
+
+            Sequence cardSequence = DOTween.Sequence();
+            cardSequence.Append(
+                card.transform.DOLocalPath(path, discardArcDuration, PathType.CatmullRom)
+                    .SetEase(pileArcEase));
+            cardSequence.Join(
+                card.transform.DOLocalRotate(new Vector3(0f, 0f, targetAngle), discardArcDuration)
+                    .SetEase(pileArcEase));
+
+            float fadeDuration = Mathf.Min(0.12f, discardArcDuration * 0.3f);
+            cardSequence.Join(
+                canvasGroup.DOFade(0f, fadeDuration)
+                    .SetDelay(Mathf.Max(0f, discardArcDuration - fadeDuration)));
+            cardSequence.SetDelay(i * discardArcInterval);
+            cardSequence.OnComplete(() => CompleteDiscardedCard(cardToDiscard));
+            discardTweens.Add(cardSequence);
+        }
+
+        yield return WaitForTweens(discardTweens);
+        cardManager.hand.Clear();
+        cardManager.NotifyPileStateChanged();
+    }
+
+    private IEnumerator AnimateDrawNewHandFromPile(Vector3 handCenter)
+    {
+        Vector3 drawPosition = GetPileWorldPosition(drawPileTarget, handCenter);
+        float pileScale = GetPileCardScale();
+        List<CardUI> newCards = new List<CardUI>();
+        int visualIndex = 0;
+
+        foreach (CardData specialCard in cardManager.specialCards)
+        {
+            if (specialCard == null) continue;
+
+            CardData cardForHand = specialCard.Clone();
+            cardManager.hand.Add(cardForHand);
+            CardUI cardUI = CreateDrawCardView(
+                cardForHand,
+                drawPosition,
+                pileScale,
+                visualIndex++);
+            if (cardUI != null)
+            {
+                newCards.Add(cardUI);
+            }
+        }
+
+        for (int i = 0; i < cardManager.cardsDrawnEachTurn; i++)
+        {
+            if (!cardManager.TryTakeNextDrawCard(out CardData drawnCard))
+            {
+                break;
+            }
+
+            cardManager.hand.Add(drawnCard);
+            CardUI cardUI = CreateDrawCardView(
+                drawnCard,
+                drawPosition,
+                pileScale,
+                visualIndex++);
+            if (cardUI != null)
+            {
+                newCards.Add(cardUI);
+            }
+        }
+
+        yield return null;
+        if (drawPileHoldDuration > 0f)
+        {
+            yield return new WaitForSeconds(drawPileHoldDuration);
+        }
+
+        List<Tween> centerTweens = new List<Tween>();
+        for (int i = 0; i < newCards.Count; i++)
+        {
+            StartCenterMove(newCards[i], centerTweens);
+            if (drawLaunchInterval > 0f && i < newCards.Count - 1)
+            {
+                yield return new WaitForSeconds(drawLaunchInterval);
+            }
+        }
+        yield return WaitForTweens(centerTweens);
+
+        List<Tween> lineTweens = new List<Tween>();
+        for (int i = 0; i < newCards.Count; i++)
+        {
+            StartLineSpread(newCards[i], GetRevealPosition(i, newCards.Count), lineTweens);
+        }
+        yield return WaitForTweens(lineTweens);
+
+        for (int i = 0; i < newCards.Count; i++)
+        {
+            CardUI card = newCards[i];
+            if (card == null) continue;
+
+            card.transform.SetParent(cardManager.handUIContainer, false);
+            RectTransform rect = card.GetComponent<RectTransform>();
+            if (rect != null)
+            {
+                rect.localPosition = GetRevealPosition(i, newCards.Count);
+                rect.localScale = Vector3.one * cardManager.cardSpawnScale;
+                rect.localRotation = Quaternion.identity;
+            }
+
+            card.handAreaRect = cardManager.handUIContainer as RectTransform;
+        }
+
+        RefreshLayout();
+        if (finalSpreadDuration > 0f)
+        {
+            yield return new WaitForSeconds(finalSpreadDuration);
+        }
+
+        cardManager.NotifyPileStateChanged();
+    }
+
+    private void StartCenterMove(CardUI card, List<Tween> tweens)
+    {
+        if (card == null)
+        {
+            return;
+        }
+
+        RectTransform rect = card.GetComponent<RectTransform>();
+        if (rect == null)
+        {
+            return;
+        }
+
+        Sequence sequence = DOTween.Sequence();
+        sequence.Append(rect.DOLocalMove(Vector3.zero, drawMoveDuration).SetEase(drawMoveEase));
+        sequence.Join(
+            rect.DOScale(Vector3.one * cardManager.cardSpawnScale, drawMoveDuration)
+                .SetEase(drawMoveEase));
+        sequence.Join(
+            rect.DOLocalRotate(Vector3.zero, drawMoveDuration)
+                .SetEase(drawMoveEase));
+        tweens.Add(sequence);
+    }
+
+    private void StartLineSpread(CardUI card, Vector3 targetPosition, List<Tween> tweens)
+    {
+        if (card == null)
+        {
+            return;
+        }
+
+        tweens.Add(
+            card.transform.DOLocalMove(targetPosition, lineSpreadDuration)
+                .SetEase(lineSpreadEase));
+    }
+
+    private Vector3 GetRevealPosition(int index, int count)
+    {
+        if (count <= 1)
+        {
+            return Vector3.zero;
+        }
+
+        float availableSpacing = maxRevealWidth / (count - 1);
+        float spacing = Mathf.Min(revealSpacing, availableSpacing);
+        float midpoint = (count - 1) * 0.5f;
+        return new Vector3((index - midpoint) * spacing, 0f, 0f);
+    }
+
+    private CardUI CreateDrawCardView(
+        CardData cardData,
+        Vector3 drawPosition,
+        float pileScale,
+        int visualIndex)
+    {
+        CardUI cardUI = InstantiateCardView(cardData, drawPosition, pileScale);
+        if (cardUI == null)
+        {
+            return null;
+        }
+
+        SetCardRaycasts(cardUI, false);
+        GetCardCanvasGroup(cardUI).alpha = 1f;
+
+        RectTransform rect = cardUI.GetComponent<RectTransform>();
+        if (rect != null)
+        {
+            float startAngle = visualIndex % 2 == 0 ? -8f : 8f;
+            rect.localRotation = Quaternion.Euler(0f, 0f, startAngle);
+        }
+
+        return cardUI;
+    }
+
+    private CardUI InstantiateCardView(
+        CardData data,
+        Vector3 worldPosition,
+        float scale,
+        Transform parentOverride = null)
+    {
+        Transform parent = parentOverride != null
+            ? parentOverride
+            : flightLayer != null
+            ? flightLayer
+            : cardManager.handUIContainer;
+        GameObject cardObject = Instantiate(cardManager.cardPrefab, parent);
+        RectTransform rect = cardObject.GetComponent<RectTransform>();
+        if (rect != null)
+        {
+            rect.position = worldPosition;
+            rect.localScale = Vector3.one * scale;
+        }
+
+        CardUI cardUI = cardObject.GetComponent<CardUI>();
+        if (cardUI != null)
+        {
+            cardUI.Setup(data);
+        }
+
+        return cardUI;
+    }
+
+    private void CompleteDiscardedCard(CardUI card)
+    {
+        if (card == null)
+        {
+            return;
+        }
+
+        CardData cardData = card.CurrentCardData;
+        if (cardData != null)
+        {
+            cardManager.hand.Remove(cardData);
+            if (cardData.type != CardType.Special)
+            {
+                cardManager.discardPile.Add(cardData);
+            }
+        }
+
+        Destroy(card.gameObject);
+        cardManager.NotifyPileStateChanged();
+    }
+
+    private List<CardUI> GetHandCardViews()
+    {
+        List<CardUI> cards = new List<CardUI>();
+        if (cardManager == null || cardManager.handUIContainer == null)
+        {
+            return cards;
+        }
+
+        foreach (Transform child in cardManager.handUIContainer)
+        {
+            CardUI card = child.GetComponent<CardUI>();
+            if (card != null)
+            {
+                cards.Add(card);
+            }
+        }
+
+        return cards;
+    }
+
+    private RectTransform CreateCardAnimationLayer(string layerName)
+    {
+        RectTransform source = cardManager.handUIContainer as RectTransform;
+        if (source == null || source.parent == null)
+        {
+            return source;
+        }
+
+        GameObject layerObject = new GameObject(layerName, typeof(RectTransform));
+        RectTransform layer = layerObject.GetComponent<RectTransform>();
+        layer.SetParent(source.parent, false);
+        layer.anchorMin = source.anchorMin;
+        layer.anchorMax = source.anchorMax;
+        layer.pivot = source.pivot;
+        layer.anchoredPosition = source.anchoredPosition;
+        layer.sizeDelta = source.sizeDelta;
+        layer.localRotation = source.localRotation;
+        layer.localScale = source.localScale;
+        layer.SetAsLastSibling();
+        return layer;
+    }
+
+    private void ResolvePileTargets()
+    {
+        if (drawPileTarget == null)
+        {
+            drawPileTarget = FindRectTransform("DrawPile");
+        }
+
+        if (discardPileTarget == null)
+        {
+            discardPileTarget = FindRectTransform("DiscardPile");
+        }
+    }
+
+    private static RectTransform FindRectTransform(string objectName)
+    {
+        GameObject target = GameObject.Find(objectName);
+        return target != null ? target.GetComponent<RectTransform>() : null;
+    }
+
+    private Vector3 GetPileLocalPosition(RectTransform pile, Vector3 fallback)
+    {
+        RectTransform coordinateSpace = flightLayer != null
+            ? flightLayer
+            : cardManager.handUIContainer as RectTransform;
+        return GetPileLocalPosition(pile, coordinateSpace, fallback);
+    }
+
+    private Vector3 GetPileLocalPosition(
+        RectTransform pile,
+        RectTransform coordinateSpace,
+        Vector3 fallback)
+    {
+        if (pile == null || coordinateSpace == null)
+        {
+            return fallback;
+        }
+
+        Vector3 pileWorldCenter = pile.TransformPoint(pile.rect.center);
+        return coordinateSpace.InverseTransformPoint(pileWorldCenter);
+    }
+
+    private Vector3 GetPileWorldPosition(RectTransform pile, Vector3 fallbackLocalPosition)
+    {
+        if (pile != null)
+        {
+            return pile.TransformPoint(pile.rect.center);
+        }
+
+        RectTransform coordinateSpace = flightLayer != null
+            ? flightLayer
+            : cardManager.handUIContainer as RectTransform;
+        return coordinateSpace != null
+            ? coordinateSpace.TransformPoint(fallbackLocalPosition)
+            : fallbackLocalPosition;
+    }
+
+    private float GetPileCardScale()
+    {
+        RectTransform prefabRect = cardManager.cardPrefab != null
+            ? cardManager.cardPrefab.GetComponent<RectTransform>()
+            : null;
+        if (discardPileTarget != null &&
+            prefabRect != null &&
+            prefabRect.rect.width > 0f &&
+            prefabRect.rect.height > 0f)
+        {
+            float scaleX = discardPileTarget.rect.width / prefabRect.rect.width;
+            float scaleY = discardPileTarget.rect.height / prefabRect.rect.height;
+            return Mathf.Clamp(Mathf.Min(scaleX, scaleY), 0.05f, 1f) *
+                   cardManager.cardSpawnScale;
+        }
+
+        return 0.35f * cardManager.cardSpawnScale;
+    }
+
+    private Vector3[] BuildArcPath(Vector3 start, Vector3 end)
+    {
+        Vector3 midpoint = (start + end) * 0.5f;
+        midpoint.y += arcHeight;
+        return new[] { start, midpoint, end };
+    }
+
+    private IEnumerator WaitForTweens(List<Tween> tweens)
+    {
+        foreach (Tween tween in tweens)
+        {
+            if (tween != null && tween.IsActive())
+            {
+                yield return tween.WaitForCompletion();
+            }
+        }
+    }
+
+    private static CanvasGroup GetCardCanvasGroup(CardUI card)
+    {
+        CanvasGroup canvasGroup = card.GetComponent<CanvasGroup>();
+        if (canvasGroup == null)
+        {
+            canvasGroup = card.gameObject.AddComponent<CanvasGroup>();
+        }
+
+        return canvasGroup;
+    }
+
+    private static void SetCardRaycasts(CardUI card, bool enabled)
+    {
+        if (card == null)
+        {
+            return;
+        }
+
+        CanvasGroup canvasGroup = GetCardCanvasGroup(card);
+        canvasGroup.blocksRaycasts = enabled;
+        canvasGroup.interactable = enabled;
+    }
+
+    private void OnDisable()
+    {
+        if (runtimeDrawCoroutine != null)
+        {
+            StopCoroutine(runtimeDrawCoroutine);
+            runtimeDrawCoroutine = null;
+        }
+
+        runtimeDrawQueue.Clear();
+
+        if (flightLayer != null)
+        {
+            Destroy(flightLayer.gameObject);
+            flightLayer = null;
+        }
+
+        isPlaying = false;
     }
 
 #if UNITY_EDITOR
@@ -185,8 +1041,12 @@ public class HandCardArcLayout : MonoBehaviour
         Vector3 right = transform.TransformPoint(new Vector3(halfW, 0f, 0f));
 
         Gizmos.DrawLine(left, right);
-        Gizmos.DrawLine(transform.TransformPoint(new Vector3(-halfW, -60f, 0f)), transform.TransformPoint(new Vector3(-halfW, 60f, 0f)));
-        Gizmos.DrawLine(transform.TransformPoint(new Vector3(halfW, -60f, 0f)), transform.TransformPoint(new Vector3(halfW, 60f, 0f)));
+        Gizmos.DrawLine(
+            transform.TransformPoint(new Vector3(-halfW, -60f, 0f)),
+            transform.TransformPoint(new Vector3(-halfW, 60f, 0f)));
+        Gizmos.DrawLine(
+            transform.TransformPoint(new Vector3(halfW, -60f, 0f)),
+            transform.TransformPoint(new Vector3(halfW, 60f, 0f)));
     }
 #endif
 }

@@ -16,6 +16,7 @@ MonoBehaviour:
   cardName: "\u9632\u5FA1"
   cardArtwork: {fileID: 21300000, guid: 6f0bb5038470208469c56c65c01f44db, type: 3}
   type: 2
+  isCounterCard: 0
   cost: 1
   effectFlags: 4
   moveDistance: 0
@@ -27,6 +28,7 @@ MonoBehaviour:
   drawAmount: 0
   discardAmount: 0
   sturdy: 0
+  combo: 0
   rangeType: 0
   rangeDistance: 0
   targetSelectMode: 0
