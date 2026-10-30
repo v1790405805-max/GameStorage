@@ -30,6 +30,7 @@ public class HandCardArcLayout : MonoBehaviour
     [Tooltip("极端多牌时允许压缩到的最小间距")]
     [SerializeField] private float minAllowedSpacing = 45f;
 
+
     [Header("--- 2. 弧形几何参数 ---")]
     [Tooltip("抛物线拱起高度系数")]
     [SerializeField] private float curveHeightFactor = 5f;
@@ -37,19 +38,29 @@ public class HandCardArcLayout : MonoBehaviour
     [Tooltip("卡牌旋转倾角步长")]
     [SerializeField] private float baseAngleStep = 3.2f;
 
-    [Header("--- 3. 补间动画配置 ---")]
+    [Header("--- 3. 基础补间动画配置 ---")]
     [Tooltip("卡牌归位动画时长")]
     [SerializeField] private float arrangeDuration = 0.25f;
 
     [Tooltip("排布缓动曲线")]
     [SerializeField] private Ease arrangeEase = Ease.OutCubic;
 
-    [Header("--- 4. 回合换手动画 ---")]
+    [Tooltip("换手动画期间弧形归位使用的固定时长")]
+    [SerializeField, Min(0.01f)] private float drawArrangeDuration = 0.24f;
+
+
+    [Header("--- 4. 回合换牌动画 ---")]
     [Tooltip("抽牌堆的 UI 目标；留空时自动查找名为 DrawPile 的对象")]
     [SerializeField] private RectTransform drawPileTarget;
 
     [Tooltip("弃牌堆的 UI 目标；留空时自动查找名为 DiscardPile 的对象")]
     [SerializeField] private RectTransform discardPileTarget;
+
+    [Tooltip("手牌飞向弃牌堆时，弧线顶点额外抬高的距离")]
+    [SerializeField, Min(0f)] private float arcHeight = 180f;
+
+    [Tooltip("弃牌弧线使用的缓动曲线")]
+    [SerializeField] private Ease pileArcEase = Ease.InOutCubic;
 
     [Tooltip("旧手牌聚拢到中心位置所需的时间（秒）")]
     [SerializeField, Min(0.01f)] private float handGatherDuration = 0.25f;
@@ -65,10 +76,10 @@ public class HandCardArcLayout : MonoBehaviour
 
     [Tooltip("新牌从 DrawPile 直线移动到中心位置的时间（秒）")]
     [SerializeField, Min(0.01f)] private float drawMoveDuration = 0.42f;
-
+    [Tooltip("抽牌直线移动使用的缓动曲线")]
+    [SerializeField] private Ease drawMoveEase = Ease.OutCubic;
     [Tooltip("新牌在 DrawPile 生成后停留多久再开始移动（秒）")]
     [SerializeField, Min(0f)] private float drawPileHoldDuration = 0.075f;
-
     [Tooltip("每张新牌开始向中心移动的间隔（秒）")]
     [SerializeField, Min(0f)] private float drawLaunchInterval = 0.1f;
 
@@ -81,19 +92,17 @@ public class HandCardArcLayout : MonoBehaviour
     [Tooltip("新牌从中心一字排开所需的时间（秒）")]
     [SerializeField, Min(0.01f)] private float lineSpreadDuration = 0.35f;
 
-    [Tooltip("手牌飞向弃牌堆时，弧线顶点额外抬高的距离")]
-    [SerializeField, Min(0f)] private float arcHeight = 180f;
+    [Tooltip("一字排开使用的缓动曲线")]
+    [SerializeField] private Ease lineSpreadEase = Ease.OutCubic;
 
     [Tooltip("一字排开完成后，等待手牌散入最终弧形位置的时间（秒）")]
     [SerializeField, Min(0.01f)] private float finalSpreadDuration = 0.4f;
 
-    [Tooltip("换手动画期间弧形归位使用的固定时长")]
-    [SerializeField, Min(0.01f)] private float drawArrangeDuration = 0.24f;
 
     [Tooltip("单个回合内抽牌时，从 DrawPile 到手牌区的移动时长")]
     [SerializeField, Min(0.01f)] private float runtimeDrawMoveDuration = 0.3f;
 
-    [Header("--- 5. 出牌离场动画 ---")]
+    [Header("--- 5. 出牌时卡牌的离场动画 ---")]
     [Tooltip("出牌后移动到屏幕聚拢点所需的时间（秒）")]
     [SerializeField, Min(0.01f)] private float playedCardGatherDuration = 0.3f;
 
@@ -108,15 +117,6 @@ public class HandCardArcLayout : MonoBehaviour
 
     [Tooltip("出牌聚拢点在画面高度上的归一化位置")]
     [SerializeField, Range(0f, 1f)] private float playedCardFocusScreenY = 0.63f;
-
-    [Tooltip("弃牌弧线使用的缓动曲线")]
-    [SerializeField] private Ease pileArcEase = Ease.InOutCubic;
-
-    [Tooltip("抽牌直线移动使用的缓动曲线")]
-    [SerializeField] private Ease drawMoveEase = Ease.OutCubic;
-
-    [Tooltip("一字排开使用的缓动曲线")]
-    [SerializeField] private Ease lineSpreadEase = Ease.OutCubic;
 
     private readonly List<CardUI> trackedCards = new List<CardUI>();
     private readonly Queue<RuntimeDrawRequest> runtimeDrawQueue =
