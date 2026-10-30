@@ -15850,7 +15850,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -190}
+  m_AnchoredPosition: {x: 0, y: -325}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 1, y: 1}
 --- !u!1 &1331950227
@@ -28116,7 +28116,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1822895068
 RectTransform:
   m_ObjectHideFlags: 0
@@ -28880,6 +28880,8 @@ MonoBehaviour:
   contentPanel: {fileID: 140244961}
   nodePrefab: {fileID: 8002574628502439455, guid: 65312d7d58b3dce4981f244b8aedb18c, type: 3}
   linePrefab: {fileID: 1387832916898799723, guid: 14f2767c3f646eb4fa99bf6e144303f0, type: 3}
+  victorySummaryPanel: {fileID: 0}
+  restartRunButton: {fileID: 0}
   horizontalSpacing: 500
   verticalSpacing: 200
   randomOffset: 0
@@ -28895,11 +28897,11 @@ MonoBehaviour:
   eventScenes:
   - 4_Event_Scene
   minorEnemyScenes:
-  - 2_Battle_Scene
+  - LightTest
   eliteEnemyScenes:
-  - 2_Battle_Scene
+  - LightTest
   bossScenes:
-  - 2_Battle_Scene
+  - LightTest
 --- !u!1 &2002965799
 GameObject:
   m_ObjectHideFlags: 0

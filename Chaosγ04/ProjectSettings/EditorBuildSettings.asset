@@ -20,6 +20,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes_Chaos/4_Event_Scene.unity
     guid: e5fc051fe99e33c4c8c154f89c45a81a
+  - enabled: 1
+    path: Assets/Scenes_Chaos/LightTest.unity
+    guid: 024ed6b2a6da9ae4fa705e7359bf0c4e
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
