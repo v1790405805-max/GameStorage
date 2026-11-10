@@ -188,6 +188,9 @@ MonoBehaviour:
   affordableColor: {r: 0.2, g: 1, b: 0.2, a: 0.39215687}
   unaffordableColor: {r: 1, g: 0.2, b: 0.2, a: 0.39215687}
   selectingHoverColor: {r: 0.2, g: 1, b: 0.2, a: 0.3882353}
+  triggerColor: {r: 3.9999998, g: 2.3333333, b: 0, a: 1}
+  triggerOutlineWidth: 6
+  counterCardScaleMultiplier: 1.08
   offsetY: 60
   shiftedScaleMultiplier: 1.2
   tweenDuration: 0.2

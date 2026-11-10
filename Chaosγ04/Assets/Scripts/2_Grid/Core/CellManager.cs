@@ -39,7 +39,9 @@ public class CellManager : MonoBehaviour
     public bool IsWall => accessState == CellAccessState.Wall;
     public bool IsHardLocked => accessState == CellAccessState.HardLocked;
     public bool BlocksPlayer => accessState != CellAccessState.Normal;
-    public bool SuppressesHoverHighlight => accessState != CellAccessState.Normal;
+    public bool SuppressesHoverHighlight =>
+        accessState == CellAccessState.Wall ||
+        accessState == CellAccessState.HardLocked;
 
     /// <summary>
     /// 判断指定怪物能否进入/经过该格。水面仅允许显式开启该能力的怪物通行；墙面与锁死格对所有怪物禁行。
@@ -401,12 +403,13 @@ public class CellManager : MonoBehaviour
     /// <summary>
     /// 设置格子的面片颜色
     /// </summary>
-    public void SetCellColor(Color color, bool isRuntime)
+    public void SetCellColor(Color color, bool isRuntime, bool ignoreAccessState = false)
     {
         // 状态覆盖时也缓存外部请求，供返回 Normal 时恢复。
         lastCellColor = color;
 
-        if (TryGetAccessStateColors(out Color stateCellColor, out _))
+        if (!ignoreAccessState &&
+            TryGetAccessStateColors(out Color stateCellColor, out _))
             color = stateCellColor;
 
         ApplyCellColor(color, isRuntime, forceInstance: accessState != CellAccessState.Normal);
@@ -415,13 +418,14 @@ public class CellManager : MonoBehaviour
     /// <summary>
     /// 统一设置所有边框线的颜色
     /// </summary>
-    public void SetLineColor(Color color)
+    public void SetLineColor(Color color, bool ignoreAccessState = false)
     {
         // 状态覆盖时也缓存外部请求，供返回 Normal 时恢复。
         lastLineColor = color;
         hasIndividualLines = false; // 最近一次为统一边框模式
 
-        if (TryGetAccessStateColors(out _, out Color stateLineColor))
+        if (!ignoreAccessState &&
+            TryGetAccessStateColors(out _, out Color stateLineColor))
             color = stateLineColor;
 
         for (int i = 0; i < 4; i++)
@@ -439,7 +443,14 @@ public class CellManager : MonoBehaviour
     /// </summary>
     /// <param name="defaultColor">内侧共用边或常规边的颜色</param>
     /// <param name="outerColor">外包络暴露边的颜色</param>
-    public void SetIndividualLinesColor(Color defaultColor, Color outerColor, bool upOuter, bool downOuter, bool leftOuter, bool rightOuter)
+    public void SetIndividualLinesColor(
+        Color defaultColor,
+        Color outerColor,
+        bool upOuter,
+        bool downOuter,
+        bool leftOuter,
+        bool rightOuter,
+        bool ignoreAccessState = false)
     {
         // 状态覆盖时也缓存外部请求，供返回 Normal 时恢复。
         lastIndividualDefaultColor = defaultColor;
@@ -448,7 +459,8 @@ public class CellManager : MonoBehaviour
         lastLeftOuter = leftOuter; lastRightOuter = rightOuter;
         hasIndividualLines = true; // 最近一次为逐边模式
 
-        if (TryGetAccessStateColors(out _, out Color stateLineColor))
+        if (!ignoreAccessState &&
+            TryGetAccessStateColors(out _, out Color stateLineColor))
         {
             defaultColor = stateLineColor;
             outerColor = stateLineColor;

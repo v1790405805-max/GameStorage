@@ -7,6 +7,8 @@ public class CardDragController : MonoBehaviour
     public static CardDragController Instance { get; private set; }
 
     public bool IsDragging { get; private set; } = false;
+    public int LastCardDragEndFrame { get; private set; } = -1;
+    public bool EndedCardDragThisFrame => LastCardDragEndFrame == Time.frameCount;
 
     [Header("依赖引用（留空则自动查找）")]
     [SerializeField] private GridManager gridManager;
@@ -151,6 +153,10 @@ public class CardDragController : MonoBehaviour
 
     public void OnCardDragEnd(bool keepMovementPreview = false)
     {
+        bool hadActiveCardInteraction =
+            IsDragging ||
+            (movementController != null && movementController.IsUsingCard);
+
         ClearEffectDragPreview();
         ClearCurrentHoverPreview();
         currentDraggingCard = null;
@@ -167,6 +173,9 @@ public class CardDragController : MonoBehaviour
         PlayerMoveController moveController = movementController;
         if (moveController != null)
             moveController.IsUsingCard = false;
+
+        if (hadActiveCardInteraction)
+            LastCardDragEndFrame = Time.frameCount;
     }
 
     public void OnCardReleased(CardUI cardUI)

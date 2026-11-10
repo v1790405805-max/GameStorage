@@ -234,6 +234,7 @@ public class TurnManager : MonoBehaviour
         Debug.Log($"========== 第 {currentRoundCount} 回合 / 玩家回合开始 ==========");
 
         SetGroupState(playerBehaviours, true);
+        MapInspector.Instance?.FocusOnPlayerCell();
 
         // ==========================================
         // 【新增】：玩家回合开始，刷新全场怪物的攻击意图

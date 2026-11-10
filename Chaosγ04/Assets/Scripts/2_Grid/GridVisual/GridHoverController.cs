@@ -298,8 +298,13 @@ public class GridHoverController : MonoBehaviour
         if (cell == null) return;
         if (cell.SuppressesHoverHighlight || hoverLockedCells.Contains(cell)) return;
 
-        cell.SetCellColor(visualManager.cellSelectedColor, isRuntime: true);
-        cell.SetLineColor(visualManager.lineSelectedColor);
+        cell.SetCellColor(
+            visualManager.cellSelectedColor,
+            isRuntime: true,
+            ignoreAccessState: true);
+        cell.SetLineColor(
+            visualManager.lineSelectedColor,
+            ignoreAccessState: true);
     }
 
     private void RestoreCellDefault(Vector2Int grid)
@@ -337,14 +342,24 @@ public class GridHoverController : MonoBehaviour
             if (isEntityValid)
             {
                 // 合法目标格（模式目标 + 实体合法）：变成 Target 目标悬停颜色
-                cell.SetCellColor(activeConfig.targetCellColor, isRuntime: true);
-                cell.SetLineColor(activeConfig.targetLineColor);
+                cell.SetCellColor(
+                    activeConfig.targetCellColor,
+                    isRuntime: true,
+                    ignoreAccessState: true);
+                cell.SetLineColor(
+                    activeConfig.targetLineColor,
+                    ignoreAccessState: true);
             }
             else
             {
                 // 模式目标但实体非法（例如 Movement 卡悬停在有怪物的格子上）：变成 Error 颜色
-                cell.SetCellColor(visualManager.errorCellColor, isRuntime: true);
-                cell.SetLineColor(visualManager.errorLineColor);
+                cell.SetCellColor(
+                    visualManager.errorCellColor,
+                    isRuntime: true,
+                    ignoreAccessState: true);
+                cell.SetLineColor(
+                    visualManager.errorLineColor,
+                    ignoreAccessState: true);
             }
         }
         else if (isInsideRange && activeConfig != null)
@@ -355,8 +370,13 @@ public class GridHoverController : MonoBehaviour
         else
         {
             // 范围外格：使用默认悬停色
-            cell.SetCellColor(visualManager.cellSelectedColor, isRuntime: true);
-            cell.SetLineColor(visualManager.lineSelectedColor);
+            cell.SetCellColor(
+                visualManager.cellSelectedColor,
+                isRuntime: true,
+                ignoreAccessState: true);
+            cell.SetLineColor(
+                visualManager.lineSelectedColor,
+                ignoreAccessState: true);
         }
     }
 
@@ -377,13 +397,21 @@ public class GridHoverController : MonoBehaviour
             if (isPointType && IsCharacterCell(cell))
             {
                 // Point 类型下，角色格离开悬停后还原为 Character 样式，不显示范围点击框。
-                cell.SetCellColor(activeConfig.characterCellColor, isRuntime: true);
-                cell.SetLineColor(activeConfig.characterLineColor);
+                cell.SetCellColor(
+                    activeConfig.characterCellColor,
+                    isRuntime: true,
+                    ignoreAccessState: true);
+                cell.SetLineColor(
+                    activeConfig.characterLineColor,
+                    ignoreAccessState: true);
             }
             else
             {
                 // 普通范围内格子离开悬停，还原为范围色
-                cell.SetCellColor(activeConfig.cellClickedColor, isRuntime: true);
+                cell.SetCellColor(
+                    activeConfig.cellClickedColor,
+                    isRuntime: true,
+                    ignoreAccessState: true);
                 RestoreCellBorder(grid);
             }
         }
@@ -413,7 +441,8 @@ public class GridHoverController : MonoBehaviour
             upOuter: upOuter,
             downOuter: downOuter,
             leftOuter: leftOuter,
-            rightOuter: rightOuter
+            rightOuter: rightOuter,
+            ignoreAccessState: true
         );
     }
 
@@ -474,13 +503,23 @@ public class GridHoverController : MonoBehaviour
         {
             if (validEntityTargetSet.Contains(cell))
             {
-                cell.SetCellColor(activeConfig.targetCellColor, isRuntime: true);
-                cell.SetLineColor(activeConfig.targetLineColor);
+                cell.SetCellColor(
+                    activeConfig.targetCellColor,
+                    isRuntime: true,
+                    ignoreAccessState: true);
+                cell.SetLineColor(
+                    activeConfig.targetLineColor,
+                    ignoreAccessState: true);
             }
             else
             {
-                cell.SetCellColor(visualManager.errorCellColor, isRuntime: true);
-                cell.SetLineColor(visualManager.errorLineColor);
+                cell.SetCellColor(
+                    visualManager.errorCellColor,
+                    isRuntime: true,
+                    ignoreAccessState: true);
+                cell.SetLineColor(
+                    visualManager.errorLineColor,
+                    ignoreAccessState: true);
             }
             return;
         }
@@ -496,15 +535,23 @@ public class GridHoverController : MonoBehaviour
         {
             if (isPointType && IsCharacterCell(cell))
             {
-                cell.SetCellColor(activeConfig.characterCellColor, isRuntime: true);
-                cell.SetLineColor(activeConfig.characterLineColor);
+                cell.SetCellColor(
+                    activeConfig.characterCellColor,
+                    isRuntime: true,
+                    ignoreAccessState: true);
+                cell.SetLineColor(
+                    activeConfig.characterLineColor,
+                    ignoreAccessState: true);
                 return;
             }
 
             if (!isPointType && IsCharacterCell(cell))
                 return;
 
-            cell.SetCellColor(activeConfig.cellClickedColor, isRuntime: true);
+            cell.SetCellColor(
+                activeConfig.cellClickedColor,
+                isRuntime: true,
+                ignoreAccessState: true);
             var (cellX, cellZ) = gridManager.GetCellGridPosition(cell);
             RestoreCellBorderForCell(cell, cellX, cellZ);
             return;
@@ -579,13 +626,23 @@ public class GridHoverController : MonoBehaviour
 
             if (validEntityTargetSet.Contains(cell))
             {
-                cell.SetCellColor(activeConfig.targetCellColor, isRuntime: true);
-                cell.SetLineColor(activeConfig.targetLineColor);
+                cell.SetCellColor(
+                    activeConfig.targetCellColor,
+                    isRuntime: true,
+                    ignoreAccessState: true);
+                cell.SetLineColor(
+                    activeConfig.targetLineColor,
+                    ignoreAccessState: true);
             }
             else
             {
-                cell.SetCellColor(visualManager.errorCellColor, isRuntime: true);
-                cell.SetLineColor(visualManager.errorLineColor);
+                cell.SetCellColor(
+                    visualManager.errorCellColor,
+                    isRuntime: true,
+                    ignoreAccessState: true);
+                cell.SetLineColor(
+                    visualManager.errorLineColor,
+                    ignoreAccessState: true);
             }
         }
     }
@@ -606,7 +663,10 @@ public class GridHoverController : MonoBehaviour
                 continue;
             }
 
-            cell.SetCellColor(activeConfig.cellClickedColor, isRuntime: true);
+            cell.SetCellColor(
+                activeConfig.cellClickedColor,
+                isRuntime: true,
+                ignoreAccessState: true);
             RestoreCellBorderForCell(cell, cellX, cellZ);
         }
 
@@ -629,7 +689,8 @@ public class GridHoverController : MonoBehaviour
             upOuter: upOuter,
             downOuter: downOuter,
             leftOuter: leftOuter,
-            rightOuter: rightOuter);
+            rightOuter: rightOuter,
+            ignoreAccessState: true);
     }
 
     /// <summary>
@@ -691,13 +752,23 @@ public class GridHoverController : MonoBehaviour
 
             if (validEntityTargetSet.Contains(cell))
             {
-                cell.SetCellColor(activeConfig.targetCellColor, isRuntime: true);
-                cell.SetLineColor(activeConfig.targetLineColor);
+                cell.SetCellColor(
+                    activeConfig.targetCellColor,
+                    isRuntime: true,
+                    ignoreAccessState: true);
+                cell.SetLineColor(
+                    activeConfig.targetLineColor,
+                    ignoreAccessState: true);
             }
             else
             {
-                cell.SetCellColor(visualManager.errorCellColor, isRuntime: true);
-                cell.SetLineColor(visualManager.errorLineColor);
+                cell.SetCellColor(
+                    visualManager.errorCellColor,
+                    isRuntime: true,
+                    ignoreAccessState: true);
+                cell.SetLineColor(
+                    visualManager.errorLineColor,
+                    ignoreAccessState: true);
             }
         }
     }
@@ -722,12 +793,20 @@ public class GridHoverController : MonoBehaviour
             if (isPointType && IsCharacterGrid(new Vector2Int(cx, cz)))
             {
                 // Point 类型下角色格还原为 Character 样式，与单格还原逻辑一致。
-                cell.SetCellColor(activeConfig.characterCellColor, isRuntime: true);
-                cell.SetLineColor(activeConfig.characterLineColor);
+                cell.SetCellColor(
+                    activeConfig.characterCellColor,
+                    isRuntime: true,
+                    ignoreAccessState: true);
+                cell.SetLineColor(
+                    activeConfig.characterLineColor,
+                    ignoreAccessState: true);
                 continue;
             }
 
-            cell.SetCellColor(activeConfig.cellClickedColor, isRuntime: true);
+            cell.SetCellColor(
+                activeConfig.cellClickedColor,
+                isRuntime: true,
+                ignoreAccessState: true);
             RestoreCellBorderForCell(cell, cx, cz);
         }
     }
@@ -756,8 +835,13 @@ public class GridHoverController : MonoBehaviour
     {
         if (cell == null || activeConfig == null) return;
 
-        cell.SetCellColor(activeConfig.characterCellColor, isRuntime: true);
-        cell.SetLineColor(activeConfig.characterLineColor);
+        cell.SetCellColor(
+            activeConfig.characterCellColor,
+            isRuntime: true,
+            ignoreAccessState: true);
+        cell.SetLineColor(
+            activeConfig.characterLineColor,
+            ignoreAccessState: true);
     }
 
     private void ClearHoverHighlight()

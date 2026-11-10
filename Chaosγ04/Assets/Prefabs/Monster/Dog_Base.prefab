@@ -185,6 +185,9 @@ MonoBehaviour:
   gridManager: {fileID: 0}
   monsterAnimator: {fileID: 2602231858005930479}
   attackTriggerName: Tear
+  attackGridStyle: {fileID: 11400000, guid: 0b45acbeab0cb6a4db5f7f7f1a570c25, type: 2}
+  targetWarningDuration: 0.05
+  targetConfirmedDuration: 0.3
   hitDelayFallback: 0.35
   postAttackDuration: 0.25
 --- !u!114 &4390963832661378914

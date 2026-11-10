@@ -124,16 +124,27 @@ public class GridVisualManager : MonoBehaviour
                 if (!isCharacter) continue;
 
                 // 角色格仅应用角色格正常样式，避开 cellClickedColor/lineClickedColor。
-                cell.SetCellColor(style.characterCellColor, Application.isPlaying);
-                cell.SetLineColor(style.characterLineColor);
+                cell.SetCellColor(
+                    style.characterCellColor,
+                    Application.isPlaying,
+                    ignoreAccessState: true);
+                cell.SetLineColor(
+                    style.characterLineColor,
+                    ignoreAccessState: true);
             }
             else
             {
                 // 普通卡牌逻辑
                 cell.SetCellColor(
                     isCharacter ? style.characterCellColor : style.cellClickedColor,
-                    Application.isPlaying);
-                UpdateSingleCellBorderColor(cell, rangeSet, style, isCharacter);
+                    Application.isPlaying,
+                    ignoreAccessState: true);
+                UpdateSingleCellBorderColor(
+                    cell,
+                    rangeSet,
+                    style,
+                    isCharacter,
+                    ignoreAccessState: true);
             }
         }
     }
@@ -180,8 +191,13 @@ public class GridVisualManager : MonoBehaviour
     {
         if (cell == null || style == null) return;
 
-        cell.SetCellColor(style.targetCellColor, Application.isPlaying);
-        cell.SetLineColor(style.targetLineColor);
+        cell.SetCellColor(
+            style.targetCellColor,
+            Application.isPlaying,
+            ignoreAccessState: true);
+        cell.SetLineColor(
+            style.targetLineColor,
+            ignoreAccessState: true);
     }
 
     /// <summary>
@@ -200,8 +216,14 @@ public class GridVisualManager : MonoBehaviour
             bool isCharacter = cell == characterCell;
             cell.SetCellColor(
                 isCharacter ? style.characterCellColor : style.cellClickedColor,
-                Application.isPlaying);
-            UpdateSingleCellBorderColor(cell, rangeSet, style, isCharacter);
+                Application.isPlaying,
+                ignoreAccessState: true);
+            UpdateSingleCellBorderColor(
+                cell,
+                rangeSet,
+                style,
+                isCharacter,
+                ignoreAccessState: true);
             return;
         }
 
@@ -261,8 +283,14 @@ public class GridVisualManager : MonoBehaviour
             bool isCharacter = ContainsCell(characterCells, cell);
             cell.SetCellColor(
                 isCharacter ? style.characterCellColor : style.cellClickedColor,
-                isRuntime);
-            UpdateSingleCellBorderColor(cell, reachableSet, style, isCharacter);
+                isRuntime,
+                ignoreAccessState: true);
+            UpdateSingleCellBorderColor(
+                cell,
+                reachableSet,
+                style,
+                isCharacter,
+                ignoreAccessState: true);
         }
     }
 
@@ -299,8 +327,12 @@ public class GridVisualManager : MonoBehaviour
     /// 更新单个格子的四条边线颜色（内边 vs 外边线区分）。
     /// 格子级版本：根据格子坐标判断四方向邻居列是否在范围内。
     /// </summary>
-    private void UpdateSingleCellBorderColor(CellManager cell,
-        HashSet<CellManager> reachableSet, GridStyleData style, bool isCharacter)
+    private void UpdateSingleCellBorderColor(
+        CellManager cell,
+        HashSet<CellManager> reachableSet,
+        GridStyleData style,
+        bool isCharacter,
+        bool ignoreAccessState = false)
     {
         if (style == null || cell == null) return;
 
@@ -318,7 +350,8 @@ public class GridVisualManager : MonoBehaviour
             upOuter: upOuter,
             downOuter: downOuter,
             leftOuter: leftOuter,
-            rightOuter: rightOuter
+            rightOuter: rightOuter,
+            ignoreAccessState: ignoreAccessState
         );
     }
 

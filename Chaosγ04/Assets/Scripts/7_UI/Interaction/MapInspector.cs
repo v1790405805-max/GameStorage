@@ -8,6 +8,8 @@ using System.Collections;
 [DefaultExecutionOrder(100)]
 public class MapInspector : MonoBehaviour
 {
+    public static MapInspector Instance { get; private set; }
+
     [Header("--- 1. 交互与目标设置 ---")]
     [Tooltip("左键聚焦功能使用的层级，请勾选地图格子所在的 Layer")]
     public LayerMask mapLayerMask;
@@ -48,11 +50,11 @@ public class MapInspector : MonoBehaviour
     private Vector3 originalHandScale;
     private bool isMapMode = false;
     private Vector3 dragOrigin;
-    private Vector3 cameraOffset;
-
-    // 相机自身 XY 平面经过的世界坐标点（初始相机位置），平面法线为 camera.forward
-    private Vector3 mapPlaneOrigin;
-    private bool hasMapPlane;
+    private bool isMoveFollowActive = false;
+    private bool wasManualMoveInProgress = false;
+    private Transform moveFollowTarget;
+    private Vector3 lastMoveFollowTargetPosition;
+    private Coroutine delayedFocusRoutine;
 
     /// <summary>当前主相机：场景中名为 "Main Camera" 的相机（见 MainCameraAppoint 静态类）。</summary>
     private Camera mainCamera => MainCameraAppoint.Current;
@@ -65,6 +67,8 @@ public class MapInspector : MonoBehaviour
 
     private void Awake()
     {
+        Instance = this;
+
         if (gridManager == null)
         {
             gridManager = FindFirstObjectByType<GridManager>();
@@ -76,21 +80,16 @@ public class MapInspector : MonoBehaviour
         }
     }
 
+    private void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Instance = null;
+        }
+    }
+
     IEnumerator Start()
     {
-        if (mainCamera != null)
-        {
-            CacheMapPlane();
-
-            Ray centerRay = mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
-            Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
-            if (groundPlane.Raycast(centerRay, out float enter))
-            {
-                Vector3 screenCenterGroundPos = centerRay.GetPoint(enter);
-                cameraOffset = mainCamera.transform.position - screenCenterGroundPos;
-            }
-        }
-
         yield return new WaitForEndOfFrame();
         EnsureUICached();
     }
@@ -116,6 +115,11 @@ public class MapInspector : MonoBehaviour
 
     void Update()
     {
+        if (IsCounterCameraLocked())
+        {
+            return;
+        }
+
         if (Keyboard.current != null && Keyboard.current[mapShortcutKey].wasPressedThisFrame)
         {
             ToggleMapMode();
@@ -128,8 +132,70 @@ public class MapInspector : MonoBehaviour
         HandleLeftClickToFocus();
     }
 
+    private void LateUpdate()
+    {
+        if (IsCounterCameraLocked())
+        {
+            return;
+        }
+
+        if (!isMoveFollowActive ||
+            moveFollowTarget == null ||
+            playerMoveController == null ||
+            mainCamera == null)
+        {
+            return;
+        }
+
+        Vector3 currentTargetPosition = moveFollowTarget.position;
+        bool isManualMoving = playerMoveController.IsManualMoveInProgress;
+
+        if (!isManualMoving)
+        {
+            Vector3 nonMoveDelta = currentTargetPosition - lastMoveFollowTargetPosition;
+
+            if (wasManualMoveInProgress)
+            {
+                if (nonMoveDelta.sqrMagnitude > 0.000001f)
+                {
+                    TranslateCameraInLocalXY(nonMoveDelta);
+                }
+            }
+            else if (nonMoveDelta.sqrMagnitude > 0.000001f)
+            {
+                ClearMoveFollowFocus();
+                return;
+            }
+
+            lastMoveFollowTargetPosition = currentTargetPosition;
+            wasManualMoveInProgress = false;
+            return;
+        }
+
+        if (!wasManualMoveInProgress)
+        {
+            mainCamera.transform.DOKill();
+            wasManualMoveInProgress = true;
+            return;
+        }
+
+        Vector3 targetDelta = currentTargetPosition - lastMoveFollowTargetPosition;
+        lastMoveFollowTargetPosition = currentTargetPosition;
+
+        if (targetDelta.sqrMagnitude > 0.000001f)
+        {
+            TranslateCameraInLocalXY(targetDelta);
+        }
+    }
+
+    private static bool IsCounterCameraLocked()
+    {
+        CounterTimeManager counterTimeManager = CounterTimeManager.Instance;
+        return counterTimeManager != null && counterTimeManager.IsCounterStageActive;
+    }
+
     /// <summary>
-    /// 处理鼠标左键点击，自动聚焦到点击的地块
+    /// 处理鼠标左键点击，仅在被角色占据的地格上自动聚焦
     /// </summary>
     private void HandleLeftClickToFocus()
     {
@@ -138,6 +204,23 @@ public class MapInspector : MonoBehaviour
         // PlayerMoveController confirms player-cell clicks on release. Focus after
         // that frame's movement handling so moving the camera cannot change the release cell.
         if (!Mouse.current.leftButton.wasReleasedThisFrame) return;
+
+        if (playerMoveController != null && playerMoveController.ConsumeMapFocusSuppression())
+        {
+            return;
+        }
+
+        if (playerMoveController != null && playerMoveController.IsUsingCard)
+        {
+            return;
+        }
+
+        CardDragController cardDragController = CardDragController.Instance;
+        if (cardDragController != null &&
+            (cardDragController.IsDragging || cardDragController.EndedCardDragThisFrame))
+        {
+            return;
+        }
 
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
         {
@@ -150,7 +233,6 @@ public class MapInspector : MonoBehaviour
         }
 
         Ray clickRay = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
-        Ray centerRay = mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
 
         int focusLayerMask = gridManager != null
             ? 1 << gridManager.cellLayer
@@ -172,22 +254,140 @@ public class MapInspector : MonoBehaviour
             return;
         }
 
-        Vector3 clickWorldPos = hit.point;
-        float targetHeight = hit.point.y;
+        if (!hitCell.IsPlayerInside && !hitCell.HasMonsterInside)
+        {
+            Debug.Log("[MapInspector] Left click ignored: hit cell has no character inside.");
+            return;
+        }
 
-        Plane focusPlane = new Plane(Vector3.up, new Vector3(0f, targetHeight, 0f));
-        if (!focusPlane.Raycast(centerRay, out float centerEnter)) return;
+        SetMoveFollowFocus(hitCell.IsPlayerInside && playerMoveController != null
+            ? playerMoveController.PlayerTransform
+            : null);
+
+        FocusCameraOnWorldPosition(hit.point, 0.4f);
+    }
+
+    /// <summary>
+    /// 立即聚焦到玩家所在格。
+    /// </summary>
+    public void FocusOnPlayerCell(float duration = 0.4f)
+    {
+        if (mainCamera == null || playerMoveController == null)
+        {
+            return;
+        }
+
+        if (gridManager == null)
+        {
+            return;
+        }
+
+        CellManager playerCell = ResolvePlayerCellFromGrid();
+        if (playerCell == null)
+        {
+            return;
+        }
+
+        SetMoveFollowFocus(playerMoveController.PlayerTransform);
+        FocusCameraOnWorldPosition(GetCellFocusPoint(playerCell), duration);
+    }
+
+    /// <summary>
+    /// 推荐在“回合切换”时调用：等到本帧结束（其他脚本对相机/玩家的修改都已完成）后再聚焦，
+    /// 避免敌方回合的收尾动画与聚焦互相覆盖。
+    /// </summary>
+    public void FocusOnPlayerCellDelayed(float duration = 0.4f, int waitFrames = 1)
+    {
+        if (delayedFocusRoutine != null) StopCoroutine(delayedFocusRoutine);
+        delayedFocusRoutine = StartCoroutine(FocusOnPlayerCellRoutine(duration, waitFrames));
+    }
+
+    private IEnumerator FocusOnPlayerCellRoutine(float duration, int waitFrames)
+    {
+        for (int i = 0; i < Mathf.Max(1, waitFrames); i++)
+        {
+            yield return null;
+        }
+
+        yield return new WaitForEndOfFrame();
+        delayedFocusRoutine = null;
+        FocusOnPlayerCell(duration);
+    }
+
+    /// <summary>
+    /// 取格子碰撞体顶面中心，与“左键点击时射线命中点”的高度保持一致；
+    /// 没有碰撞体时退回到格子的 transform.position。
+    /// </summary>
+    private Vector3 GetCellFocusPoint(CellManager cell)
+    {
+        Collider col = cell.GetComponentInChildren<Collider>();
+        if (col != null)
+        {
+            Bounds b = col.bounds;
+            return new Vector3(b.center.x, b.max.y, b.center.z);
+        }
+
+        return cell.transform.position;
+    }
+
+    private CellManager ResolvePlayerCellFromGrid()
+    {
+        if (gridManager == null || playerMoveController == null)
+        {
+            return null;
+        }
+
+        Vector2Int playerGrid = playerMoveController.PlayerGridPos;
+        CellManager trackedCell = playerMoveController.PlayerOccupiedCell;
+        if (trackedCell != null)
+        {
+            var (trackedX, trackedZ) = gridManager.GetCellGridPosition(trackedCell);
+            if (trackedX == playerGrid.x && trackedZ == playerGrid.y)
+            {
+                return trackedCell;
+            }
+        }
+
+        int playerLayer = gridManager.GetCellLayer(trackedCell);
+        return gridManager.GetCellManagerAt(playerGrid.x, playerGrid.y, playerLayer)
+            ?? gridManager.GetCellManagerAt(playerGrid.x, playerGrid.y);
+    }
+
+    private void FocusCameraOnWorldPosition(Vector3 worldPosition, float duration)
+    {
+        Ray centerRay = mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+        Plane focusPlane = new Plane(Vector3.up, new Vector3(0f, worldPosition.y, 0f));
+        if (!focusPlane.Raycast(centerRay, out float centerEnter))
+        {
+            return;
+        }
 
         Vector3 centerWorldPos = centerRay.GetPoint(centerEnter);
-        Vector3 delta = clickWorldPos - centerWorldPos;
+        Vector3 delta = worldPosition - centerWorldPos;
         delta.y = 0f;
 
-        Vector3 targetLocalPos = mainCamera.transform.localPosition
-            + GetCameraLocalDelta(delta);
+        Vector3 targetLocalPos = mainCamera.transform.localPosition + GetCameraLocalDelta(delta);
         targetLocalPos = GetClampedCameraLocalPosition(targetLocalPos);
 
         mainCamera.transform.DOKill();
-        mainCamera.transform.DOLocalMove(targetLocalPos, 0.4f).SetEase(Ease.OutCubic);
+        mainCamera.transform.DOLocalMove(targetLocalPos, duration).SetEase(Ease.OutCubic);
+    }
+
+    private void SetMoveFollowFocus(Transform followTarget)
+    {
+        isMoveFollowActive = followTarget != null;
+        moveFollowTarget = followTarget;
+        wasManualMoveInProgress = false;
+        lastMoveFollowTargetPosition = followTarget != null
+            ? followTarget.position
+            : Vector3.zero;
+    }
+
+    private void ClearMoveFollowFocus()
+    {
+        isMoveFollowActive = false;
+        moveFollowTarget = null;
+        wasManualMoveInProgress = false;
     }
 
     private void HandleCameraDrag()
@@ -198,6 +398,8 @@ public class MapInspector : MonoBehaviour
         // 注意：目前拖拽使用的是中键 (middleButton)。如果你希望改成鼠标左键拖拽，可以顺便在这里调整。
         if (Mouse.current.middleButton.wasPressedThisFrame)
         {
+            ClearMoveFollowFocus();
+            mainCamera.transform.DOKill();
             if (TryGetGroundPoint(Mouse.current.position.ReadValue(), out Vector3 pressPoint))
             {
                 dragOrigin = pressPoint;
@@ -216,7 +418,6 @@ public class MapInspector : MonoBehaviour
 
     /// <summary>
     /// 处理键盘 WASD 平移视角：与中键拖拽保持完全一致的逻辑（同一套地面投影换算 + 相同的边界限制）。
-    /// 区别只在于输入来源：把按键产生的屏幕位移当作虚拟拖拽位移，再投影到地面平面上。
     /// </summary>
     private void HandleKeyboardPan()
     {
@@ -231,10 +432,12 @@ public class MapInspector : MonoBehaviour
 
         if (Mathf.Approximately(horizontal, 0f) && Mathf.Approximately(vertical, 0f)) return;
 
+        ClearMoveFollowFocus();
+        mainCamera.transform.DOKill();
+
         Vector2 screenDelta = new Vector2(horizontal, vertical).normalized
             * keyboardPanSpeed * Time.unscaledDeltaTime;
 
-        // 以屏幕中心为参考点，把屏幕位移换算成地面平面上的世界位移，换算方式与中键拖拽一致。
         Vector2 screenCenter = new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
         if (TryGetGroundPoint(screenCenter, out Vector3 before) &&
             TryGetGroundPoint(screenCenter + screenDelta, out Vector3 after))
@@ -267,6 +470,9 @@ public class MapInspector : MonoBehaviour
         float scrollValue = Mouse.current.scroll.ReadValue().y;
         if (Mathf.Abs(scrollValue) > 0.01f)
         {
+            ClearMoveFollowFocus();
+            mainCamera.transform.DOKill();
+
             Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
             Ray rayBefore = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
 
@@ -290,15 +496,15 @@ public class MapInspector : MonoBehaviour
     }
 
     // ------------------------------------------------------------------
-    // 相机平面约束：相机始终停留在"自身 XY 平面"内（法线 = camera.forward）
+    // 相机平面约束：相机始终停留在"当前自身 XY 平面"内（法线 = camera.forward）
+    //
+    // 【修复说明】
+    // 旧版本在启动时把相机位置缓存为 mapPlaneOrigin，之后所有移动都被"拉回"这个固定平面。
+    // 一旦敌方回合中有任何东西改动了相机/父物体的位置或朝向，固定平面就过期了，
+    // 补偿量 t 不再为 0，会变成屏幕上的偏移（聚焦位置偏离）。
+    // 现在改为：每次移动都以"移动前相机的当前位置"作为平面基准，
+    // 因此无论外部如何改动相机，都不会产生残留的偏移。
     // ------------------------------------------------------------------
-
-    private void CacheMapPlane()
-    {
-        if (hasMapPlane || mainCamera == null) return;
-        mapPlaneOrigin = mainCamera.transform.position;
-        hasMapPlane = true;
-    }
 
     /// <summary>
     /// 把地面上的世界位移，投影到相机自身 XY 平面（垂直于 camera.forward）上，
@@ -324,11 +530,16 @@ public class MapInspector : MonoBehaviour
 
     /// <summary>
     /// 先按 minX/maxX/minY/maxY 限制 X、Y，
-    /// 再沿父物体的本地 Z 轴调整，使结果始终落在相机自身的 XY 平面内。
+    /// 再沿父物体的本地 Z 轴调整，使结果落在"当前相机位置所在的 XY 平面"内。
     /// </summary>
     private Vector3 GetClampedCameraLocalPosition(Vector3 localPosition)
     {
-        CacheMapPlane();
+        Transform cam = mainCamera.transform;
+        Transform parent = cam.parent;
+
+        // 以调用时相机的实时位置作为平面基准，而不是启动时缓存的位置
+        Vector3 planeOrigin = cam.position;
+        Vector3 f = cam.forward;
 
         if (enableBounds)
         {
@@ -336,18 +547,14 @@ public class MapInspector : MonoBehaviour
             localPosition.y = Mathf.Clamp(localPosition.y, minY, maxY);
         }
 
-        Transform cam = mainCamera.transform;
-        Transform parent = cam.parent;
-
-        Vector3 f = cam.forward;
         Vector3 worldPos = parent != null ? parent.TransformPoint(localPosition) : localPosition;
         Vector3 zAxisWorld = parent != null ? parent.TransformVector(Vector3.forward) : Vector3.forward;
 
         float denom = Vector3.Dot(zAxisWorld, f);
         if (Mathf.Abs(denom) < 0.0001f) return localPosition; // 退化情况：无法补偿
 
-        // 沿父物体 Z 轴移动 t，使 (worldPos + t * zAxis - origin) · f = 0
-        float t = -Vector3.Dot(worldPos - mapPlaneOrigin, f) / denom;
+        // 沿父物体 Z 轴移动 t，使 (worldPos + t * zAxis - planeOrigin) · f = 0
+        float t = -Vector3.Dot(worldPos - planeOrigin, f) / denom;
         worldPos += zAxisWorld * t;
 
         return parent != null ? parent.InverseTransformPoint(worldPos) : worldPos;
@@ -372,6 +579,7 @@ public class MapInspector : MonoBehaviour
     {
         if (isMapMode == enableMap) return;
         isMapMode = enableMap;
+        ClearMoveFollowFocus();
 
         EnsureUICached();
 
@@ -430,13 +638,9 @@ public class MapInspector : MonoBehaviour
                     Collider playerCol = battleFocusTarget.GetComponentInChildren<Collider>();
                     Vector3 focusPoint = playerCol != null ? playerCol.bounds.center : battleFocusTarget.position;
 
-                    Vector3 targetCamPos = focusPoint + cameraOffset;
-                    Vector3 targetLocalPos = mainCamera.transform.parent != null
-                        ? mainCamera.transform.parent.InverseTransformPoint(targetCamPos)
-                        : targetCamPos;
-                    targetLocalPos = GetClampedCameraLocalPosition(targetLocalPos);
-
-                    mainCamera.transform.DOLocalMove(targetLocalPos, 0.4f).SetEase(Ease.OutCubic);
+                    // 与左键聚焦共用同一套"屏幕中心 -> 目标点"的位移计算，
+                    // 不再依赖启动时缓存的 cameraOffset（它同样会在相机被外部改动后过期）。
+                    FocusCameraOnWorldPosition(focusPoint, 0.4f);
                 }
             }
         }

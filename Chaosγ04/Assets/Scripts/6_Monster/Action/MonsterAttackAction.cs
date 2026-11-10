@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -11,11 +12,24 @@ public class MonsterAttackAction : MonsterActionBase
     [Header("网格管理器引用")]
     public GridManager gridManager;
 
+    [Header("网格视觉引用")]
+    [SerializeField] private GridVisualManager visualManager;
+
     [Header("Animator引用")]
     public Animator monsterAnimator;
 
     [Header("动画参数配置")]
     public string attackTriggerName = "Attack";
+
+    [Header("攻击目标格提示")]
+    [Tooltip("引用 MonsterAttack 的 GridStyleData，用于攻击目标格的预警色与确认色。")]
+    [SerializeField] private GridStyleData attackGridStyle;
+
+    [Tooltip("目标格显示 CellClickedColor / LineClickedColor 的预警时长（秒）。")]
+    [SerializeField, Min(0f)] private float targetWarningDuration = 0.05f;
+
+    [Tooltip("目标格切换为 TargetCellColor / TargetLineColor 后，等待多久再发起攻击（秒）。")]
+    [SerializeField, Min(0f)] private float targetConfirmedDuration = 0.3f;
 
     [Header("打击节奏与保底配置")]
     [Tooltip("若动画未配置 Hit 事件，超时多少秒后自动保底扣血（防卡死）")]
@@ -37,6 +51,8 @@ public class MonsterAttackAction : MonsterActionBase
     private MonsterTarget currentAttackTarget;
     private bool hasDealtDamage;
     private Coroutine attackRoutine;
+    private CellManager attackTargetCell;
+    private readonly HashSet<CellManager> highlightedAttackRangeCells = new HashSet<CellManager>();
 
     public int AttackRange => monsterStats != null ? monsterStats.attackRange : 0;
     public int AttackDamage => monsterStats != null ? monsterStats.attackDamage : 0;
@@ -47,12 +63,14 @@ public class MonsterAttackAction : MonsterActionBase
         monsterStats = GetComponent<MonsterStats>();
         hateSystem = MonsterHateSystem.EnsureOn(selfIdentity);
         EnsureGridManager();
+        EnsureVisualManager();
         EnsureEventForwarder();
     }
 
     private void OnDisable()
     {
         StopAttackRoutine();
+        RestoreAttackRangeVisuals();
         CounterTimeManager.Instance?.CancelPending(this);
     }
 
@@ -97,6 +115,7 @@ public class MonsterAttackAction : MonsterActionBase
     public override void OnSkipped()
     {
         StopAttackRoutine();
+        RestoreAttackRangeVisuals();
         if (monsterAnimator != null)
         {
             monsterAnimator.ResetTrigger(Animator.StringToHash(attackTriggerName));
@@ -124,6 +143,7 @@ public class MonsterAttackAction : MonsterActionBase
         }
 
         gridManager.EnsureGridSystemInitialized();
+        RestoreAttackRangeVisuals();
 
         if (!TrySelectAttackTarget(out MonsterTarget target, out _))
         {
@@ -141,16 +161,24 @@ public class MonsterAttackAction : MonsterActionBase
 
     private IEnumerator AttackSequenceRoutine()
     {
+        ShowAttackRangeWarning();
+        yield return new WaitForSeconds(targetWarningDuration);
+        ShowAttackTargetConfirmed();
+        yield return new WaitForSeconds(targetConfirmedDuration);
+
         CounterTimeManager counterTimeManager = CounterTimeManager.Instance;
         if (currentAttackTarget != null &&
             currentAttackTarget.IsPlayer &&
             counterTimeManager != null &&
             counterTimeManager.TryOpen(this))
         {
+            RestoreAttackRangeVisuals();
+            counterTimeManager.FocusOnPlayerCell();
             yield return counterTimeManager.WaitForResolution(counterCardPresentationDelay);
         }
 
         PlayAttackAnimation();
+        RestoreAttackRangeVisuals();
 
         // 等待动画中的 Hit 事件触发，若超时则通过 fallback 自动保底执行
         yield return new WaitForSeconds(hitDelayFallback);
@@ -200,6 +228,89 @@ public class MonsterAttackAction : MonsterActionBase
         }
     }
 
+    private void ShowAttackRangeWarning()
+    {
+        if (attackGridStyle == null)
+        {
+            Debug.LogWarning($"[{name}] MonsterAttackAction 未配置 attackGridStyle，跳过攻击目标格提示。");
+            return;
+        }
+
+        CellManager attackerCell = MonsterPathfinding.FindMonsterCell(gridManager, selfIdentity);
+        if (attackerCell == null)
+        {
+            Debug.LogWarning($"[{name}] 无法通过 GridManager / CellManager 获取怪物所在格，跳过攻击范围提示。");
+            return;
+        }
+
+        highlightedAttackRangeCells.Clear();
+        HashSet<CellManager> attackRange = MonsterPathfinding.CalculateReachableCells(
+            gridManager,
+            selfIdentity,
+            attackerCell,
+            AttackRange,
+            blockByMonsters: false,
+            includePlayerCell: true);
+
+        if (currentAttackTarget != null && currentAttackTarget.Cell != null)
+        {
+            attackRange.Add(currentAttackTarget.Cell);
+        }
+
+        EnsureVisualManager();
+        if (visualManager == null)
+        {
+            Debug.LogWarning($"[{name}] 找不到 GridVisualManager，跳过攻击范围提示。");
+            return;
+        }
+
+        visualManager.HighlightCardRange(attackRange, attackGridStyle, playerCell: null, RangeType.Diamond);
+        highlightedAttackRangeCells.UnionWith(attackRange);
+
+        if (currentAttackTarget == null || currentAttackTarget.Cell == null)
+        {
+            return;
+        }
+
+        attackTargetCell = currentAttackTarget.Cell;
+    }
+
+    private void ShowAttackTargetConfirmed()
+    {
+        if (attackGridStyle == null || attackTargetCell == null)
+        {
+            return;
+        }
+
+        attackTargetCell.SetCellColor(
+            attackGridStyle.targetCellColor,
+            Application.isPlaying,
+            ignoreAccessState: true);
+        attackTargetCell.SetLineColor(
+            attackGridStyle.targetLineColor,
+            ignoreAccessState: true);
+    }
+
+    private void RestoreAttackRangeVisuals()
+    {
+        if (gridManager != null)
+        {
+            foreach (CellManager cell in highlightedAttackRangeCells)
+            {
+                if (cell == null)
+                {
+                    continue;
+                }
+
+                cell.SetCellColor(gridManager.cellNormalColor, Application.isPlaying);
+                cell.SetLineColor(gridManager.lineNormalColor);
+            }
+        }
+
+        highlightedAttackRangeCells.Clear();
+        attackTargetCell = null;
+    }
+
     public void SetSuppressedForTurn(bool suppressed)
     {
         suppressedForTurn = suppressed;
@@ -209,6 +320,7 @@ public class MonsterAttackAction : MonsterActionBase
     {
         suppressedForTurn = false;
         StopAttackRoutine();
+        RestoreAttackRangeVisuals();
         if (monsterAnimator != null)
         {
             monsterAnimator.ResetTrigger(Animator.StringToHash(attackTriggerName));
@@ -264,6 +376,14 @@ public class MonsterAttackAction : MonsterActionBase
         }
     }
 
+    private void EnsureVisualManager()
+    {
+        if (visualManager == null)
+        {
+            visualManager = FindFirstObjectByType<GridVisualManager>();
+        }
+    }
+
     private void EnsureHateSystem()
     {
         if (hateSystem == null)
@@ -295,8 +415,17 @@ public class MonsterAttackAction : MonsterActionBase
 
     private void ResolveAttackDamage(MonsterTarget target)
     {
-        (int monsterX, int monsterZ) = gridManager.GetGridPosition(transform.position);
-        Vector2Int attackerGrid = new Vector2Int(monsterX, monsterZ);
+        CellManager attackerCell = MonsterPathfinding.FindMonsterCell(gridManager, selfIdentity);
+        Vector2Int? attackerGrid = null;
+        if (attackerCell != null)
+        {
+            (int monsterX, int monsterZ) = gridManager.GetCellGridPosition(attackerCell);
+            attackerGrid = new Vector2Int(monsterX, monsterZ);
+        }
+        else
+        {
+            Debug.LogWarning($"[{name}] 无法通过 GridManager / CellManager 获取攻击者所在格，玩家朝向减伤将跳过。");
+        }
 
         if (target.IsPlayer)
         {
@@ -338,6 +467,7 @@ public class MonsterAttackAction : MonsterActionBase
     {
         base.CancelAction();
         StopAttackRoutine();
+        RestoreAttackRangeVisuals();
         CounterTimeManager.Instance?.CancelPending(this);
 
         if (monsterAnimator != null)

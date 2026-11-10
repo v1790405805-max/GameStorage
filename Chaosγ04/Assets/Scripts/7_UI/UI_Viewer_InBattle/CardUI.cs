@@ -67,6 +67,13 @@ public class CardUI : MonoBehaviour,
     public Color unaffordableColor = new Color(1f, 0.2f, 0.2f, 1f);
     [Tooltip("回合结束选牌模式下的悬停边框颜色（独立于费用绿/红，默认金黄色）")]
     public Color selectingHoverColor = new Color(1f, 0.85f, 0.2f, 1f);
+    [Tooltip("特殊条件满足时显示的 HDR 自发光描边颜色")]
+    [ColorUsage(true, true)]
+    public Color triggerColor = new Color(2.2f, 1.6f, 0.2f, 1f);
+    [Tooltip("Trigger 外轮廓向卡牌外部扩展的像素距离")]
+    [SerializeField, Min(0f)] private float triggerOutlineWidth = 4f;
+    [Tooltip("反击阶段可用反击卡的基础放大倍率")]
+    [SerializeField, Min(1f)] private float counterCardScaleMultiplier = 1.08f;
 
     [Header("平移与缩放配置")]
     [Tooltip("按住移出 HandArea 后，向上平移的 Y 轴距离")]
@@ -84,6 +91,12 @@ public class CardUI : MonoBehaviour,
     private bool isDragging = false;
     private bool hasShifted = false;
     private bool hasCustomHomeTransform = false; // 坐标保护锁
+    private bool isHoverHighlightRequested = false;
+    private bool isTriggerConditionMet = false;
+    private bool isCounterCardUsable = false;
+    private GameObject triggerOutlineRoot;
+    private Image[] triggerOutlineBars;
+    private Tween cardScaleTween;
     private Camera uiCamera;
 
     public CardData CurrentCardData => currentCardData;
@@ -135,6 +148,8 @@ public class CardUI : MonoBehaviour,
             highlightBorderImage.gameObject.SetActive(false);
         }
 
+        RefreshEdgeHighlight();
+
         if (CombatStatsManager.Instance != null)
         {
             CombatStatsManager.Instance.OnActionPointCountChanged += HandleActionPointCountChanged;
@@ -167,6 +182,32 @@ public class CardUI : MonoBehaviour,
         if (data != null)
         {
             UpdateCardTypeColor(data.type);
+        }
+
+        isCounterCardUsable = EvaluateCounterCardCondition();
+        isTriggerConditionMet = EvaluateComboTriggerCondition() || isCounterCardUsable;
+        RefreshEdgeHighlight();
+        AnimateCardScale(GetBaseDisplayScale(), Ease.OutCubic);
+    }
+
+    private void Update()
+    {
+        bool nextCounterCardUsable = EvaluateCounterCardCondition();
+        bool nextTriggerState = EvaluateComboTriggerCondition() || nextCounterCardUsable;
+        if (nextTriggerState == isTriggerConditionMet &&
+            nextCounterCardUsable == isCounterCardUsable)
+        {
+            return;
+        }
+
+        isTriggerConditionMet = nextTriggerState;
+        bool counterUsabilityChanged = nextCounterCardUsable != isCounterCardUsable;
+        isCounterCardUsable = nextCounterCardUsable;
+        RefreshEdgeHighlight();
+
+        if (counterUsabilityChanged)
+        {
+            AnimateCardScale(GetBaseDisplayScale(), Ease.OutCubic);
         }
     }
 
@@ -266,7 +307,7 @@ public class CardUI : MonoBehaviour,
         transform.DOKill();
 
         // 悬停时：轻微放大、回正旋转、向上平滑浮起 35 像素
-        transform.DOScale(originalScale * 1.15f, tweenDuration).SetEase(Ease.OutBack);
+        AnimateCardScale(GetBaseDisplayScale() * 1.15f, Ease.OutBack);
         transform.DOLocalRotate(Vector3.zero, tweenDuration).SetEase(Ease.OutBack);
         transform.DOLocalMove(originalLocalPos + new Vector3(0f, 35f, 0f), tweenDuration).SetEase(Ease.OutBack);
     }
@@ -285,7 +326,7 @@ public class CardUI : MonoBehaviour,
         transform.DOKill();
 
         // 移出鼠标平滑归位至弧线标准基准点
-        transform.DOScale(originalScale, tweenDuration).SetEase(Ease.OutCubic);
+        AnimateCardScale(GetBaseDisplayScale(), Ease.OutCubic);
         transform.DOLocalMove(originalLocalPos, tweenDuration).SetEase(Ease.OutCubic);
         transform.DOLocalRotate(originalLocalRot, tweenDuration).SetEase(Ease.OutCubic);
     }
@@ -315,6 +356,7 @@ public class CardUI : MonoBehaviour,
         currentlySelectedCard = this;
         isDragging = true;
         hasShifted = false;
+        UpdateHighlightState(true);
 
         if (HandCardArcLayout.Instance != null)
         {
@@ -348,6 +390,7 @@ public class CardUI : MonoBehaviour,
         if (isDisplayOnly || !isDragging) return;
 
         isDragging = false;
+        RefreshEdgeHighlight();
         RectTransform targetArea = handAreaRect != null ? handAreaRect : rectTransform;
         bool isOutsideHandArea = !RectTransformUtility.RectangleContainsScreenPoint(
             targetArea,
@@ -392,7 +435,7 @@ public class CardUI : MonoBehaviour,
 
         transform.DOLocalMove(targetPos, tweenDuration).SetEase(Ease.OutBack);
         transform.DOLocalRotate(Vector3.zero, tweenDuration).SetEase(Ease.OutBack);
-        transform.DOScale(originalScale * shiftedScaleMultiplier, tweenDuration).SetEase(Ease.OutBack);
+        AnimateCardScale(GetBaseDisplayScale() * shiftedScaleMultiplier, Ease.OutBack);
 
         if (CardDragController.Instance != null)
         {
@@ -407,7 +450,7 @@ public class CardUI : MonoBehaviour,
 
         transform.DOLocalMove(originalLocalPos, tweenDuration).SetEase(Ease.OutCubic);
         transform.DOLocalRotate(originalLocalRot, tweenDuration).SetEase(Ease.OutCubic);
-        transform.DOScale(originalScale * 1.15f, tweenDuration).SetEase(Ease.OutCubic);
+        AnimateCardScale(GetBaseDisplayScale() * 1.15f, Ease.OutCubic);
 
         if (CardDragController.Instance != null)
         {
@@ -428,7 +471,7 @@ public class CardUI : MonoBehaviour,
 
         transform.DOLocalMove(originalLocalPos, tweenDuration).SetEase(Ease.OutCubic);
         transform.DOLocalRotate(originalLocalRot, tweenDuration).SetEase(Ease.OutCubic);
-        transform.DOScale(originalScale, tweenDuration).SetEase(Ease.OutCubic);
+        AnimateCardScale(GetBaseDisplayScale(), Ease.OutCubic);
 
         if (CardDragController.Instance != null)
         {
@@ -443,26 +486,171 @@ public class CardUI : MonoBehaviour,
 
     private void UpdateHighlightState(bool active)
     {
-        if (highlightBorderImage == null) return;
+        isHoverHighlightRequested = active;
+        RefreshEdgeHighlight();
+    }
 
-        if (!active)
+    private void RefreshEdgeHighlight()
+    {
+        RefreshTriggerOutline();
+
+        if (highlightBorderImage == null)
+        {
+            return;
+        }
+
+        if (isDisplayOnly || currentCardData == null)
         {
             highlightBorderImage.gameObject.SetActive(false);
             return;
         }
 
-        if (currentCardData != null && CombatStatsManager.Instance != null)
+        if (!isHoverHighlightRequested || CombatStatsManager.Instance == null)
         {
-            if (isSelectingMode)
-            {
-                highlightBorderImage.color = selectingHoverColor;
-            }
-            else
-            {
-                highlightBorderImage.color = CanUseCurrentCard() ? affordableColor : unaffordableColor;
-            }
-            highlightBorderImage.gameObject.SetActive(true);
+            highlightBorderImage.gameObject.SetActive(false);
+            return;
         }
+
+        if (isSelectingMode || isDragging || hasShifted)
+        {
+            highlightBorderImage.color = selectingHoverColor;
+        }
+        else
+        {
+            highlightBorderImage.color = CanUseCurrentCard() ? affordableColor : unaffordableColor;
+        }
+
+        highlightBorderImage.gameObject.SetActive(true);
+    }
+
+    private void RefreshTriggerOutline()
+    {
+        EnsureTriggerOutline();
+        if (triggerOutlineRoot == null || triggerOutlineBars == null)
+        {
+            return;
+        }
+
+        foreach (Image outlineBar in triggerOutlineBars)
+        {
+            if (outlineBar != null)
+            {
+                outlineBar.color = triggerColor;
+            }
+        }
+
+        triggerOutlineRoot.SetActive(
+            isTriggerConditionMet &&
+            !isDragging &&
+            !hasShifted);
+    }
+
+    private void EnsureTriggerOutline()
+    {
+        if (triggerOutlineRoot != null)
+        {
+            return;
+        }
+
+        triggerOutlineRoot = new GameObject("TriggerOutline", typeof(RectTransform));
+        RectTransform rootRect = triggerOutlineRoot.GetComponent<RectTransform>();
+        rootRect.SetParent(transform, false);
+        rootRect.SetAsFirstSibling();
+        rootRect.anchorMin = Vector2.zero;
+        rootRect.anchorMax = Vector2.one;
+        rootRect.offsetMin = Vector2.zero;
+        rootRect.offsetMax = Vector2.zero;
+
+        triggerOutlineBars = new[]
+        {
+            CreateTriggerOutlineBar("Top", rootRect,
+                new Vector2(0f, 1f), new Vector2(1f, 1f),
+                new Vector2(0.5f, 1f), new Vector2(0f, triggerOutlineWidth),
+                new Vector2(triggerOutlineWidth * 2f, triggerOutlineWidth)),
+            CreateTriggerOutlineBar("Bottom", rootRect,
+                new Vector2(0f, 0f), new Vector2(1f, 0f),
+                new Vector2(0.5f, 0f), new Vector2(0f, -triggerOutlineWidth),
+                new Vector2(triggerOutlineWidth * 2f, triggerOutlineWidth)),
+            CreateTriggerOutlineBar("Left", rootRect,
+                new Vector2(0f, 0f), new Vector2(0f, 1f),
+                new Vector2(0f, 0.5f), new Vector2(-triggerOutlineWidth, 0f),
+                new Vector2(triggerOutlineWidth, triggerOutlineWidth * 2f)),
+            CreateTriggerOutlineBar("Right", rootRect,
+                new Vector2(1f, 0f), new Vector2(1f, 1f),
+                new Vector2(1f, 0.5f), new Vector2(triggerOutlineWidth, 0f),
+                new Vector2(triggerOutlineWidth, triggerOutlineWidth * 2f))
+        };
+
+        triggerOutlineRoot.SetActive(false);
+    }
+
+    private Image CreateTriggerOutlineBar(
+        string objectName,
+        RectTransform parent,
+        Vector2 anchorMin,
+        Vector2 anchorMax,
+        Vector2 pivot,
+        Vector2 anchoredPosition,
+        Vector2 sizeDelta)
+    {
+        GameObject barObject = new GameObject(
+            objectName,
+            typeof(RectTransform),
+            typeof(CanvasRenderer),
+            typeof(Image));
+        RectTransform barRect = barObject.GetComponent<RectTransform>();
+        barRect.SetParent(parent, false);
+        barRect.anchorMin = anchorMin;
+        barRect.anchorMax = anchorMax;
+        barRect.pivot = pivot;
+        barRect.anchoredPosition = anchoredPosition;
+        barRect.sizeDelta = sizeDelta;
+
+        Image barImage = barObject.GetComponent<Image>();
+        barImage.raycastTarget = false;
+        barImage.maskable = false;
+        barImage.color = triggerColor;
+        return barImage;
+    }
+
+    private Vector3 GetBaseDisplayScale()
+    {
+        return originalScale * (isCounterCardUsable ? counterCardScaleMultiplier : 1f);
+    }
+
+    private void AnimateCardScale(Vector3 targetScale, Ease ease)
+    {
+        cardScaleTween?.Kill();
+        cardScaleTween = transform
+            .DOScale(targetScale, tweenDuration)
+            .SetEase(ease);
+    }
+
+    private bool EvaluateComboTriggerCondition()
+    {
+        if (isDisplayOnly || currentCardData == null)
+        {
+            return false;
+        }
+
+        return currentCardData.combo > 0 &&
+            (currentCardData.effectFlags & CardEffectType.Combo) != 0 &&
+            CardManager.Instance != null &&
+            CardManager.Instance.MeetsCombo(currentCardData.combo);
+    }
+
+    private bool EvaluateCounterCardCondition()
+    {
+        if (isDisplayOnly || currentCardData == null)
+        {
+            return false;
+        }
+
+        CounterTimeManager counterTimeManager = CounterTimeManager.Instance;
+        return counterTimeManager != null &&
+            counterTimeManager.IsCounterStageActive &&
+            currentCardData.isCounterCard &&
+            counterTimeManager.CanUseCard(currentCardData);
     }
 
     private bool CanUseCurrentCard()
@@ -487,10 +675,15 @@ public class CardUI : MonoBehaviour,
     private void HandleActionPointCountChanged(int usedActionPointCount)
     {
         RefreshCostDisplay();
+        bool nextCounterCardUsable = EvaluateCounterCardCondition();
+        bool counterUsabilityChanged = nextCounterCardUsable != isCounterCardUsable;
+        isCounterCardUsable = nextCounterCardUsable;
+        isTriggerConditionMet = EvaluateComboTriggerCondition() || isCounterCardUsable;
+        RefreshEdgeHighlight();
 
-        if (highlightBorderImage != null && highlightBorderImage.gameObject.activeSelf)
+        if (counterUsabilityChanged)
         {
-            UpdateHighlightState(true);
+            AnimateCardScale(GetBaseDisplayScale(), Ease.OutCubic);
         }
     }
 
@@ -512,6 +705,7 @@ public class CardUI : MonoBehaviour,
             CombatStatsManager.Instance.OnActionPointCountChanged -= HandleActionPointCountChanged;
         }
 
+        cardScaleTween?.Kill();
         transform.DOKill();
     }
 }

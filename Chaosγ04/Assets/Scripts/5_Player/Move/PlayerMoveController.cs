@@ -34,6 +34,10 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
 
     private bool isMoving = false;
     public bool IsMoving => isMoving;
+    private bool isManualMoveInProgress = false;
+    public bool IsManualMoveInProgress => isManualMoveInProgress;
+    public Transform PlayerTransform => playerTransform;
+    public CellManager PlayerOccupiedCell => playerOccupiedCell;
 
     private Vector2Int currentClickedGrid = new Vector2Int(-1, -1);
     private CellManager currentClickedCell;
@@ -48,6 +52,7 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
 
     private CellManager pendingPressCell;
     private float pressStartTime = -1f;
+    private bool suppressMapFocusUntilRelease = false;
 
     public bool IsUsingCard { get; set; } = false;
 
@@ -237,6 +242,18 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         }
     }
 
+    /// <summary>
+    /// 由 MapInspector 在左键松开时消费，确保取消目标选择的点击不会再触发视聚焦。
+    /// </summary>
+    public bool ConsumeMapFocusSuppression()
+    {
+        if (!suppressMapFocusUntilRelease)
+            return false;
+
+        suppressMapFocusUntilRelease = false;
+        return true;
+    }
+
     public PlayerMovementPreviewer MovementPreviewer
     {
         get
@@ -385,6 +402,16 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
             ? hoverController.CurrentHoverCell
             : null;
         bool isValidHover = hoverCell != null;
+
+        if (!hasPendingMoveFacing &&
+            currentClickedCell != null &&
+            Mouse.current.leftButton.wasPressedThisFrame &&
+            IsPlayerGridCell(hoverCell))
+        {
+            suppressMapFocusUntilRelease = true;
+            ClearClickedGrid();
+            return;
+        }
 
         if (Mouse.current.leftButton.wasPressedThisFrame)
         {
@@ -825,6 +852,7 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
 
         ClearPath();
         ClearClickedGrid();
+        isManualMoveInProgress = true;
         isMoving = true;
 
         if (playerAnimator != null) playerAnimator.SetBool("Move", true);
@@ -865,6 +893,7 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
             SetPlayerOccupiedCell(next);
         }
 
+        isManualMoveInProgress = false;
         isMoving = false;
         if (playerAnimator != null) playerAnimator.SetBool("Move", false);
 

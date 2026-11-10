@@ -1,11 +1,9 @@
 using System.Collections.Generic;
-using DG.Tweening;
 using UnityEngine;
 
 /// <summary>
 /// 怪物回合相机导演。
-/// 玩家回合结束时保存相机状态；怪物回合期间聚焦到正在执行 Action 的怪物；
-/// 玩家回合重新开始时恢复进入怪物回合前的相机状态。
+/// 怪物回合期间聚焦到正在执行 Action 的怪物；玩家回合开始时由 MapInspector 聚焦玩家所在地格。
 /// </summary>
 [DisallowMultipleComponent]
 public class MonsterTurnInspector : MonoBehaviour
@@ -13,12 +11,6 @@ public class MonsterTurnInspector : MonoBehaviour
     [Header("怪物回合相机")]
     [Tooltip("相机持续跟随怪物时的平滑时间（秒）。数值越小，相机越紧跟怪物。")]
     [SerializeField, Min(0.01f)] private float followSmoothTime = 0.15f;
-
-    [Tooltip("怪物回合结束时，相机恢复到进入怪物回合时状态所需的时间（秒）。")]
-    [SerializeField, Min(0.01f)] private float restoreDuration = 0.4f;
-
-    [Tooltip("怪物回合结束时，相机恢复位移和镜头尺寸使用的 DOTween 缓动曲线。")]
-    [SerializeField] private Ease restoreEase = Ease.OutCubic;
 
     // 当前怪物回合中已订阅的 ActionManager，防止重复添加事件。
     private readonly List<MonsterActionManager> subscribedManagers =
@@ -30,35 +22,12 @@ public class MonsterTurnInspector : MonoBehaviour
     private readonly HashSet<MonsterActionManager> activeManagersThisScan =
         new HashSet<MonsterActionManager>();
 
-    // 当前怪物回合使用的相机，以及需要恢复的完整镜头状态。
+    // 当前怪物回合使用的相机与跟随状态。
     private Camera mainCamera;
-    private CameraSnapshot turnStartSnapshot;
     private Vector3 focusOffset;
     private Vector3 followVelocity;
     private Transform currentFocusTarget;
-    private bool hasCameraSnapshot;
     private bool isTrackingMonsterTurn;
-
-    private struct CameraSnapshot
-    {
-        public Vector3 position;
-        public Quaternion rotation;
-        public bool orthographic;
-        public float orthographicSize;
-        public float fieldOfView;
-
-        public static CameraSnapshot Capture(Camera camera)
-        {
-            return new CameraSnapshot
-            {
-                position = camera.transform.position,
-                rotation = camera.transform.rotation,
-                orthographic = camera.orthographic,
-                orthographicSize = camera.orthographicSize,
-                fieldOfView = camera.fieldOfView
-            };
-        }
-    }
 
     private void Start()
     {
@@ -83,7 +52,6 @@ public class MonsterTurnInspector : MonoBehaviour
         ClearMonsterSubscriptions();
         knownActiveManagers.Clear();
         activeManagersThisScan.Clear();
-        DOTween.Kill(this);
     }
 
     private void Update()
@@ -129,15 +97,9 @@ public class MonsterTurnInspector : MonoBehaviour
             return;
         }
 
-        // 清掉本脚本上一次尚未结束的移动，避免两次聚焦互相叠加。
-        DOTween.Kill(this);
-
-        // 记录进入怪物回合时的镜头状态，回合结束后原样恢复。
-        turnStartSnapshot = CameraSnapshot.Capture(mainCamera);
         focusOffset = CalculateFocusOffset(mainCamera);
         followVelocity = Vector3.zero;
         currentFocusTarget = null;
-        hasCameraSnapshot = true;
         isTrackingMonsterTurn = true;
 
         // 先记录怪物回合开始时的已有怪物，避免把它们的首次扫描误判为新生成。
@@ -154,15 +116,13 @@ public class MonsterTurnInspector : MonoBehaviour
         currentFocusTarget = null;
         followVelocity = Vector3.zero;
 
-        RestoreCameraState();
-
         isTrackingMonsterTurn = false;
-        hasCameraSnapshot = false;
+        MapInspector.Instance?.FocusOnPlayerCell();
     }
 
     private void HandleActionStarted(MonsterActionBase action)
     {
-        if (action == null)
+        if (action == null || IsCounterCameraLocked())
         {
             return;
         }
@@ -202,6 +162,12 @@ public class MonsterTurnInspector : MonoBehaviour
     {
         if (!isTrackingMonsterTurn || mainCamera == null)
         {
+            return;
+        }
+
+        if (IsCounterCameraLocked())
+        {
+            followVelocity = Vector3.zero;
             return;
         }
 
@@ -317,7 +283,10 @@ public class MonsterTurnInspector : MonoBehaviour
 
     private void FocusNewlySpawnedMonster(MonsterActionManager actionManager)
     {
-        if (!isTrackingMonsterTurn || mainCamera == null || actionManager == null)
+        if (IsCounterCameraLocked() ||
+            !isTrackingMonsterTurn ||
+            mainCamera == null ||
+            actionManager == null)
         {
             return;
         }
@@ -363,39 +332,10 @@ public class MonsterTurnInspector : MonoBehaviour
         return -camera.transform.forward * Mathf.Max(10f, camera.nearClipPlane + 1f);
     }
 
-    private void RestoreCameraState()
+    private static bool IsCounterCameraLocked()
     {
-        if (mainCamera == null || !hasCameraSnapshot)
-        {
-            return;
-        }
-
-        DOTween.Kill(this);
-
-        // 位置、旋转和镜头尺寸分别恢复，避免怪物回合期间被其他操作改变。
-        mainCamera.transform
-            .DOMove(turnStartSnapshot.position, restoreDuration)
-            .SetEase(restoreEase)
-            .SetId(this);
-
-        mainCamera.transform
-            .DORotateQuaternion(turnStartSnapshot.rotation, restoreDuration)
-            .SetEase(restoreEase)
-            .SetId(this);
-
-        if (turnStartSnapshot.orthographic)
-        {
-            mainCamera
-                .DOOrthoSize(turnStartSnapshot.orthographicSize, restoreDuration)
-                .SetEase(restoreEase)
-                .SetId(this);
-        }
-        else
-        {
-            mainCamera
-                .DOFieldOfView(turnStartSnapshot.fieldOfView, restoreDuration)
-                .SetEase(restoreEase)
-                .SetId(this);
-        }
+        CounterTimeManager counterTimeManager = CounterTimeManager.Instance;
+        return counterTimeManager != null && counterTimeManager.IsCounterStageActive;
     }
+
 }

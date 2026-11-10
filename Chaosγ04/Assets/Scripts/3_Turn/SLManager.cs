@@ -268,6 +268,8 @@ public class SLManager : MonoBehaviour, ITurnStateListener
             TurnManager.Instance.RestoreRoundCount(snapshotRoundCount);
         }
 
+        MapInspector.Instance?.FocusOnPlayerCell();
+
         if (logDebugInfo)
         {
             Debug.Log("[SLManager] 已恢复到回合开始时的状态。");

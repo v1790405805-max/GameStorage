@@ -1,4 +1,5 @@
 using System.Collections;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -22,11 +23,20 @@ public class CounterTimeManager : MonoBehaviour
     [Tooltip("反击时间中显示的放弃反击按钮；系统会自动显示和隐藏")]
     [SerializeField] private Button abandonCounterButton;
 
+    [Header("反击视角聚焦")]
+    [SerializeField] private GridManager gridManager;
+    [SerializeField] private PlayerMoveController playerMoveController;
+    [SerializeField, Min(0f)] private float focusDuration = 0.4f;
+
     private CounterTimeState state = CounterTimeState.Inactive;
     private MonsterAttackAction pendingAttack;
     private bool hasPlayedCard;
+    private bool isCounterStageActive;
+    private Tween focusTween;
 
     public bool IsActive => state != CounterTimeState.Inactive;
+    public bool IsCounterStageActive => isCounterStageActive;
+    private Camera MainCamera => MainCameraAppoint.Current;
 
     private void Awake()
     {
@@ -37,6 +47,7 @@ public class CounterTimeManager : MonoBehaviour
         }
 
         Instance = this;
+        ResolveFocusReferences();
         ResetState();
         BindAbandonButton(abandonCounterButton);
     }
@@ -77,6 +88,9 @@ public class CounterTimeManager : MonoBehaviour
         state = CounterTimeState.Inactive;
         pendingAttack = null;
         hasPlayedCard = false;
+        isCounterStageActive = false;
+        focusTween?.Kill();
+        focusTween = null;
         UpdateAbandonButton(false);
     }
 
@@ -121,9 +135,57 @@ public class CounterTimeManager : MonoBehaviour
 
         pendingAttack = attackAction;
         hasPlayedCard = false;
+        isCounterStageActive = true;
         state = CounterTimeState.WaitingForCard;
         UpdateAbandonButton(true);
         return true;
+    }
+
+    /// <summary>
+    /// 将视角聚焦到玩家当前所在单元格。
+    /// 玩家格通过 GridManager / CellManager 解析，不使用攻击者 Transform 推导。
+    /// </summary>
+    public void FocusOnPlayerCell()
+    {
+        ResolveFocusReferences();
+
+        Camera mainCamera = MainCamera;
+        if (mainCamera == null || gridManager == null || playerMoveController == null)
+        {
+            return;
+        }
+
+        CellManager playerCell = ResolvePlayerCell();
+        if (playerCell == null)
+        {
+            return;
+        }
+
+        Vector3 focusPoint = GetCellFocusPoint(playerCell);
+        Ray centerRay = mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+        Plane focusPlane = new Plane(Vector3.up, new Vector3(0f, focusPoint.y, 0f));
+        if (!focusPlane.Raycast(centerRay, out float enter))
+        {
+            return;
+        }
+
+        Vector3 centerWorldPoint = centerRay.GetPoint(enter);
+        Vector3 worldDelta = focusPoint - centerWorldPoint;
+        worldDelta.y = 0f;
+
+        Transform cameraTransform = mainCamera.transform;
+        Vector3 planeDelta =
+            worldDelta - cameraTransform.forward * Vector3.Dot(worldDelta, cameraTransform.forward);
+        Vector3 localDelta = cameraTransform.parent != null
+            ? cameraTransform.parent.InverseTransformVector(planeDelta)
+            : planeDelta;
+        Vector3 targetLocalPosition = cameraTransform.localPosition + localDelta;
+
+        focusTween?.Kill();
+        cameraTransform.DOKill();
+        focusTween = cameraTransform
+            .DOLocalMove(targetLocalPosition, focusDuration)
+            .SetEase(Ease.OutCubic);
     }
 
     /// <summary>
@@ -184,6 +246,8 @@ public class CounterTimeManager : MonoBehaviour
         {
             yield return new WaitForSeconds(cardPresentationDelay);
         }
+
+        FinishCounterStage();
     }
 
     private void AbandonCounterWindow()
@@ -197,6 +261,50 @@ public class CounterTimeManager : MonoBehaviour
         UpdateAbandonButton(false);
     }
 
+    private void ResolveFocusReferences()
+    {
+        if (gridManager == null)
+        {
+            gridManager = FindFirstObjectByType<GridManager>();
+        }
+
+        if (playerMoveController == null)
+        {
+            playerMoveController = FindFirstObjectByType<PlayerMoveController>();
+        }
+    }
+
+    private CellManager ResolvePlayerCell()
+    {
+        Vector2Int playerGrid = playerMoveController.PlayerGridPos;
+        CellManager trackedCell = playerMoveController.PlayerOccupiedCell;
+
+        if (trackedCell != null)
+        {
+            var (trackedX, trackedZ) = gridManager.GetCellGridPosition(trackedCell);
+            if (trackedX == playerGrid.x && trackedZ == playerGrid.y)
+            {
+                return trackedCell;
+            }
+        }
+
+        int playerLayer = trackedCell != null ? gridManager.GetCellLayer(trackedCell) : 1;
+        return gridManager.GetCellManagerAt(playerGrid.x, playerGrid.y, playerLayer)
+            ?? gridManager.GetCellManagerAt(playerGrid.x, playerGrid.y);
+    }
+
+    private static Vector3 GetCellFocusPoint(CellManager cell)
+    {
+        Collider cellCollider = cell.GetComponentInChildren<Collider>();
+        if (cellCollider != null)
+        {
+            Bounds bounds = cellCollider.bounds;
+            return new Vector3(bounds.center.x, bounds.max.y, bounds.center.z);
+        }
+
+        return cell.transform.position;
+    }
+
     public void CancelPending(MonsterAttackAction attackAction)
     {
         if (pendingAttack != attackAction)
@@ -207,7 +315,17 @@ public class CounterTimeManager : MonoBehaviour
         state = CounterTimeState.Inactive;
         pendingAttack = null;
         hasPlayedCard = false;
+        isCounterStageActive = false;
+        focusTween?.Kill();
+        focusTween = null;
         UpdateAbandonButton(false);
+    }
+
+    private void FinishCounterStage()
+    {
+        isCounterStageActive = false;
+        focusTween?.Kill();
+        focusTween = null;
     }
 
     private static bool CanAnyCounterCardBePlayed()
