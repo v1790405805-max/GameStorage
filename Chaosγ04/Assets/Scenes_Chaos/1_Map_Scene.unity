@@ -28897,11 +28897,11 @@ MonoBehaviour:
   eventScenes:
   - 4_Event_Scene
   minorEnemyScenes:
-  - LightTest
+  - 2_Battle_Scene
   eliteEnemyScenes:
-  - LightTest
+  - 2_Battle_Scene
   bossScenes:
-  - LightTest
+  - 2_Battle_Scene
 --- !u!1 &2002965799
 GameObject:
   m_ObjectHideFlags: 0

@@ -13,7 +13,7 @@ EditorBuildSettings:
     guid: 040ffc2cc0e853649a14917731f9ceb4
   - enabled: 1
     path: Assets/Scenes_Chaos/2_Battle_Scene.unity
-    guid: cb9cf4ce34901c0439446a7eed645924
+    guid: d218c5e71ea1cf4478ff03716d2a3d5a
   - enabled: 1
     path: Assets/Scenes_Chaos/3_Shop_Scene.unity
     guid: c64f26da48f52a547a399db783deb9de
@@ -21,8 +21,11 @@ EditorBuildSettings:
     path: Assets/Scenes_Chaos/4_Event_Scene.unity
     guid: e5fc051fe99e33c4c8c154f89c45a81a
   - enabled: 1
-    path: Assets/Scenes_Chaos/LightTest.unity
+    path: Assets/Scenes_Chaos/2_Battle_Scene_Test.unity
     guid: 024ed6b2a6da9ae4fa705e7359bf0c4e
+  - enabled: 1
+    path: Assets/Scenes_Chaos/Battle_Scene_1.0.unity
+    guid: cb9cf4ce34901c0439446a7eed645924
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
