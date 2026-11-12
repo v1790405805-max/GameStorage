@@ -16,6 +16,7 @@ MonoBehaviour:
   cardName: "\u6D41\u661F\u7A81\u8FDB"
   cardArtwork: {fileID: 21300000, guid: 11214ea3f53f5a443afe9395d9ea12f8, type: 3}
   type: 1
+  isCounterCard: 0
   cost: 1
   effectFlags: 66
   moveDistance: 0
@@ -26,6 +27,8 @@ MonoBehaviour:
   actionPointChange: 0
   drawAmount: 2
   discardAmount: 0
+  sturdy: 0
+  combo: 0
   rangeType: 1
   rangeDistance: 1
   targetSelectMode: 1
@@ -49,4 +52,4 @@ MonoBehaviour:
   hitVFXPrefab: {fileID: 3782734080634790471, guid: 8d76d5284bb79154db7d08b61a80a4c3, type: 3}
   hitVFXOffset: {x: 0, y: 0.5, z: 0}
   gridStyle: {fileID: 11400000, guid: 88afb53f10edd8244949d4b08ce8e10e, type: 2}
-  description: "\u5BF91\u683C\u8303\u56F4\u5185\u7684\u654C\u4EBA\u653B\u51FB\uFF0C\u9020\u62104\u70B9\u4F24\u5BB3\uFF0C\u62BD2\u5F20\u5361\u3002\u82E5\u654C\u65B9\u5355\u4F4D\u80CC\u540E\u6709\u843D\u70B9\uFF0C\u5219\u653B\u51FB\u540E\u4F1A\u4F4D\u79FB\u81F3\u654C\u65B9\u8EAB\u540E"
+  description: "\u5BF91\u683C\u8303\u56F4\u5185\u7684\u654C\u4EBA\u653B\u51FB\uFF0C\u9020\u62104<color=#FFFFFF>\u70B9\u4F24\u5BB3\uFF0C\u62BD2<color=#FFFFFF>\u5F20\u5361\u3002\u82E5\u654C\u65B9\u5355\u4F4D\u80CC\u540E\u6709\u843D\u70B9\uFF0C\u5219\u653B\u51FB\u540E\u4F1A\u4F4D\u79FB\u81F3\u654C\u65B9\u8EAB\u540E"
