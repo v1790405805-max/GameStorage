@@ -373,11 +373,10 @@ public class HandCardArcLayout : MonoBehaviour
             yield break;
         }
 
-        card.transform.SetParent(cardManager.handUIContainer, false);
+        card.transform.SetParent(cardManager.handUIContainer, true);
         RectTransform rect = card.GetComponent<RectTransform>();
         if (rect != null)
         {
-            rect.localPosition = entryPosition;
             rect.localScale = Vector3.one * cardManager.cardSpawnScale;
         }
 
@@ -557,6 +556,13 @@ public class HandCardArcLayout : MonoBehaviour
     {
         try
         {
+            MapInspector mapInspector = MapInspector.Instance;
+            if (mapInspector != null)
+            {
+                // 先让手牌区从地图模式回到战斗模式，再以恢复后的坐标创建动画层。
+                yield return mapInspector.RestoreHandToBattleMode();
+            }
+
             cardManager.ResetCardsPlayedThisTurn();
             ResolvePileTargets();
             flightLayer = CreateCardAnimationLayer("CardDealFlightLayer");
@@ -751,11 +757,12 @@ public class HandCardArcLayout : MonoBehaviour
             CardUI card = newCards[i];
             if (card == null) continue;
 
-            card.transform.SetParent(cardManager.handUIContainer, false);
+            // 保留世界位置，让 RefreshLayout 从揭示位置平滑进入弧线，
+            // 避免手牌区域同时从地图模式恢复时发生位置跳变。
+            card.transform.SetParent(cardManager.handUIContainer, true);
             RectTransform rect = card.GetComponent<RectTransform>();
             if (rect != null)
             {
-                rect.localPosition = GetRevealPosition(i, newCards.Count);
                 rect.localScale = Vector3.one * cardManager.cardSpawnScale;
                 rect.localRotation = Quaternion.identity;
             }
@@ -784,6 +791,8 @@ public class HandCardArcLayout : MonoBehaviour
         {
             return;
         }
+
+        rect.DOKill();
 
         Sequence sequence = DOTween.Sequence();
         sequence.Append(rect.DOLocalMove(Vector3.zero, drawMoveDuration).SetEase(drawMoveEase));
@@ -868,7 +877,9 @@ public class HandCardArcLayout : MonoBehaviour
         CardUI cardUI = cardObject.GetComponent<CardUI>();
         if (cardUI != null)
         {
-            cardUI.Setup(data);
+            // 换手动画自行控制从牌堆尺寸到正常尺寸的缩放，
+            // 避免 CardUI.Setup 的缩放 Tween 与飞牌 Tween 同时修改 Transform。
+            cardUI.Setup(data, animateScale: false);
         }
 
         return cardUI;

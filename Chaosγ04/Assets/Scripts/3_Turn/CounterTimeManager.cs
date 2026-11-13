@@ -1,6 +1,9 @@
 using System.Collections;
+using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
 
 /// <summary>
@@ -10,6 +13,10 @@ using UnityEngine.UI;
 [DisallowMultipleComponent]
 public class CounterTimeManager : MonoBehaviour
 {
+    public const string PlayerMaskLayerName = "CounterTimePlayerMask";
+    public const string AttackerMaskLayerName = "CounterTimeAttackerMask";
+    private const float CounterTimeChromaticAberrationIntensity = 0.35f;
+
     private enum CounterTimeState
     {
         Inactive,
@@ -33,9 +40,14 @@ public class CounterTimeManager : MonoBehaviour
     private bool hasPlayedCard;
     private bool isCounterStageActive;
     private Tween focusTween;
+    private Volume resolvedGlobalVolume;
+    private ChromaticAberration counterChromaticAberration;
+    private readonly Dictionary<GameObject, int> maskedRendererLayers =
+        new Dictionary<GameObject, int>();
 
     public bool IsActive => state != CounterTimeState.Inactive;
     public bool IsCounterStageActive => isCounterStageActive;
+    public static bool IsCounterTimeMaskActive { get; private set; }
     private Camera MainCamera => MainCameraAppoint.Current;
 
     private void Awake()
@@ -64,6 +76,12 @@ public class CounterTimeManager : MonoBehaviour
         Instance = null;
     }
 
+    private void OnDisable()
+    {
+        EndCounterTimeMask();
+        ResetCounterTimeChromaticAberration();
+    }
+
     public static CounterTimeManager EnsureInstance(GameObject fallbackHost = null)
     {
         if (Instance != null)
@@ -88,9 +106,9 @@ public class CounterTimeManager : MonoBehaviour
         state = CounterTimeState.Inactive;
         pendingAttack = null;
         hasPlayedCard = false;
-        isCounterStageActive = false;
         focusTween?.Kill();
         focusTween = null;
+        FinishCounterStage();
         UpdateAbandonButton(false);
     }
 
@@ -137,6 +155,9 @@ public class CounterTimeManager : MonoBehaviour
         hasPlayedCard = false;
         isCounterStageActive = true;
         state = CounterTimeState.WaitingForCard;
+        MapInspector.Instance?.SetMapMode(false);
+        ApplyCounterTimeChromaticAberration();
+        BeginCounterTimeMask(attackAction);
         UpdateAbandonButton(true);
         return true;
     }
@@ -259,6 +280,7 @@ public class CounterTimeManager : MonoBehaviour
 
         state = CounterTimeState.Inactive;
         UpdateAbandonButton(false);
+        FinishCounterStage();
     }
 
     private void ResolveFocusReferences()
@@ -315,9 +337,9 @@ public class CounterTimeManager : MonoBehaviour
         state = CounterTimeState.Inactive;
         pendingAttack = null;
         hasPlayedCard = false;
-        isCounterStageActive = false;
         focusTween?.Kill();
         focusTween = null;
+        FinishCounterStage();
         UpdateAbandonButton(false);
     }
 
@@ -326,6 +348,178 @@ public class CounterTimeManager : MonoBehaviour
         isCounterStageActive = false;
         focusTween?.Kill();
         focusTween = null;
+        EndCounterTimeMask();
+        ResetCounterTimeChromaticAberration();
+
+        if (TurnManager.Instance != null &&
+            TurnManager.Instance.CurrentTurn == TurnState.Enemy)
+        {
+            MapInspector.Instance?.SetMapMode(true);
+        }
+    }
+
+    private void ApplyCounterTimeChromaticAberration()
+    {
+        EnsureCounterTimeChromaticAberration();
+        if (counterChromaticAberration == null)
+        {
+            return;
+        }
+
+        counterChromaticAberration.active = true;
+        counterChromaticAberration.intensity.overrideState = true;
+        counterChromaticAberration.intensity.value =
+            CounterTimeChromaticAberrationIntensity;
+    }
+
+    private void ResetCounterTimeChromaticAberration()
+    {
+        if (counterChromaticAberration != null)
+        {
+            counterChromaticAberration.intensity.value = 0f;
+        }
+    }
+
+    private void EnsureCounterTimeChromaticAberration()
+    {
+        if (counterChromaticAberration != null)
+        {
+            return;
+        }
+
+        if (resolvedGlobalVolume == null)
+        {
+            Volume[] volumes = FindObjectsByType<Volume>(FindObjectsSortMode.None);
+            for (int i = 0; i < volumes.Length; i++)
+            {
+                Volume volume = volumes[i];
+                if (volume != null && volume.isGlobal)
+                {
+                    resolvedGlobalVolume = volume;
+                    break;
+                }
+            }
+        }
+
+        if (resolvedGlobalVolume == null)
+        {
+            Debug.LogWarning(
+                "[CounterTimeManager] 未找到 Global Volume，无法切换色差效果。");
+            return;
+        }
+
+        VolumeProfile runtimeProfile = resolvedGlobalVolume.profile;
+        if (!runtimeProfile.TryGet(out counterChromaticAberration))
+        {
+            counterChromaticAberration =
+                runtimeProfile.Add<ChromaticAberration>(true);
+        }
+    }
+
+    private void BeginCounterTimeMask(MonsterAttackAction attackAction)
+    {
+        EndCounterTimeMask();
+
+        int playerLayer = LayerMask.NameToLayer(PlayerMaskLayerName);
+        int attackerLayer = LayerMask.NameToLayer(AttackerMaskLayerName);
+        Transform playerRoot = ResolvePlayerMaskRoot();
+        Transform attackerRoot = attackAction != null
+            ? attackAction.monsterAnimator != null
+                ? attackAction.monsterAnimator.transform
+                : attackAction.transform
+            : null;
+
+        if (playerLayer < 0 ||
+            attackerLayer < 0 ||
+            playerRoot == null ||
+            attackerRoot == null)
+        {
+            Debug.LogWarning(
+                "[CounterTimeManager] 反击遮罩缺少专用 Layer 或角色根节点，视觉遮罩将跳过。");
+            return;
+        }
+
+        int playerRendererCount =
+            AssignMaskLayer(playerRoot, playerLayer);
+        int attackerRendererCount =
+            AssignMaskLayer(attackerRoot, attackerLayer);
+        if (playerRendererCount == 0 || attackerRendererCount == 0)
+        {
+            Debug.LogWarning(
+                "[CounterTimeManager] 反击遮罩在玩家或攻击者下未找到角色网格，视觉遮罩将跳过。");
+            EndCounterTimeMask();
+            return;
+        }
+
+        IsCounterTimeMaskActive = true;
+    }
+
+    private Transform ResolvePlayerMaskRoot()
+    {
+        ResolveFocusReferences();
+        if (playerMoveController == null)
+        {
+            return null;
+        }
+
+        Transform playerTransform = playerMoveController.PlayerTransform != null
+            ? playerMoveController.PlayerTransform
+            : playerMoveController.transform;
+        return playerTransform;
+    }
+
+    private int AssignMaskLayer(Transform root, int layer)
+    {
+        int assignedCount = 0;
+        Renderer[] renderers = root.GetComponentsInChildren<Renderer>(true);
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            Renderer renderer = renderers[i];
+            if (renderer == null)
+            {
+                continue;
+            }
+
+            if (!(renderer is MeshRenderer) &&
+                !(renderer is SkinnedMeshRenderer) &&
+                !(renderer is SpriteRenderer))
+            {
+                continue;
+            }
+
+            if (string.Equals(
+                    renderer.gameObject.name,
+                    "shadow",
+                    System.StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            GameObject target = renderer.gameObject;
+            if (!maskedRendererLayers.ContainsKey(target))
+            {
+                maskedRendererLayers.Add(target, target.layer);
+            }
+
+            target.layer = layer;
+            assignedCount++;
+        }
+
+        return assignedCount;
+    }
+
+    private void EndCounterTimeMask()
+    {
+        IsCounterTimeMaskActive = false;
+        foreach (KeyValuePair<GameObject, int> pair in maskedRendererLayers)
+        {
+            if (pair.Key != null)
+            {
+                pair.Key.layer = pair.Value;
+            }
+        }
+
+        maskedRendererLayers.Clear();
     }
 
     private static bool CanAnyCounterCardBePlayed()

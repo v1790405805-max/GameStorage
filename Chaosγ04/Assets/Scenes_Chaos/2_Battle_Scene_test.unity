@@ -59675,29 +59675,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a641f740daf5ab438255b75d6f4de66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MapInspector
-  mapLayerMask:
-    serializedVersion: 2
-    m_Bits: 1
-  gridManager: {fileID: 0}
-  playerMoveController: {fileID: 0}
-  mapShortcutKey: 1
+  gridManager: {fileID: 1996419300}
+  playerMoveController: {fileID: 1860863964}
   handArea: {fileID: 858182729}
   handCollapsedTarget: {fileID: 1869918647}
-  nonEssentialHUD: {fileID: 0}
   collapsedCardSpacing: -140
-  collapsedHandScale: 1
+  collapsedHandScale: 0.9
+  mapShortcutKey: 1
   battleCameraSize: 5
-  mapInspectCameraSize: 3
-  enableBounds: 0
-  minX: -15
-  maxX: 15
-  minY: -15
-  maxY: 15
-  keyboardPanSpeed: 600
-  battleFocusTarget: {fileID: 0}
+  mapInspectCameraSize: 4.5
+  enableBounds: 1
+  boundsCenter: {fileID: 0}
+  minX: -5
+  maxX: 5
+  minY: -8
+  maxY: 5
+  scrollZoomSensitivity: 200
   minMapOrthoSize: 1.5
   maxMapOrthoSize: 6
-  scrollZoomSensitivity: 200
+  keyboardPanSpeed: 600
+  battleFocusTarget: {fileID: 0}
 --- !u!114 &465280096
 MonoBehaviour:
   m_ObjectHideFlags: 0

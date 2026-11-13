@@ -33,8 +33,13 @@ MonoBehaviour:
   rangeDistance: 1
   targetSelectMode: 1
   extraEffects: []
-  animationEffects: []
-  vfxEffects: []
+  animationEffects:
+  - effectScript: {fileID: 11500000, guid: 9bcaff3e235941c0a561299ba5120919, type: 3}
+    effectTypeName: PlayerAttackAnimation, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+  vfxEffects:
+  - effectScript: {fileID: 11500000, guid: 63653cd68eb54eb2b6350d6050332bdb, type: 3}
+    effectTypeName: StabVFX, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   hitVFXPrefab: {fileID: 0}
   hitVFXOffset: {x: 0, y: 0.5, z: 0}
   gridStyle: {fileID: 11400000, guid: c7730a9b49b1f8244b410ce1e2e6542b, type: 2}

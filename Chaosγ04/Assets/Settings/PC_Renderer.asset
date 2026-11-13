@@ -27,7 +27,8 @@ MonoBehaviour:
   m_RendererFeatures:
   - {fileID: 7833122117494664109}
   - {fileID: 5522868694205670217}
-  m_RendererFeatureMap: ad6b866f10d7b46c492341e3d02ba54c
+  - {fileID: 8412619012376543201}
+  m_RendererFeatureMap: ad6b866f10d7b46c492341e3d02ba54ce1bf66776ba0bf74
   m_UseNativeRenderPass: 1
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
@@ -96,3 +97,21 @@ MonoBehaviour:
     BlurQuality: 0
     Falloff: 100
     SampleCount: -1
+--- !u!114 &8412619012376543201
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56e91f4c5a9d4d6ba8c2a3b7e8f1d204, type: 3}
+  m_Name: CounterTimeMaskFeature
+  m_EditorClassIdentifier: Assembly-CSharp::CounterTimeMaskFeature
+  m_Active: 1
+  compositeShader: {fileID: 4800000, guid: b4e1d2c38a4d4f3a9c7e6b5d2a1f0c98, type: 3}
+  maskedLayers:
+    serializedVersion: 2
+    m_Bits: 384
+  darkenAmount: 0.68

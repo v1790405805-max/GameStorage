@@ -158,7 +158,7 @@ public class CardUI : MonoBehaviour,
         RefreshCostDisplay();
     }
 
-    public void Setup(CardData data)
+    public void Setup(CardData data, bool animateScale = true)
     {
         currentCardData = data;
         RefreshCostDisplay();
@@ -187,7 +187,10 @@ public class CardUI : MonoBehaviour,
         isCounterCardUsable = EvaluateCounterCardCondition();
         isTriggerConditionMet = EvaluateComboTriggerCondition() || isCounterCardUsable;
         RefreshEdgeHighlight();
-        AnimateCardScale(GetBaseDisplayScale(), Ease.OutCubic);
+        if (animateScale)
+        {
+            AnimateCardScale(GetBaseDisplayScale(), Ease.OutCubic);
+        }
     }
 
     private void Update()

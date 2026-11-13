@@ -234,6 +234,7 @@ public class TurnManager : MonoBehaviour
         Debug.Log($"========== 第 {currentRoundCount} 回合 / 玩家回合开始 ==========");
 
         SetGroupState(playerBehaviours, true);
+        MapInspector.Instance?.SetMapMode(false);
         MapInspector.Instance?.FocusOnPlayerCell();
 
         // ==========================================
@@ -268,6 +269,7 @@ public class TurnManager : MonoBehaviour
         Debug.Log($"========== 第 {currentRoundCount} 回合 / 玩家回合结束 / 敌方回合开始 ==========");
 
         SetGroupState(playerBehaviours, false);
+        MapInspector.Instance?.SetMapMode(true);
         AbilityCore.NotifyEnemyTurnStarted();
 
         // ==========================================

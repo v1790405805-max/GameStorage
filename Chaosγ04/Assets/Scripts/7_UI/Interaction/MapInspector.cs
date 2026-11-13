@@ -10,40 +10,59 @@ public class MapInspector : MonoBehaviour
 {
     public static MapInspector Instance { get; private set; }
 
-    [Header("--- 1. 交互与目标设置 ---")]
-    [Tooltip("左键聚焦功能使用的层级，请勾选地图格子所在的 Layer")]
-    public LayerMask mapLayerMask;
+    [Header("--- 1. 地图系统与Player引用 ---")]
+    [Tooltip("格子管理器，用于查询玩家所在格和格子层级。留空时会在场景中自动查找。")]
     [SerializeField] private GridManager gridManager;
+    [Tooltip("玩家移动控制器，用于获取玩家位置、移动状态并处理地图焦点。留空时会在场景中自动查找。")]
     [SerializeField] private PlayerMoveController playerMoveController;
-    public Key mapShortcutKey = Key.Space;
 
-    [Header("--- 2. UI 联动与动画参数 ---")]
+
+    [Header("--- 2. 手牌缩放动画参数 ---")]
+    [Tooltip("地图模式下需要收缩的手牌区域。")]
     public RectTransform handArea;
+    [Tooltip("地图模式下手牌区域移动到的目标位置。")]
     public Transform handCollapsedTarget;
-    public CanvasGroup nonEssentialHUD;
-    public float collapsedCardSpacing = -60f;
-    [Tooltip("地图模式下手牌缩小的比例 (默认 0.5，即缩小一半)")]
-    public float collapsedHandScale = 0.5f;
+    [Tooltip("地图模式下手牌卡片的间距。")]
+    public float collapsedCardSpacing = -140f;
+    [Tooltip("地图模式下手牌缩小的比例 (默认不缩小，即为 1)")]
+    public float collapsedHandScale = 1f;
 
     [Header("--- 3. 相机缩放参数 (正交相机) ---")]
+    [Tooltip("切换地图模式的快捷键，默认为空格键。")]
+    public Key mapShortcutKey = Key.Space;
+    [Tooltip("战斗模式下相机的正交尺寸，数值越大视野越广。")]
     public float battleCameraSize = 5f;
-    public float mapInspectCameraSize = 10f;
+    [Tooltip("地图模式下的相机正交尺寸，数值越大视野越广。")]
+    public float mapInspectCameraSize = 4.5f;
 
-    [Header("--- 4. 相机拖拽与边界参数 ---")]
-    [Tooltip("如果点击边缘格子没反应，请把下面的 Min 和 Max 调大！或者直接取消勾选此项测试")]
+    [Header("--- 4. 相机拖拽边界设置 ---")]
+    [Tooltip("是否限制相机在自身 XY 平面内的移动范围。")]
     public bool enableBounds = true;
-    public float minX = -30f, maxX = 30f;
-    public float minY = -30f, maxY = 30f;
+    [Tooltip("边界中心（可选）。留空时，以相机首次使用时的世界位置作为中心。")]
+    [SerializeField] private Transform boundsCenter;
+    [Tooltip("相对边界中心，沿相机自身 right 方向（屏幕左右）的最小偏移。")]
+    public float minX = -30f;
+    [Tooltip("相对边界中心，沿相机自身 right 方向（屏幕左右）的最大偏移。")]
+    public float maxX = 30f;
+    [Tooltip("相对边界中心，沿相机自身 up 方向（屏幕上下）的最小偏移。")]
+    public float minY = -30f;
+    [Tooltip("相对边界中心，沿相机自身 up 方向（屏幕上下）的最大偏移。")]
+    public float maxY = 30f;
+
+    [Header("--- 5. 地图移动灵敏度及缩放大小限制参数 ---")]
+    [Tooltip("滚轮缩放灵敏度，数值越大缩放速度越快。")]
+    public float scrollZoomSensitivity = 2f;
+    [Tooltip("滚轮缩放允许的最小正交尺寸。")]
+    public float minMapOrthoSize = 3f;
+    [Tooltip("滚轮缩放允许的最大正交尺寸。")]
+    public float maxMapOrthoSize = 15f;
     [Tooltip("WASD 平移视角的速度（每秒等效拖动的屏幕像素数，与中键拖拽使用同一套投影逻辑）")]
     public float keyboardPanSpeed = 600f;
 
-    [Header("--- 5. 镜头焦点参数 ---")]
+    [Header("--- 6. 镜头焦点参数 ---")]
+    [Tooltip("退出地图模式时相机聚焦的目标。留空时只恢复正交尺寸，不改变焦点。")]
     public Transform battleFocusTarget;
 
-    [Header("--- 6. 地图滚轮缩放参数 ---")]
-    public float minMapOrthoSize = 3f;
-    public float maxMapOrthoSize = 15f;
-    public float scrollZoomSensitivity = 2f;
 
     // 内部状态缓存
     private Vector2 originalHandPos;
@@ -56,6 +75,10 @@ public class MapInspector : MonoBehaviour
     private Vector3 lastMoveFollowTargetPosition;
     private Coroutine delayedFocusRoutine;
 
+    // 边界中心缓存（boundsCenter 为空时使用）
+    private Vector3 boundsOriginWorld;
+    private bool boundsOriginCached = false;
+
     /// <summary>当前主相机：场景中名为 "Main Camera" 的相机（见 MainCameraAppoint 静态类）。</summary>
     private Camera mainCamera => MainCameraAppoint.Current;
 
@@ -63,6 +86,7 @@ public class MapInspector : MonoBehaviour
     private HorizontalLayoutGroup handLayoutGroup;
     private float originalSpacing;
     private CanvasGroup handCanvasGroup;
+    private Tweener handPositionTween;
     private bool uiStateCached = false;
 
     private void Awake()
@@ -90,8 +114,10 @@ public class MapInspector : MonoBehaviour
 
     IEnumerator Start()
     {
+        EnsureBoundsOrigin();
         yield return new WaitForEndOfFrame();
         EnsureUICached();
+        EnsureBoundsOrigin();
     }
 
     private void EnsureUICached()
@@ -120,9 +146,17 @@ public class MapInspector : MonoBehaviour
             return;
         }
 
-        if (Keyboard.current != null && Keyboard.current[mapShortcutKey].wasPressedThisFrame)
+        bool canUseManualMapToggle = CanUseManualMapToggle();
+        if (canUseManualMapToggle &&
+            Keyboard.current != null &&
+            Keyboard.current[mapShortcutKey].wasPressedThisFrame)
         {
             ToggleMapMode();
+            return;
+        }
+
+        if (canUseManualMapToggle && TryRestoreBattleModeFromHandAreaClick())
+        {
             return;
         }
 
@@ -130,6 +164,67 @@ public class MapInspector : MonoBehaviour
         HandleKeyboardPan();
         HandleMapScrollZoom();
         HandleLeftClickToFocus();
+    }
+
+    private static bool CanUseManualMapToggle()
+    {
+        return TurnManager.Instance == null ||
+               TurnManager.Instance.CurrentTurn == TurnState.Player;
+    }
+
+    private bool TryRestoreBattleModeFromHandAreaClick()
+    {
+        if (!isMapMode || Mouse.current == null || handArea == null)
+        {
+            return false;
+        }
+
+        if (!Mouse.current.leftButton.wasReleasedThisFrame ||
+            !IsPointerOverHandArea(Mouse.current.position.ReadValue()))
+        {
+            return false;
+        }
+
+        SetMapMode(false);
+        return true;
+    }
+
+    private bool IsPointerOverHandArea(Vector2 screenPosition)
+    {
+        Canvas canvas = handArea.GetComponentInParent<Canvas>();
+        Camera uiCamera = null;
+        if (canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay)
+        {
+            uiCamera = canvas.worldCamera != null ? canvas.worldCamera : mainCamera;
+        }
+
+        if (RectTransformUtility.RectangleContainsScreenPoint(
+                handArea,
+                screenPosition,
+                uiCamera))
+        {
+            return true;
+        }
+
+        // HandArea 的横向 sizeDelta 为 0，实际可点击范围由卡牌子节点撑开。
+        foreach (Transform child in handArea)
+        {
+            RectTransform childRect = child as RectTransform;
+            if (childRect == null || !childRect.gameObject.activeInHierarchy)
+            {
+                continue;
+            }
+
+            if (RectTransformUtility.RectangleContainsScreenPoint(
+                    childRect,
+                    screenPosition,
+                    uiCamera))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void LateUpdate()
@@ -158,7 +253,7 @@ public class MapInspector : MonoBehaviour
             {
                 if (nonMoveDelta.sqrMagnitude > 0.000001f)
                 {
-                    TranslateCameraInLocalXY(nonMoveDelta);
+                    TranslateCameraInPlane(nonMoveDelta);
                 }
             }
             else if (nonMoveDelta.sqrMagnitude > 0.000001f)
@@ -184,7 +279,7 @@ public class MapInspector : MonoBehaviour
 
         if (targetDelta.sqrMagnitude > 0.000001f)
         {
-            TranslateCameraInLocalXY(targetDelta);
+            TranslateCameraInPlane(targetDelta);
         }
     }
 
@@ -199,7 +294,7 @@ public class MapInspector : MonoBehaviour
     /// </summary>
     private void HandleLeftClickToFocus()
     {
-        if (Mouse.current == null || mainCamera == null) return;
+        if (Mouse.current == null || mainCamera == null || gridManager == null) return;
 
         // PlayerMoveController confirms player-cell clicks on release. Focus after
         // that frame's movement handling so moving the camera cannot change the release cell.
@@ -234,9 +329,7 @@ public class MapInspector : MonoBehaviour
 
         Ray clickRay = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
 
-        int focusLayerMask = gridManager != null
-            ? 1 << gridManager.cellLayer
-            : mapLayerMask.value;
+        int focusLayerMask = 1 << gridManager.cellLayer;
 
         if (!Physics.Raycast(clickRay, out RaycastHit hit, 1000f, focusLayerMask))
         {
@@ -366,11 +459,14 @@ public class MapInspector : MonoBehaviour
         Vector3 delta = worldPosition - centerWorldPos;
         delta.y = 0f;
 
-        Vector3 targetLocalPos = mainCamera.transform.localPosition + GetCameraLocalDelta(delta);
-        targetLocalPos = GetClampedCameraLocalPosition(targetLocalPos);
+        Transform cam = mainCamera.transform;
+        Vector3 targetWorldPos = GetClampedCameraWorldPosition(cam.position + GetCameraPlaneDelta(delta));
+        Vector3 targetLocalPos = cam.parent != null
+            ? cam.parent.InverseTransformPoint(targetWorldPos)
+            : targetWorldPos;
 
-        mainCamera.transform.DOKill();
-        mainCamera.transform.DOLocalMove(targetLocalPos, duration).SetEase(Ease.OutCubic);
+        cam.DOKill();
+        cam.DOLocalMove(targetLocalPos, duration).SetEase(Ease.OutCubic);
     }
 
     private void SetMoveFollowFocus(Transform followTarget)
@@ -411,7 +507,7 @@ public class MapInspector : MonoBehaviour
             if (TryGetGroundPoint(Mouse.current.position.ReadValue(), out Vector3 currentPos))
             {
                 Vector3 difference = dragOrigin - currentPos;
-                TranslateCameraInLocalXY(difference);
+                TranslateCameraInPlane(difference);
             }
         }
     }
@@ -442,7 +538,7 @@ public class MapInspector : MonoBehaviour
         if (TryGetGroundPoint(screenCenter, out Vector3 before) &&
             TryGetGroundPoint(screenCenter + screenDelta, out Vector3 after))
         {
-            TranslateCameraInLocalXY(after - before);
+            TranslateCameraInPlane(after - before);
         }
     }
 
@@ -487,83 +583,82 @@ public class MapInspector : MonoBehaviour
                 if (groundPlane.Raycast(rayAfter, out float enterAfter))
                 {
                     Vector3 worldPosAfter = rayAfter.GetPoint(enterAfter);
-                    TranslateCameraInLocalXY(worldPosBefore - worldPosAfter);
+                    TranslateCameraInPlane(worldPosBefore - worldPosAfter);
                 }
             }
 
-            if (enableBounds) ClampCameraLocalPosition();
+            if (enableBounds) ClampCameraPosition();
         }
     }
 
     // ------------------------------------------------------------------
-    // 相机平面约束：相机始终停留在"当前自身 XY 平面"内（法线 = camera.forward）
-    //
-    // 【修复说明】
-    // 旧版本在启动时把相机位置缓存为 mapPlaneOrigin，之后所有移动都被"拉回"这个固定平面。
-    // 一旦敌方回合中有任何东西改动了相机/父物体的位置或朝向，固定平面就过期了，
-    // 补偿量 t 不再为 0，会变成屏幕上的偏移（聚焦位置偏离）。
-    // 现在改为：每次移动都以"移动前相机的当前位置"作为平面基准，
-    // 因此无论外部如何改动相机，都不会产生残留的偏移。
+    // 相机平面约束：相机始终停留在"当前自身 XY 平面"内（法线 = camera.forward）。
+    // 边界 minX/maxX 对应相机自身 right 方向，minY/maxY 对应相机自身 up 方向，
+    // 均相对于边界中心（boundsCenter 或首次使用时的相机位置）。
     // ------------------------------------------------------------------
 
     /// <summary>
-    /// 把地面上的世界位移，投影到相机自身 XY 平面（垂直于 camera.forward）上，
-    /// 再转换为父空间下的位移。正交相机下，这等价于屏幕上的对应位移。
+    /// 把世界位移投影到相机自身 XY 平面（去掉沿 forward 的分量），返回世界空间位移。
     /// </summary>
-    private Vector3 GetCameraLocalDelta(Vector3 worldDelta)
+    private Vector3 GetCameraPlaneDelta(Vector3 worldDelta)
     {
-        Transform cam = mainCamera.transform;
-        Vector3 f = cam.forward;
-        Vector3 planeDelta = worldDelta - f * Vector3.Dot(worldDelta, f);
-
-        return cam.parent != null
-            ? cam.parent.InverseTransformVector(planeDelta)
-            : planeDelta;
+        Vector3 f = mainCamera.transform.forward;
+        return worldDelta - f * Vector3.Dot(worldDelta, f);
     }
 
-    private void TranslateCameraInLocalXY(Vector3 worldDelta)
+    private void EnsureBoundsOrigin()
+    {
+        if (boundsOriginCached || mainCamera == null) return;
+        boundsOriginWorld = mainCamera.transform.position;
+        boundsOriginCached = true;
+    }
+
+    private Vector3 GetBoundsOrigin()
+    {
+        if (boundsCenter != null) return boundsCenter.position;
+        EnsureBoundsOrigin();
+        return boundsOriginWorld;
+    }
+
+    /// <summary>需要重新以当前相机位置作为边界中心时可手动调用（仅在 boundsCenter 为空时有效）。</summary>
+    public void ResetBoundsOrigin()
+    {
+        boundsOriginCached = false;
+        EnsureBoundsOrigin();
+    }
+
+    private void TranslateCameraInPlane(Vector3 worldDelta)
     {
         Transform cam = mainCamera.transform;
-        Vector3 targetLocalPos = cam.localPosition + GetCameraLocalDelta(worldDelta);
-        cam.localPosition = GetClampedCameraLocalPosition(targetLocalPos);
+        cam.position = GetClampedCameraWorldPosition(cam.position + GetCameraPlaneDelta(worldDelta));
     }
 
     /// <summary>
-    /// 先按 minX/maxX/minY/maxY 限制 X、Y，
-    /// 再沿父物体的本地 Z 轴调整，使结果落在"当前相机位置所在的 XY 平面"内。
+    /// 在相机自身 right/up 方向上按 min/max 限制偏移；
+    /// forward 方向的分量保持为"当前相机所在 XY 平面"，不做任何限制。
     /// </summary>
-    private Vector3 GetClampedCameraLocalPosition(Vector3 localPosition)
+    private Vector3 GetClampedCameraWorldPosition(Vector3 worldPos)
     {
-        Transform cam = mainCamera.transform;
-        Transform parent = cam.parent;
+        if (!enableBounds) return worldPos;
 
-        // 以调用时相机的实时位置作为平面基准，而不是启动时缓存的位置
-        Vector3 planeOrigin = cam.position;
+        Transform cam = mainCamera.transform;
+        Vector3 origin = GetBoundsOrigin();
+        Vector3 r = cam.right;
+        Vector3 u = cam.up;
         Vector3 f = cam.forward;
 
-        if (enableBounds)
-        {
-            localPosition.x = Mathf.Clamp(localPosition.x, minX, maxX);
-            localPosition.y = Mathf.Clamp(localPosition.y, minY, maxY);
-        }
+        Vector3 offset = worldPos - origin;
+        float x = Mathf.Clamp(Vector3.Dot(offset, r), minX, maxX);
+        float y = Mathf.Clamp(Vector3.Dot(offset, u), minY, maxY);
+        float z = Vector3.Dot(cam.position - origin, f); // 保持在当前平面内
 
-        Vector3 worldPos = parent != null ? parent.TransformPoint(localPosition) : localPosition;
-        Vector3 zAxisWorld = parent != null ? parent.TransformVector(Vector3.forward) : Vector3.forward;
-
-        float denom = Vector3.Dot(zAxisWorld, f);
-        if (Mathf.Abs(denom) < 0.0001f) return localPosition; // 退化情况：无法补偿
-
-        // 沿父物体 Z 轴移动 t，使 (worldPos + t * zAxis - planeOrigin) · f = 0
-        float t = -Vector3.Dot(worldPos - planeOrigin, f) / denom;
-        worldPos += zAxisWorld * t;
-
-        return parent != null ? parent.InverseTransformPoint(worldPos) : worldPos;
+        return origin + r * x + u * y + f * z;
     }
 
-    private void ClampCameraLocalPosition()
+    private void ClampCameraPosition()
     {
         Transform cam = mainCamera.transform;
-        cam.localPosition = GetClampedCameraLocalPosition(cam.localPosition);
+        cam.position = GetClampedCameraWorldPosition(cam.position);
     }
 
     // ------------------------------------------------------------------
@@ -572,6 +667,11 @@ public class MapInspector : MonoBehaviour
 
     public void ToggleMapMode()
     {
+        if (!CanUseManualMapToggle())
+        {
+            return;
+        }
+
         SetMapMode(!isMapMode);
     }
 
@@ -585,14 +685,16 @@ public class MapInspector : MonoBehaviour
 
         if (handArea != null) DOTween.Kill(handArea);
         if (handLayoutGroup != null) DOTween.Kill(handLayoutGroup);
+        handPositionTween = null;
         if (mainCamera != null) { mainCamera.DOKill(); mainCamera.transform.DOKill(); }
-        if (nonEssentialHUD != null) DOTween.Kill(nonEssentialHUD);
 
         if (isMapMode)
         {
             if (handArea != null && handCollapsedTarget != null)
             {
-                handArea.DOMove(handCollapsedTarget.position, 0.4f).SetEase(Ease.OutCubic);
+                handPositionTween = handArea
+                    .DOAnchorPos(GetCollapsedHandAnchoredPosition(), 0.4f)
+                    .SetEase(Ease.OutCubic);
                 handArea.DOScale(collapsedHandScale, 0.4f);
 
                 if (handCanvasGroup != null) handCanvasGroup.blocksRaycasts = false;
@@ -602,31 +704,21 @@ public class MapInspector : MonoBehaviour
                 }
             }
 
-            if (nonEssentialHUD != null)
-            {
-                nonEssentialHUD.DOFade(0f, 0.3f);
-                nonEssentialHUD.blocksRaycasts = false;
-            }
-
             if (mainCamera != null) mainCamera.DOOrthoSize(mapInspectCameraSize, 0.4f).SetEase(Ease.OutCubic);
         }
         else
         {
             if (handArea != null)
             {
-                handArea.DOAnchorPos(originalHandPos, 0.4f).SetEase(Ease.OutCubic);
+                handPositionTween = handArea
+                    .DOAnchorPos(originalHandPos, 0.4f)
+                    .SetEase(Ease.OutCubic);
                 handArea.DOScale(originalHandScale, 0.4f);
                 if (handCanvasGroup != null) handCanvasGroup.blocksRaycasts = true;
                 if (handLayoutGroup != null)
                 {
                     DOTween.To(() => handLayoutGroup.spacing, x => handLayoutGroup.spacing = x, originalSpacing, 0.4f).SetEase(Ease.OutCubic);
                 }
-            }
-
-            if (nonEssentialHUD != null)
-            {
-                nonEssentialHUD.DOFade(1f, 0.3f);
-                nonEssentialHUD.blocksRaycasts = true;
             }
 
             if (mainCamera != null)
@@ -638,11 +730,46 @@ public class MapInspector : MonoBehaviour
                     Collider playerCol = battleFocusTarget.GetComponentInChildren<Collider>();
                     Vector3 focusPoint = playerCol != null ? playerCol.bounds.center : battleFocusTarget.position;
 
-                    // 与左键聚焦共用同一套"屏幕中心 -> 目标点"的位移计算，
-                    // 不再依赖启动时缓存的 cameraOffset（它同样会在相机被外部改动后过期）。
+                    // 与左键聚焦共用同一套"屏幕中心 -> 目标点"的位移计算。
                     FocusCameraOnWorldPosition(focusPoint, 0.4f);
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// 确保手牌区处于战斗模式，并等待其位置动画完成。
+    /// 供回合换牌动画在启动前调用，避免动画层使用地图模式下的旧坐标。
+    /// </summary>
+    public IEnumerator RestoreHandToBattleMode()
+    {
+        SetMapMode(false);
+
+        Tweener activePositionTween = handPositionTween;
+        if (activePositionTween != null && activePositionTween.IsActive())
+        {
+            yield return activePositionTween.WaitForCompletion();
+        }
+    }
+
+    /// <summary>
+    /// 将地图模式目标点的世界坐标转换为手牌区域在父 Canvas 下的锚点坐标。
+    /// 避免敌方回合移动相机时，世界坐标补间导致手牌偏移到屏幕外。
+    /// </summary>
+    private Vector2 GetCollapsedHandAnchoredPosition()
+    {
+        RectTransform parentRect = handArea.parent as RectTransform;
+        if (parentRect == null)
+        {
+            return handArea.anchoredPosition;
+        }
+
+        Vector3 targetLocalPosition =
+            parentRect.InverseTransformPoint(handCollapsedTarget.position);
+        Vector2 anchorReference = new Vector2(
+            Mathf.Lerp(parentRect.rect.xMin, parentRect.rect.xMax, handArea.anchorMin.x),
+            Mathf.Lerp(parentRect.rect.yMin, parentRect.rect.yMax, handArea.anchorMin.y));
+
+        return new Vector2(targetLocalPosition.x, targetLocalPosition.y) - anchorReference;
     }
 }
