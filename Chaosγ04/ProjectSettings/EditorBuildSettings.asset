@@ -21,7 +21,7 @@ EditorBuildSettings:
     path: Assets/Scenes_Chaos/4_Event_Scene.unity
     guid: e5fc051fe99e33c4c8c154f89c45a81a
   - enabled: 1
-    path: Assets/Scenes_Chaos/2_Battle_Scene_Test.unity
+    path: Assets/Scenes_Chaos/2_Battle_Scene_Map001.unity
     guid: 024ed6b2a6da9ae4fa705e7359bf0c4e
   - enabled: 1
     path: Assets/Scenes_Chaos/Battle_Scene_1.0.unity

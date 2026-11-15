@@ -32,6 +32,44 @@ public class GridHoverController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 当前悬停格是否同时属于当前交互上下文的可用目标格。
+    /// </summary>
+    public bool IsCurrentHoverValidTarget =>
+        TryGetCurrentValidTargetCell(out _);
+
+    /// <summary>
+    /// 获取当前悬停的具体层格子，并确认它属于可用目标格。
+    /// </summary>
+    public bool TryGetCurrentValidTargetCell(out CellManager cell)
+    {
+        cell = currentHoverCell;
+        return hasContext &&
+               cell != null &&
+               validTargetSet.Contains(cell) &&
+               validEntityTargetSet.Contains(cell) &&
+               !cell.SuppressesHoverHighlight;
+    }
+
+    /// <summary>
+    /// 获取用于遮挡虚化的当前悬停格。
+    /// 有交互上下文时使用严格的有效目标集合；普通悬停时使用格子的可落点状态。
+    /// </summary>
+    public bool TryGetCurrentOcclusionTargetCell(out CellManager cell)
+    {
+        if (hasContext)
+        {
+            return TryGetCurrentValidTargetCell(out cell);
+        }
+
+        cell = currentHoverCell;
+        return cell != null &&
+               !cell.SuppressesHoverHighlight &&
+               !cell.BlocksPlayer &&
+               !cell.HasMonsterInside &&
+               AbilityCore.CanLandOnCell(cell);
+    }
+
     [Header("依赖引用（留空则自动查找）")]
     [SerializeField] private GridManager gridManager;
     [SerializeField] private GridVisualManager visualManager;

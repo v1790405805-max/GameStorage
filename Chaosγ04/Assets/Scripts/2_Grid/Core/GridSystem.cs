@@ -8,7 +8,7 @@ public class GridSystem
     /// <summary>格子的纵深尺寸（原 CellHeight 更名）。</summary>
     public float CellLength { get; private set; }
     public float Gap { get; private set; }
-    /// <summary>层高：铺设完成后按此高度丈量层号（0~1 格高 = L1，1~2 格高 = L2，以此类推）。</summary>
+    /// <summary>层高：以逻辑水平面为 L1 基准，按相对高差丈量正负层号。</summary>
     public float CellHeight { get; private set; }
 
     private Vector3 centerPosition;
@@ -86,17 +86,16 @@ public class GridSystem
     }
 
     /// <summary>
-    /// 按照层高 (CellHeight) 丈量高度，返回对应的层号：
-    /// 0 ~ 1 格高 → L1，1 ~ 2 格高 → L2，2 ~ 3 格高 → L3，以此类推。
-    /// 低于 0 的高度统一归入 L1；层高未配置时返回 L1。
+    /// 以逻辑水平面为 L1 基准，按层高丈量相对高度：
+    /// 0 ~ 1 格高 → L1，1 ~ 2 格高 → L2；
+    /// 水平面下方不产生 L0，0 ~ -1 格高 → L-1，-1 ~ -2 格高 → L-2。
     /// </summary>
-    /// <param name="height">相对网格逻辑平面 (Y = 0) 的高度。</param>
-    public int GetLayerNumberFromHeight(float height)
+    public int GetLayerNumberFromPlaneHeight(float relativeHeight)
     {
         if (CellHeight <= 0f) return 1;
 
-        int layer = Mathf.FloorToInt(height / CellHeight) + 1;
-        return Mathf.Max(1, layer);
+        int layer = Mathf.FloorToInt(relativeHeight / CellHeight);
+        return relativeHeight >= 0f ? layer + 1 : layer;
     }
 
     public bool IsValidGridPosition(int x, int z)
