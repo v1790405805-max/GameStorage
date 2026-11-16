@@ -72,7 +72,7 @@ public class SLManager : MonoBehaviour, ITurnStateListener
 
         if (!hasSnapshot)
         {
-            StartCoroutine(CaptureSnapshotNextFrame());
+            StartCoroutine(CaptureTurnStartSnapshotRoutine());
         }
     }
 
@@ -80,14 +80,21 @@ public class SLManager : MonoBehaviour, ITurnStateListener
     {
         hasSnapshot = false;
         StopAllCoroutines();
-        StartCoroutine(CaptureSnapshotNextFrame());
+        StartCoroutine(CaptureTurnStartSnapshotRoutine());
     }
 
     public void OnTurnDeactivated() { }
 
-    private System.Collections.IEnumerator CaptureSnapshotNextFrame()
+    private System.Collections.IEnumerator CaptureTurnStartSnapshotRoutine()
     {
         yield return new WaitForEndOfFrame();
+
+        // 回合开始时换手动画会先保留旧手牌，随后才弃牌并抽出新牌。
+        // 必须等发牌流程结束，避免快照拿到上一回合的手牌数据。
+        yield return new WaitUntil(() =>
+            CardManager.Instance == null ||
+            !CardManager.Instance.IsDealingCards);
+
         if (!hasSnapshot)
         {
             CaptureSnapshot();

@@ -29,13 +29,22 @@ MonoBehaviour:
   discardAmount: 0
   sturdy: 0
   combo: 0
-  rangeType: 1
+  rangeType: 3
   rangeDistance: 1
   targetSelectMode: 1
-  extraEffects: []
+  extraEffects:
+  - effectScript: {fileID: 11500000, guid: d06c2e8e69778cc4f9e9fe25ec97a55e, type: 3}
+    effectTypeName: TeleportEffect, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+  - effectScript: {fileID: 11500000, guid: c5e2d4a8b7f146a29c3d1e8f7b6a5402, type: 3}
+    effectTypeName: DuckRangeTypeEffect, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
   animationEffects: []
-  vfxEffects: []
+  vfxEffects:
+  - effectScript: {fileID: 11500000, guid: b3a9ac4edf976ec49bc9e540d4e633c8, type: 3}
+    effectTypeName: AstralTeleportVFX, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
   hitVFXPrefab: {fileID: 0}
   hitVFXOffset: {x: 0, y: 0.5, z: 0}
   gridStyle: {fileID: 11400000, guid: c7730a9b49b1f8244b410ce1e2e6542b, type: 2}
-  description: "\u53CD\u51FB\uFF0C\u9009\u62E9\u4E34\u8FD1\u53EF\u79FB\u52A8\u7684\u4E00\u683C\u8FDB\u884C\u79FB\u52A8"
+  description: "\u53CD\u51FB\uFF0C\u9009\u62E9\u4E34\u8FD1\u516B\u683C\u4E2D\u53EF\u79FB\u52A8\u7684\u4E00\u683C\u8FDB\u884C\u79FB\u52A8\uFF0C\u5982\u679C\u5728\u53CD\u51FB\u72B6\u6001\u4F7F\u7528\u672C\u5361\uFF0C\u5219\u4EC5\u53EF\u9009\u62E9\u4E34\u8FD1\u56DB\u683C"

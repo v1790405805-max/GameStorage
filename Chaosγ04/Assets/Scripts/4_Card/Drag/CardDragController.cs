@@ -105,15 +105,16 @@ public class CardDragController : MonoBehaviour
         UpdatePlayerGridPosition();
 
         int effectiveRangeDistance = data.GetEffectiveRangeDistance();
-        HashSet<CellManager> targetGrids = (data.rangeType == RangeType.Point)
+        RangeType effectiveRangeType = data.GetEffectiveRangeType();
+        HashSet<CellManager> targetGrids = (effectiveRangeType == RangeType.Point)
             ? new HashSet<CellManager> { playerCell }
-            : CalculateCardRangeGrids(playerCell, effectiveRangeDistance, data.rangeType);
+            : CalculateCardRangeGrids(playerCell, effectiveRangeDistance, effectiveRangeType);
 
         HashSet<CellManager> validTargetGrids = targetGrids;
         if (data.targetSelectMode == TargetSelectMode.EdgeOnly)
         {
             validTargetGrids = RangeSystem.GetEdgeCells(
-                targetGrids, playerCell, gridManager, data.rangeType, effectiveRangeDistance);
+                targetGrids, playerCell, gridManager, effectiveRangeType, effectiveRangeDistance);
         }
 
         bool isQuarterCircleMode = data.targetSelectMode == TargetSelectMode.AQuarterCircle;
@@ -136,8 +137,9 @@ public class CardDragController : MonoBehaviour
 
         if (data.gridStyle != null)
         {
-            bool isPointType = (data.rangeType == RangeType.Point);
-            visualManager.HighlightCardRange(CurrentHighlightedGrids, data.gridStyle, playerCell, data.rangeType);
+            bool isPointType = (effectiveRangeType == RangeType.Point);
+            visualManager.HighlightCardRange(
+                CurrentHighlightedGrids, data.gridStyle, playerCell, effectiveRangeType);
 
             if (GridHoverController.Instance != null)
                 GridHoverController.Instance.SetContext(
@@ -227,7 +229,7 @@ public class CardDragController : MonoBehaviour
                     CurrentHighlightedGrids,
                     playerCell,
                     gridManager,
-                    data.rangeType,
+                    data.GetEffectiveRangeType(),
                     effectiveRangeDistance
                 );
                 isValidDrop = releaseCell != null && edgeCells.Contains(releaseCell);

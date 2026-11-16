@@ -24,6 +24,15 @@ public abstract class CardEffectCore : ScriptableObject
     }
 
     /// <summary>
+    /// 卡牌打出前覆盖范围类型。返回 true 时，rangeType 会替换卡牌当前的有效范围类型。
+    /// </summary>
+    public virtual bool TryGetRangeTypeOverride(CardData card, out RangeType rangeType)
+    {
+        rangeType = RangeType.Point;
+        return false;
+    }
+
+    /// <summary>
     /// 卡牌打出前校验效果是否允许使用。默认允许。
     /// 返回 false 时，调用方应取消出牌，不消耗费用，也不播放卡牌表现。
     /// </summary>

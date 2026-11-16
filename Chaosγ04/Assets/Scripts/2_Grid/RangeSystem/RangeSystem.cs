@@ -8,6 +8,26 @@ using UnityEngine;
 /// </summary>
 public static class RangeSystem
 {
+    private static readonly Vector2Int[] CardinalDirections =
+    {
+        Vector2Int.up,
+        Vector2Int.down,
+        Vector2Int.left,
+        Vector2Int.right
+    };
+
+    private static readonly Vector2Int[] EightDirections =
+    {
+        Vector2Int.up,
+        Vector2Int.down,
+        Vector2Int.left,
+        Vector2Int.right,
+        new Vector2Int(-1, -1),
+        new Vector2Int(-1, 1),
+        new Vector2Int(1, -1),
+        new Vector2Int(1, 1)
+    };
+
     /// <summary>
     /// 获取原始数学形状范围（不结合地图裁剪，仅数学坐标）
     /// </summary>
@@ -25,8 +45,7 @@ public static class RangeSystem
                 area.Add(center);
                 if (distance <= 0) break;
 
-                Vector2Int[] dirs = { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
-                foreach (var dir in dirs)
+                foreach (var dir in CardinalDirections)
                 {
                     for (int step = 1; step <= distance; step++)
                     {
@@ -42,6 +61,18 @@ public static class RangeSystem
                     int maxDy = distance - Mathf.Abs(dx);
                     for (int dy = -maxDy; dy <= maxDy; dy++)
                     {
+                        area.Add(new Vector2Int(center.x + dx, center.y + dy));
+                    }
+                }
+                break;
+
+            case RangeType.Square:
+                if (distance <= 0) break;
+                for (int dx = -distance; dx <= distance; dx++)
+                {
+                    for (int dy = -distance; dy <= distance; dy++)
+                    {
+                        if (dx == 0 && dy == 0) continue;
                         area.Add(new Vector2Int(center.x + dx, center.y + dy));
                     }
                 }
@@ -159,9 +190,10 @@ public static class RangeSystem
 
     /// <summary>
     /// 格子级 BFS（跨层）：以具体格子（含层）为起点，结合地图边界/障碍物/层差规则求实际可达范围。
-    /// 邻居判定：四方向相邻列中，与当前格子层差 ≤ 1 的格子视为可连接（L2 ↔ L1 / L3 可连，L1 ↔ L3 不可连）。
+    /// 邻居判定：默认四方向相邻列，Square 使用八方向相邻列；与当前格子层差 ≤ 1 的格子视为可连接
+    /// （L2 ↔ L1 / L3 可连，L1 ↔ L3 不可连）。
     /// 形状处理：BFS 扩展阶段不做形状裁剪（允许绕行路径走出形状区域再绕回），
-    /// 最终结果再按 RangeType 形状（Straight 十字 / Diamond 菱形）过滤，保留特殊范围的视觉语义。
+    /// 最终结果再按 RangeType 形状（Straight 十字 / Diamond 菱形 / Square 方形圈）过滤，保留特殊范围的视觉语义。
     /// </summary>
     public static HashSet<CellManager> CalculateReachableCells(
         CellManager startCell,
@@ -179,13 +211,18 @@ public static class RangeSystem
         var (startX, startZ) = gridManager.GetCellGridPosition(startCell);
         if (!gridManager.IsValidGridPosition(startX, startZ)) return reachable;
 
-        if (maxRange <= 0 || type == RangeType.Point)
+        if (type == RangeType.Point)
         {
             reachable.Add(startCell);
             return reachable;
         }
+        if (maxRange <= 0)
+        {
+            if (type != RangeType.Square) reachable.Add(startCell);
+            return reachable;
+        }
 
-        // 形状限定（最终结果过滤用）：Straight = 十字，Diamond = 菱形
+        // 形状限定（最终结果过滤用）：Straight = 十字，Diamond = 菱形，Square = 方形圈
         HashSet<Vector2Int> rawShape = GetRawRange(new Vector2Int(startX, startZ), maxRange, type);
 
         Queue<(CellManager cell, int step)> queue = new Queue<(CellManager, int)>();
@@ -193,7 +230,7 @@ public static class RangeSystem
         reachable.Add(startCell);
         HashSet<CellManager> traversed = new HashSet<CellManager> { startCell };
 
-        Vector2Int[] directions = { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
+        Vector2Int[] directions = type == RangeType.Square ? EightDirections : CardinalDirections;
 
         // BFS 扩展阶段不做形状裁剪：绕行路径允许走出形状区域再绕回
         while (queue.Count > 0)
@@ -245,7 +282,7 @@ public static class RangeSystem
             }
         }
 
-        // 最终结果按形状过滤，保留特殊范围视觉语义（Straight 十字 / Diamond 菱形）。
+        // 最终结果按形状过滤，保留特殊范围视觉语义（Straight 十字 / Diamond 菱形 / Square 方形圈）。
         // 层差规则完全由 BFS 扩展阶段逐步判定（相邻格层差 ≤ 1 才可连接）：
         // 链式可达的跨层格（如 L3 → L2 → L1）属于范围内，不按起点层一刀切。
         reachable.RemoveWhere(cell =>
@@ -274,9 +311,14 @@ public static class RangeSystem
         if (gridManager == null || !gridManager.IsValidGridPosition(startPos.x, startPos.y))
             return reachable;
 
-        if (maxRange <= 0 || type == RangeType.Point)
+        if (type == RangeType.Point)
         {
             reachable.Add(startPos);
+            return reachable;
+        }
+        if (maxRange <= 0)
+        {
+            if (type != RangeType.Square) reachable.Add(startPos);
             return reachable;
         }
 
@@ -287,7 +329,7 @@ public static class RangeSystem
         queue.Enqueue((startPos, 0));
         reachable.Add(startPos);
 
-        Vector2Int[] directions = { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
+        Vector2Int[] directions = type == RangeType.Square ? EightDirections : CardinalDirections;
 
         while (queue.Count > 0)
         {
@@ -337,7 +379,8 @@ public static class RangeSystem
 
     /// <summary>
     /// 从格子级 rangeSet 中提取"边沿格"（格子级版本）。
-    /// 规则与列级版本一致：Straight 取四方向距离 == distance 的最外沿格；Diamond 取曼哈顿距离 == distance 的外圈；Point 返回全集。
+    /// 规则与列级版本一致：Straight 取四方向距离 == distance 的最外沿格；
+    /// Diamond 取曼哈顿距离 == distance 的外圈；Square 取切比雪夫距离 == distance 的外圈；Point 返回全集。
     /// 被地图裁剪/阻挡的方向不向内回退，避免把更近的格子误判为最外沿。
     /// </summary>
     public static HashSet<CellManager> GetEdgeCells(
@@ -363,8 +406,7 @@ public static class RangeSystem
             case RangeType.Straight:
                 // 只取距离 == distance 的最外沿格：该方向第 distance 格被地图裁剪/阻挡时，
                 // 该方向不产生边沿格（不向内回退，避免把更近的格子误判为最外沿）。
-                Vector2Int[] dirs = { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
-                foreach (var dir in dirs)
+                foreach (var dir in CardinalDirections)
                 {
                     Vector2Int candidate = new Vector2Int(cx + dir.x * distance, cz + dir.y * distance);
                     foreach (CellManager cell in rangeSet)
@@ -387,6 +429,17 @@ public static class RangeSystem
                         edges.Add(cell);
                 }
                 break;
+
+            case RangeType.Square:
+                // 方形外圈：满足 max(|dx|, |dz|) == distance 的格子。
+                foreach (CellManager cell in rangeSet)
+                {
+                    var (cellX, cellZ) = gridManager.GetCellGridPosition(cell);
+                    int chebyshev = Mathf.Max(Mathf.Abs(cellX - cx), Mathf.Abs(cellZ - cz));
+                    if (chebyshev == distance)
+                        edges.Add(cell);
+                }
+                break;
         }
 
         return edges;
@@ -399,6 +452,7 @@ public static class RangeSystem
     ///   Straight — 四个方向（上/下/左/右）各取距离 == distance 的最外沿格，最多返回 4 格；
     ///              该方向被地图裁剪/阻挡时不向内回退，不产生边沿格。
     ///   Diamond  — 取满足 |dx|+|dy| == distance 的格子（菱形最外圈），外圈被裁剪时不向内回退。
+    ///   Square   — 取满足 max(|dx|,|dy|) == distance 的格子（方形最外圈），外圈被裁剪时不向内回退。
     ///   Point    — 返回 rangeSet 本身（只有一格，就是玩家所在格）。
     ///
     /// 传入 rangeSet 而非重新计算，保证边沿格与实际高亮范围一致（地图裁剪后的结果）。
@@ -422,8 +476,7 @@ public static class RangeSystem
 
             case RangeType.Straight:
                 // 只取距离 == distance 的最外沿格；该方向被地图裁剪/阻挡时该方向不产生边沿格
-                Vector2Int[] dirs = { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
-                foreach (var dir in dirs)
+                foreach (var dir in CardinalDirections)
                 {
                     Vector2Int candidate = center + dir * distance;
                     if (rangeSet.Contains(candidate))
@@ -437,6 +490,16 @@ public static class RangeSystem
                 {
                     int manhattan = Mathf.Abs(pos.x - center.x) + Mathf.Abs(pos.y - center.y);
                     if (manhattan == distance)
+                        edges.Add(pos);
+                }
+                break;
+
+            case RangeType.Square:
+                // 方形外圈：满足 max(|dx|, |dy|) == distance 的格子。
+                foreach (var pos in rangeSet)
+                {
+                    int chebyshev = Mathf.Max(Mathf.Abs(pos.x - center.x), Mathf.Abs(pos.y - center.y));
+                    if (chebyshev == distance)
                         edges.Add(pos);
                 }
                 break;

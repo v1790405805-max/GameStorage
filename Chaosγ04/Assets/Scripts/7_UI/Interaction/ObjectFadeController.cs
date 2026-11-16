@@ -4,23 +4,35 @@ using UnityEngine;
 [DefaultExecutionOrder(110)]
 public class ObjectFadeController : MonoBehaviour
 {
-    [Header("References")]
+    [Header("引用")]
     [Tooltip("检查视线的相机。留空时使用 MainCameraAppoint.Current。")]
     [SerializeField] private Camera targetCamera;
-    [Tooltip("需要保持可见的玩家 Transform。留空时自动查找 PlayerMoveController。")]
+    [Tooltip("需要保持可见的玩家 Transform。Monster 会通过 MonsterIdentitySystem 自动加入。")]
     [SerializeField] private Transform playerTarget;
     [Tooltip("用于自动解析玩家 Transform。留空时在场景中自动查找。")]
     [SerializeField] private PlayerMoveController playerMoveController;
 
-    [Header("Occlusion Fade")]
+    [Header("遮挡虚化")]
     [Tooltip("阻挡物虚化时保持的透明度。1 为实体，0 为完全透明。")]
     [Range(0f, 1f)] public float occludedAlpha = 0.25f;
-    [Tooltip("虚化与恢复速度。数值越大，过渡越快。")]
-    [Min(0f)] public float fadeSpeed = 10f;
+    [Tooltip("变透明的速度（每秒 alpha 变化量）。数值越大，虚化越快。")]
+    [Min(0f)] public float fadeOutSpeed = 12f;
+    [Tooltip("恢复不透明的速度。建议比变透明慢一些。")]
+    [Min(0f)] public float fadeInSpeed = 6f;
     [Tooltip("参与视线检测的物理层。")]
     public LayerMask occlusionLayers = ~0;
 
-    [Header("Support Surface Filter")]
+    [Header("防闪烁")]
+    [Tooltip("不再被遮挡后，延迟多久才开始恢复。用于消除逐帧命中抖动。")]
+    [Min(0f)] public float releaseDelay = 0.2f;
+    [Tooltip("检测角色时，射线在目标前提前停止的距离。用于避开脚下台阶。")]
+    [Min(0f)] public float playerRayEndMargin = 0.4f;
+    [Tooltip("检测悬停地格时，射线在目标前提前停止的距离。")]
+    [Min(0f)] public float cellRayEndMargin = 0.05f;
+    [Tooltip("角色检测点相对碰撞体底部的抬高量。")]
+    [Min(0f)] public float playerTargetHeightOffset = 0.3f;
+
+    [Header("支撑面过滤")]
     [Tooltip("判定为支撑面所需的最低向上法线。数值越高，只忽略越平的地面。")]
     [Range(0f, 1f)] public float supportSurfaceMinNormalY = 0.7f;
     [Tooltip("命中点与脚底允许的最大高度差。用于覆盖角色轻微陷入平台的情况。")]
@@ -28,23 +40,37 @@ public class ObjectFadeController : MonoBehaviour
     [Tooltip("在角色碰撞体水平尺寸之外额外允许的支撑面检测半径。")]
     [Min(0f)] public float supportSurfaceRadiusPadding = 0.25f;
 
-    [Header("Debug")]
-    [Tooltip("在 Scene 视图中绘制相机到玩家的检查线。")]
+    [Header("调试")]
+    [Tooltip("在 Scene 视图中绘制相机到所有角色的检查线。")]
     public bool drawDebugLine = true;
 
     private const int HitCapacity = 32;
     private static readonly int OcclusionAlphaId = Shader.PropertyToID("_OcclusionAlpha");
 
+    private sealed class FadeState
+    {
+        public float alpha = 1f;
+        public float lastBlockedTime;
+    }
+
+    private sealed class OcclusionTarget
+    {
+        public Transform root;
+        public Collider targetCollider;
+    }
+
     private readonly HashSet<Renderer> blockers = new HashSet<Renderer>();
-    private readonly Dictionary<Renderer, float> rendererAlphas = new Dictionary<Renderer, float>();
+    private readonly Dictionary<Renderer, FadeState> fadeStates = new Dictionary<Renderer, FadeState>();
+    private readonly List<OcclusionTarget> occlusionTargets = new List<OcclusionTarget>();
+    private readonly Dictionary<Transform, OcclusionTarget> occlusionTargetCache =
+        new Dictionary<Transform, OcclusionTarget>();
+    private readonly HashSet<Transform> characterRoots = new HashSet<Transform>();
+    private readonly List<Transform> staleTargetRoots = new List<Transform>();
     private readonly List<Material> materialBuffer = new List<Material>();
     private readonly List<Renderer> removalBuffer = new List<Renderer>();
     private readonly List<Renderer> rendererSnapshot = new List<Renderer>();
     private readonly RaycastHit[] hits = new RaycastHit[HitCapacity];
     private MaterialPropertyBlock propertyBlock;
-    private Transform cachedPlayerTarget;
-    private Collider targetCollider;
-    private float globalOcclusionAlpha = 1f;
 
     private Camera ActiveCamera => targetCamera != null
         ? targetCamera
@@ -69,28 +95,44 @@ public class ObjectFadeController : MonoBehaviour
     private void LateUpdate()
     {
         ResolvePlayerTarget();
+        RefreshOcclusionTargets();
         blockers.Clear();
 
         Camera activeCamera = ActiveCamera;
         if (activeCamera != null)
         {
-            if (TryGetTargetPoint(out Vector3 playerTargetPoint))
+            foreach (OcclusionTarget target in occlusionTargets)
             {
-                CollectBlockers(activeCamera, playerTargetPoint);
+                if (TryGetTargetPoint(target, out Vector3 targetPoint))
+                {
+                    CollectBlockers(
+                        activeCamera,
+                        targetPoint,
+                        playerRayEndMargin,
+                        target.targetCollider);
+                }
             }
 
             GridHoverController hoverController = GridHoverController.Instance;
             if (hoverController != null &&
                 hoverController.TryGetCurrentOcclusionTargetCell(out CellManager hoverCell))
             {
-                CollectBlockers(activeCamera, GetCellTargetPoint(hoverCell));
+                CollectBlockers(
+                    activeCamera,
+                    GetCellTargetPoint(hoverCell),
+                    cellRayEndMargin,
+                    null);
             }
         }
 
         UpdateRendererFades();
     }
 
-    private void CollectBlockers(Camera activeCamera, Vector3 target)
+    private void CollectBlockers(
+        Camera activeCamera,
+        Vector3 target,
+        float endMargin,
+        Collider targetCollider)
     {
         Vector3 viewportPoint = activeCamera.WorldToViewportPoint(target);
         if (viewportPoint.z <= 0f)
@@ -99,7 +141,8 @@ public class ObjectFadeController : MonoBehaviour
         }
 
         Ray viewRay = activeCamera.ViewportPointToRay(viewportPoint);
-        float targetDistance = Vector3.Dot(target - viewRay.origin, viewRay.direction);
+        float targetDistance =
+            Vector3.Dot(target - viewRay.origin, viewRay.direction) - endMargin;
         if (targetDistance <= 0.001f)
         {
             return;
@@ -123,13 +166,13 @@ public class ObjectFadeController : MonoBehaviour
             }
 
             Transform hitTransform = hitCollider.transform;
-            if (IsPartOf(hitTransform, playerTarget) ||
+            if (IsCharacterTransform(hitTransform) ||
                 IsPartOf(hitTransform, activeCamera.transform))
             {
                 continue;
             }
 
-            if (IsPlayerSupportSurfaceHit(hits[i]))
+            if (IsTargetSupportSurfaceHit(hits[i], targetCollider))
             {
                 continue;
             }
@@ -144,30 +187,30 @@ public class ObjectFadeController : MonoBehaviour
         }
     }
 
-    private bool IsPlayerSupportSurfaceHit(RaycastHit hit)
+    private bool IsTargetSupportSurfaceHit(RaycastHit hit, Collider targetCollider)
     {
         if (targetCollider == null)
         {
             return false;
         }
 
-        Bounds playerBounds = targetCollider.bounds;
-        Vector3 playerFootPoint = new Vector3(
-            playerBounds.center.x,
-            playerBounds.min.y,
-            playerBounds.center.z);
+        Bounds targetBounds = targetCollider.bounds;
+        Vector3 targetFootPoint = new Vector3(
+            targetBounds.center.x,
+            targetBounds.min.y,
+            targetBounds.center.z);
 
         if (hit.normal.y < supportSurfaceMinNormalY ||
-            hit.point.y < playerFootPoint.y - supportSurfaceHeightTolerance ||
-            hit.point.y > playerFootPoint.y + supportSurfaceHeightTolerance)
+            hit.point.y < targetFootPoint.y - supportSurfaceHeightTolerance ||
+            hit.point.y > targetFootPoint.y + supportSurfaceHeightTolerance)
         {
             return false;
         }
 
-        Vector3 hitOffset = hit.point - playerFootPoint;
+        Vector3 hitOffset = hit.point - targetFootPoint;
         hitOffset.y = 0f;
 
-        Vector3 colliderExtents = playerBounds.extents;
+        Vector3 colliderExtents = targetBounds.extents;
         float horizontalRadius =
             supportSurfaceRadiusPadding + Mathf.Max(colliderExtents.x, colliderExtents.z);
 
@@ -218,31 +261,98 @@ public class ObjectFadeController : MonoBehaviour
         {
             playerTarget = playerMoveController.PlayerTransform;
         }
+    }
 
-        if (cachedPlayerTarget != playerTarget)
+    private void RefreshOcclusionTargets()
+    {
+        occlusionTargets.Clear();
+        characterRoots.Clear();
+
+        AddOcclusionTarget(playerTarget);
+
+        MonsterIdentitySystem monsterSystem = MonsterIdentitySystem.Instance;
+        if (monsterSystem != null)
         {
-            cachedPlayerTarget = playerTarget;
-            targetCollider = null;
+            foreach (MonsterIdentityManager monster in monsterSystem.GetAllMonsters())
+            {
+                if (monster == null ||
+                    !monster.isActiveAndEnabled ||
+                    !monster.gameObject.activeInHierarchy)
+                {
+                    continue;
+                }
+
+                if (gameObject.scene.IsValid() &&
+                    monster.gameObject.scene != gameObject.scene)
+                {
+                    continue;
+                }
+
+                AddOcclusionTarget(monster.transform);
+            }
         }
 
-        if (targetCollider == null ||
-            !targetCollider.enabled ||
-            !targetCollider.gameObject.activeInHierarchy)
+        staleTargetRoots.Clear();
+        foreach (KeyValuePair<Transform, OcclusionTarget> pair in occlusionTargetCache)
         {
-            targetCollider = FindTargetCollider(playerTarget);
+            if (pair.Key == null || !characterRoots.Contains(pair.Key))
+            {
+                staleTargetRoots.Add(pair.Key);
+            }
+        }
+
+        foreach (Transform staleRoot in staleTargetRoots)
+        {
+            occlusionTargetCache.Remove(staleRoot);
         }
     }
 
-    private bool TryGetTargetPoint(out Vector3 targetPoint)
+    private void AddOcclusionTarget(Transform root)
+    {
+        if (root == null || !root.gameObject.activeInHierarchy)
+        {
+            return;
+        }
+
+        if (!characterRoots.Add(root))
+        {
+            return;
+        }
+
+        if (!occlusionTargetCache.TryGetValue(root, out OcclusionTarget target) ||
+            target == null)
+        {
+            target = new OcclusionTarget();
+            occlusionTargetCache[root] = target;
+        }
+
+        target.root = root;
+        if (!IsColliderUsable(target.targetCollider))
+        {
+            target.targetCollider = FindTargetCollider(root);
+        }
+
+        if (target.targetCollider != null)
+        {
+            occlusionTargets.Add(target);
+        }
+    }
+
+    private bool TryGetTargetPoint(OcclusionTarget target, out Vector3 targetPoint)
     {
         targetPoint = default;
-        if (playerTarget == null || targetCollider == null)
+        if (target == null ||
+            target.root == null ||
+            !IsColliderUsable(target.targetCollider))
         {
             return false;
         }
 
-        Bounds bounds = targetCollider.bounds;
-        targetPoint = new Vector3(bounds.center.x, bounds.min.y, bounds.center.z);
+        Bounds bounds = target.targetCollider.bounds;
+        targetPoint = new Vector3(
+            bounds.center.x,
+            bounds.min.y + playerTargetHeightOffset,
+            bounds.center.z);
         return true;
     }
 
@@ -287,6 +397,26 @@ public class ObjectFadeController : MonoBehaviour
         return triggerFallback;
     }
 
+    private bool IsCharacterTransform(Transform hitTransform)
+    {
+        foreach (Transform characterRoot in characterRoots)
+        {
+            if (IsPartOf(hitTransform, characterRoot))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool IsColliderUsable(Collider collider)
+    {
+        return collider != null &&
+               collider.enabled &&
+               collider.gameObject.activeInHierarchy;
+    }
+
     private static bool IsPartOf(Transform transform, Transform root)
     {
         return transform == root || transform.IsChildOf(root);
@@ -307,58 +437,56 @@ public class ObjectFadeController : MonoBehaviour
 
     private void UpdateRendererFades()
     {
+        float now = Time.unscaledTime;
+        float dt = Time.unscaledDeltaTime;
         float targetAlpha = Mathf.Clamp01(occludedAlpha);
-        float alphaStep = fadeSpeed <= 0f
-            ? Mathf.Infinity
-            : fadeSpeed * Time.unscaledDeltaTime;
-        bool hasBlockers = blockers.Count > 0;
-        globalOcclusionAlpha = Mathf.MoveTowards(
-            globalOcclusionAlpha,
-            hasBlockers ? targetAlpha : 1f,
-            alphaStep);
 
+        // 刷新“最后被遮挡时间”
         foreach (Renderer blocker in blockers)
         {
-            if (!rendererAlphas.ContainsKey(blocker))
+            if (!fadeStates.TryGetValue(blocker, out FadeState state))
             {
-                rendererAlphas.Add(blocker, globalOcclusionAlpha);
+                state = new FadeState();
+                fadeStates.Add(blocker, state);
             }
+
+            state.lastBlockedTime = now;
         }
 
         removalBuffer.Clear();
         rendererSnapshot.Clear();
-        rendererSnapshot.AddRange(rendererAlphas.Keys);
+        rendererSnapshot.AddRange(fadeStates.Keys);
 
-        foreach (Renderer blocker in rendererSnapshot)
+        foreach (Renderer r in rendererSnapshot)
         {
-            if (!rendererAlphas.TryGetValue(blocker, out float currentValue))
+            if (r == null)
             {
+                removalBuffer.Add(r);
                 continue;
             }
 
-            if (blocker == null)
+            FadeState state = fadeStates[r];
+
+            // 滞后判定：短时间内丢失命中仍视为遮挡，避免逐帧抖动
+            bool isBlocking = now - state.lastBlockedTime <= releaseDelay;
+
+            float target = isBlocking ? targetAlpha : 1f;
+            float speed = isBlocking ? fadeOutSpeed : fadeInSpeed;
+            float step = speed <= 0f ? Mathf.Infinity : speed * dt;
+
+            state.alpha = Mathf.MoveTowards(state.alpha, target, step);
+            ApplyAlpha(r, state.alpha);
+
+            if (!isBlocking && state.alpha >= 1f)
             {
-                removalBuffer.Add(blocker);
-                continue;
-            }
-
-            bool isBlocking = blockers.Contains(blocker);
-            float currentAlpha = isBlocking
-                ? globalOcclusionAlpha
-                : Mathf.MoveTowards(currentValue, 1f, alphaStep);
-
-            rendererAlphas[blocker] = currentAlpha;
-            ApplyAlpha(blocker, currentAlpha);
-
-            if (!isBlocking && Mathf.Approximately(currentAlpha, 1f))
-            {
-                removalBuffer.Add(blocker);
+                removalBuffer.Add(r);
             }
         }
 
-        foreach (Renderer blocker in removalBuffer)
+        foreach (Renderer r in removalBuffer)
         {
-            rendererAlphas.Remove(blocker);
+            // 销毁的 Renderer 作为字典键仍可被移除（Unity 对象的引用比较）
+            fadeStates.Remove(r);
         }
     }
 
@@ -374,21 +502,19 @@ public class ObjectFadeController : MonoBehaviour
         if (propertyBlock != null)
         {
             rendererSnapshot.Clear();
-            rendererSnapshot.AddRange(rendererAlphas.Keys);
+            rendererSnapshot.AddRange(fadeStates.Keys);
 
-            foreach (Renderer blocker in rendererSnapshot)
+            foreach (Renderer r in rendererSnapshot)
             {
-                if (blocker != null)
+                if (r != null)
                 {
-                    ApplyAlpha(blocker, 1f);
+                    ApplyAlpha(r, 1f);
                 }
-
             }
         }
 
         blockers.Clear();
-        rendererAlphas.Clear();
-        globalOcclusionAlpha = 1f;
+        fadeStates.Clear();
         materialBuffer.Clear();
         removalBuffer.Clear();
         rendererSnapshot.Clear();
@@ -416,24 +542,57 @@ public class ObjectFadeController : MonoBehaviour
             debugPlayer = controller != null ? controller.PlayerTransform : null;
         }
 
+        List<Transform> debugTargets = new List<Transform>();
         if (debugPlayer != null)
         {
-            Collider debugCollider = debugPlayer == playerTarget && targetCollider != null
-                ? targetCollider
-                : FindTargetCollider(debugPlayer);
+            debugTargets.Add(debugPlayer);
+        }
 
-            if (debugCollider != null)
+        MonsterIdentitySystem monsterSystem = Application.isPlaying
+            ? MonsterIdentitySystem.Instance
+            : FindFirstObjectByType<MonsterIdentitySystem>();
+        if (monsterSystem != null)
+        {
+            foreach (MonsterIdentityManager monster in monsterSystem.GetAllMonsters())
             {
-                Bounds debugBounds = debugCollider.bounds;
-                Vector3 playerPoint = new Vector3(
-                    debugBounds.center.x,
-                    debugBounds.min.y,
-                    debugBounds.center.z);
-                DrawOcclusionRay(
-                    activeCamera,
-                    playerPoint,
-                    new Color(1f, 0.6f, 0.1f, 0.9f));
+                if (monster == null ||
+                    !monster.gameObject.activeInHierarchy ||
+                    debugTargets.Contains(monster.transform))
+                {
+                    continue;
+                }
+
+                if (gameObject.scene.IsValid() &&
+                    monster.gameObject.scene != gameObject.scene)
+                {
+                    continue;
+                }
+
+                debugTargets.Add(monster.transform);
             }
+        }
+
+        foreach (Transform debugTarget in debugTargets)
+        {
+            Collider debugCollider = FindTargetCollider(debugTarget);
+            if (debugCollider == null)
+            {
+                continue;
+            }
+
+            Bounds debugBounds = debugCollider.bounds;
+            Vector3 targetPoint = new Vector3(
+                debugBounds.center.x,
+                debugBounds.min.y + playerTargetHeightOffset,
+                debugBounds.center.z);
+            Color debugColor = debugTarget == debugPlayer
+                ? new Color(1f, 0.6f, 0.1f, 0.9f)
+                : new Color(1f, 0.25f, 0.2f, 0.9f);
+            DrawOcclusionRay(
+                activeCamera,
+                targetPoint,
+                playerRayEndMargin,
+                debugColor);
         }
 
         GridHoverController hoverController = GridHoverController.Instance;
@@ -443,11 +602,16 @@ public class ObjectFadeController : MonoBehaviour
             DrawOcclusionRay(
                 activeCamera,
                 GetCellTargetPoint(hoverCell),
+                cellRayEndMargin,
                 new Color(0.1f, 0.9f, 1f, 0.9f));
         }
     }
 
-    private static void DrawOcclusionRay(Camera activeCamera, Vector3 target, Color color)
+    private static void DrawOcclusionRay(
+        Camera activeCamera,
+        Vector3 target,
+        float endMargin,
+        Color color)
     {
         Vector3 viewportPoint = activeCamera.WorldToViewportPoint(target);
         if (viewportPoint.z <= 0f)
@@ -456,7 +620,8 @@ public class ObjectFadeController : MonoBehaviour
         }
 
         Ray viewRay = activeCamera.ViewportPointToRay(viewportPoint);
-        float targetDistance = Vector3.Dot(target - viewRay.origin, viewRay.direction);
+        float targetDistance =
+            Vector3.Dot(target - viewRay.origin, viewRay.direction) - endMargin;
         if (targetDistance <= 0.001f)
         {
             return;

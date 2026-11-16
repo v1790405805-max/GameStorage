@@ -18,7 +18,8 @@ public enum RangeType
 {
     Point,      // 点状（以施法者自身为施法目标）
     Straight,   // 直线
-    Diamond     // 菱形
+    Diamond,    // 菱形
+    Square      // 方形（以施法者为中心向外扩展的方形圈）
 }
 
 /// <summary>
@@ -185,6 +186,30 @@ public class CardData : ScriptableObject
             rangeModifier += MovementRangeEnlargeEffect.GetRangeDistanceBonus(this);
         }
         return Mathf.Max(0, rangeDistance + rangeModifier);
+    }
+
+    public RangeType GetEffectiveRangeType()
+    {
+        RangeType effectiveRangeType = rangeType;
+        if (extraEffects == null) return effectiveRangeType;
+
+        foreach (ExtraCardEffect extra in extraEffects)
+        {
+            if (string.IsNullOrEmpty(extra.effectTypeName)) continue;
+            Type effectType = Type.GetType(extra.effectTypeName);
+            if (effectType == null || !typeof(CardEffectCore).IsAssignableFrom(effectType)) continue;
+
+            CardEffectCore instance = CreateInstance(effectType) as CardEffectCore;
+            if (instance == null) continue;
+
+            if (instance.TryGetRangeTypeOverride(this, out RangeType overrideRangeType))
+            {
+                effectiveRangeType = overrideRangeType;
+            }
+            Destroy(instance);
+        }
+
+        return effectiveRangeType;
     }
 
     private int GetTotalMoveDistanceModifier()

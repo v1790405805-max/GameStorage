@@ -12,5 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f48d99aa4c455c6438addeb8bd0f0c9d, type: 3}
   m_Name: CardDeckData
   m_EditorClassIdentifier: Assembly-CSharp::CardDeckData
-  initialDeck: []
+  initialDeck:
+  - {fileID: 11400000, guid: bc5cc8795a4b2f74cbbaab3b5e80b501, type: 2}
+  - {fileID: 11400000, guid: bc5cc8795a4b2f74cbbaab3b5e80b501, type: 2}
+  - {fileID: 11400000, guid: bc5cc8795a4b2f74cbbaab3b5e80b501, type: 2}
+  - {fileID: 11400000, guid: 616860161b2f6ee408306dd8cd85e182, type: 2}
+  - {fileID: 11400000, guid: f6bb9f5867fe6c248980fa4bba99bfa8, type: 2}
+  - {fileID: 11400000, guid: f6bb9f5867fe6c248980fa4bba99bfa8, type: 2}
+  - {fileID: 11400000, guid: f6bb9f5867fe6c248980fa4bba99bfa8, type: 2}
+  - {fileID: 11400000, guid: df1681a2f73e3a24dbb46466b7bd5000, type: 2}
+  - {fileID: 11400000, guid: df1681a2f73e3a24dbb46466b7bd5000, type: 2}
+  - {fileID: 11400000, guid: f2557348f44d1894ab7e1efc26f4908c, type: 2}
   allAvailableCards: []
