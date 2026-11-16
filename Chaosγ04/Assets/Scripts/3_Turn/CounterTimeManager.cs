@@ -114,16 +114,15 @@ public class CounterTimeManager : MonoBehaviour
 
     private void BindAbandonButton(Button button)
     {
-        if (abandonCounterButton == button)
+        if (abandonCounterButton != button)
         {
-            UpdateAbandonButton(state == CounterTimeState.WaitingForCard);
-            return;
+            UnbindAbandonButton();
+            abandonCounterButton = button;
         }
 
-        UnbindAbandonButton();
-        abandonCounterButton = button;
         if (abandonCounterButton != null)
         {
+            abandonCounterButton.onClick.RemoveListener(AbandonCounterWindow);
             abandonCounterButton.onClick.AddListener(AbandonCounterWindow);
         }
 

@@ -215,7 +215,7 @@ public class MonsterAttackAction : MonsterActionBase
         hasDealtDamage = true;
         if (currentAttackTarget != null)
         {
-            ResolveAttackDamage(currentAttackTarget);
+            ResolveAttackDamage(currentAttackTarget.Cell);
         }
     }
 
@@ -413,8 +413,22 @@ public class MonsterAttackAction : MonsterActionBase
         monsterAnimator.SetTrigger(attackTriggerHash);
     }
 
-    private void ResolveAttackDamage(MonsterTarget target)
+    private void ResolveAttackDamage(CellManager lockedCell)
     {
+        if (!gameObject.activeInHierarchy ||
+            monsterStats == null ||
+            monsterStats.currentHp <= 0)
+        {
+            Debug.Log($"[{name}] 攻击取消：攻击者已死亡或失效。");
+            return;
+        }
+
+        if (lockedCell == null)
+        {
+            Debug.LogWarning($"[{name}] 攻击落空：目标格无效。");
+            return;
+        }
+
         CellManager attackerCell = MonsterPathfinding.FindMonsterCell(gridManager, selfIdentity);
         Vector2Int? attackerGrid = null;
         if (attackerCell != null)
@@ -427,7 +441,18 @@ public class MonsterAttackAction : MonsterActionBase
             Debug.LogWarning($"[{name}] 无法通过 GridManager / CellManager 获取攻击者所在格，玩家朝向减伤将跳过。");
         }
 
-        if (target.IsPlayer)
+        // 攻击结算的是开始攻击时锁定的格子，而不是当时站在格上的角色引用。
+        bool playerOccupiesCell =
+            lockedCell.IsPlayerInside &&
+            selfIdentity != null &&
+            selfIdentity.IsHostileToPlayer();
+        MonsterIdentityManager monsterOccupant = FindHostileMonsterOccupant(lockedCell);
+        bool wasTargetingPlayer = currentAttackTarget != null && currentAttackTarget.IsPlayer;
+        bool shouldHitPlayer =
+            playerOccupiesCell &&
+            (wasTargetingPlayer || monsterOccupant == null);
+
+        if (shouldHitPlayer)
         {
             if (PlayerOrientationDamageController.Instance != null)
             {
@@ -443,24 +468,57 @@ public class MonsterAttackAction : MonsterActionBase
             return;
         }
 
-        if (target.Monster == null)
+        if (monsterOccupant != null)
         {
+            MonsterStats targetStats = monsterOccupant.GetComponent<MonsterStats>();
+            if (targetStats == null)
+            {
+                targetStats = monsterOccupant.GetComponentInChildren<MonsterStats>();
+            }
+
+            if (targetStats == null)
+            {
+                Debug.LogWarning($"[{name}] 攻击目标 [{monsterOccupant.monsterId}] 缺少 MonsterStats 组件。");
+                return;
+            }
+
+            targetStats.TakeDamage(AttackDamage, selfIdentity);
             return;
         }
 
-        MonsterStats targetStats = target.Monster.GetComponent<MonsterStats>();
-        if (targetStats == null)
+        Debug.Log($"[{name}] 攻击落空：目标格上当前没有敌对角色。");
+    }
+
+    private MonsterIdentityManager FindHostileMonsterOccupant(CellManager cell)
+    {
+        if (cell == null || selfIdentity == null)
         {
-            targetStats = target.Monster.GetComponentInChildren<MonsterStats>();
+            return null;
         }
 
-        if (targetStats == null)
+        MonsterIdentityManager fallback = null;
+        foreach (MonsterIdentityManager monster in cell.GetMonstersInside())
         {
-            Debug.LogWarning($"[{name}] 攻击目标 [{target.DisplayName}] 缺少 MonsterStats 组件。");
-            return;
+            if (monster == null ||
+                !monster.gameObject.activeInHierarchy ||
+                !selfIdentity.IsHostileTo(monster))
+            {
+                continue;
+            }
+
+            if (currentAttackTarget != null &&
+                currentAttackTarget.Monster == monster)
+            {
+                return monster;
+            }
+
+            if (fallback == null)
+            {
+                fallback = monster;
+            }
         }
 
-        targetStats.TakeDamage(AttackDamage, selfIdentity);
+        return fallback;
     }
 
     public override void CancelAction()

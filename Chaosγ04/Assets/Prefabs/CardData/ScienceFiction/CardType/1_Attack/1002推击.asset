@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardData
   cardID: 1002
   cardName: "\u63A8\u51FB"
-  cardArtwork: {fileID: 21300000, guid: 0024b461314d7ec49976d9e27d675bf0, type: 3}
+  cardArtwork: {fileID: 0}
   type: 1
   isCounterCard: 0
   cost: 1

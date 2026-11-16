@@ -325,7 +325,7 @@ public class GridVisualManager : MonoBehaviour
 
     /// <summary>
     /// 更新单个格子的四条边线颜色（内边 vs 外边线区分）。
-    /// 格子级版本：根据格子坐标判断四方向邻居列是否在范围内。
+    /// 相邻格必须在四方向列内，且与当前格的层差不超过 1，才视为内部边。
     /// </summary>
     private void UpdateSingleCellBorderColor(
         CellManager cell,
@@ -338,10 +338,10 @@ public class GridVisualManager : MonoBehaviour
 
         var (x, z) = gridManager.GetCellGridPosition(cell);
 
-        bool upOuter = !SetContainsColumn(reachableSet, x, z - 1);
-        bool downOuter = !SetContainsColumn(reachableSet, x, z + 1);
-        bool leftOuter = !SetContainsColumn(reachableSet, x - 1, z);
-        bool rightOuter = !SetContainsColumn(reachableSet, x + 1, z);
+        bool upOuter = !SetContainsConnectableCell(reachableSet, cell, x, z - 1);
+        bool downOuter = !SetContainsConnectableCell(reachableSet, cell, x, z + 1);
+        bool leftOuter = !SetContainsConnectableCell(reachableSet, cell, x - 1, z);
+        bool rightOuter = !SetContainsConnectableCell(reachableSet, cell, x + 1, z);
 
         Color innerColor = isCharacter ? style.characterLineColor : style.lineClickedColor;
         cell.SetIndividualLinesColor(
@@ -368,16 +368,26 @@ public class GridVisualManager : MonoBehaviour
         return false;
     }
 
-    /// <summary>格子集合中是否存在位于指定列 (x, z) 的格子（任意层）。</summary>
-    private bool SetContainsColumn(HashSet<CellManager> cellSet, int x, int z)
+    /// <summary>
+    /// 格子集合中是否存在位于指定列 (x, z)，且能与 sourceCell 跨层连接的格子。
+    /// </summary>
+    private bool SetContainsConnectableCell(
+        HashSet<CellManager> cellSet,
+        CellManager sourceCell,
+        int x,
+        int z)
     {
-        if (cellSet == null || cellSet.Count == 0) return false;
+        if (cellSet == null || cellSet.Count == 0 || sourceCell == null) return false;
 
         foreach (CellManager cell in cellSet)
         {
             if (cell == null) continue;
             var (cx, cz) = gridManager.GetCellGridPosition(cell);
-            if (cx == x && cz == z) return true;
+            if (cx == x && cz == z &&
+                RangeSystem.CanConnectAcrossLayers(gridManager, sourceCell, cell))
+            {
+                return true;
+            }
         }
         return false;
     }

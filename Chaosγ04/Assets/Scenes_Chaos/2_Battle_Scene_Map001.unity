@@ -24409,19 +24409,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 146800067}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1569729688}
-        m_TargetAssemblyTypeName: TurnManager, Assembly-CSharp
-        m_MethodName: OnEndRoundButtonPressed
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &146800067
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -87269,8 +87257,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterActionManager
   startDelay: 0.2
   actionSequence:
-  - action: {fileID: 556471853}
-  - action: {fileID: 556471854}
   - action: {fileID: 556471849}
   - action: {fileID: 556471847}
 --- !u!114 &556471847
@@ -87287,9 +87273,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackAction
   postActionDelay: 0.5
   gridManager: {fileID: 1996419300}
-  visualManager: {fileID: 0}
-  monsterAnimator: {fileID: 7080626493093617588}
-  attackTriggerName: Tear
+  visualManager: {fileID: 1996419303}
+  monsterAnimator: {fileID: 1851529940}
+  attackTriggerName: Attack
   attackGridStyle: {fileID: 11400000, guid: 0b45acbeab0cb6a4db5f7f7f1a570c25, type: 2}
   targetWarningDuration: 0.05
   targetConfirmedDuration: 0.3
@@ -87310,7 +87296,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1851529936}
-  - {fileID: 7080626493093617589}
   - {fileID: 292831259}
   m_Father: {fileID: 1674030726}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -87330,7 +87315,7 @@ MonoBehaviour:
   stepDuration: 0.5
   pauseBeforeFacePlayer: 0.05
   gridManager: {fileID: 1996419300}
-  monsterAnimator: {fileID: 7080626493093617588}
+  monsterAnimator: {fileID: 1851529940}
   moveBoolName: Move
   horizontalFloatName: Horizontal
   verticalFloatName: Vertical
@@ -98114,7 +98099,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackAction
   postActionDelay: 0.5
   gridManager: {fileID: 1996419300}
-  visualManager: {fileID: 0}
+  visualManager: {fileID: 1996419303}
   monsterAnimator: {fileID: 85138953}
   attackTriggerName: Tear
   attackGridStyle: {fileID: 11400000, guid: 0b45acbeab0cb6a4db5f7f7f1a570c25, type: 2}
@@ -150744,7 +150729,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackAction
   postActionDelay: 0.5
   gridManager: {fileID: 1996419300}
-  visualManager: {fileID: 0}
+  visualManager: {fileID: 1996419303}
   monsterAnimator: {fileID: 1232584861}
   attackTriggerName: Tear
   attackGridStyle: {fileID: 11400000, guid: 0b45acbeab0cb6a4db5f7f7f1a570c25, type: 2}
@@ -169198,7 +169183,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackAction
   postActionDelay: 0.5
   gridManager: {fileID: 1996419300}
-  visualManager: {fileID: 0}
+  visualManager: {fileID: 1996419303}
   monsterAnimator: {fileID: 1048001019}
   attackTriggerName: Tear
   attackGridStyle: {fileID: 11400000, guid: 0b45acbeab0cb6a4db5f7f7f1a570c25, type: 2}
@@ -245760,7 +245745,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackAction
   postActionDelay: 0.5
   gridManager: {fileID: 1996419300}
-  visualManager: {fileID: 0}
+  visualManager: {fileID: 1996419303}
   monsterAnimator: {fileID: 1912368760}
   attackTriggerName: Tear
   attackGridStyle: {fileID: 11400000, guid: 0b45acbeab0cb6a4db5f7f7f1a570c25, type: 2}
@@ -279374,6 +279359,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1851529936}
   - component: {fileID: 1851529937}
+  - component: {fileID: 1851529940}
   - component: {fileID: 1851529939}
   - component: {fileID: 1851529938}
   m_Layer: 0
@@ -279505,6 +279491,28 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 8.454222, y: 9.592392, z: 0.20000216}
   m_Center: {x: 0.8250555, y: -1.2703792, z: 0.000002520837}
+--- !u!95 &1851529940
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1851529935}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 53065632eaa17574ba0f7c9ef37a9bdc, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1853551316
 GameObject:
   m_ObjectHideFlags: 0
@@ -294345,7 +294353,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackAction
   postActionDelay: 0.5
   gridManager: {fileID: 1996419300}
-  visualManager: {fileID: 0}
+  visualManager: {fileID: 1996419303}
   monsterAnimator: {fileID: 176702011}
   attackTriggerName: Tear
   attackGridStyle: {fileID: 11400000, guid: 0b45acbeab0cb6a4db5f7f7f1a570c25, type: 2}
@@ -330705,129 +330713,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 0
---- !u!1001 &7080626493093617587
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 556471848}
-    m_Modifications:
-    - target: {fileID: 1999699698439934695, guid: 83a8e817560a7d140a9ce98b3a95c50c, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 23
-      objectReference: {fileID: 0}
-    - target: {fileID: 1999699698439934695, guid: 83a8e817560a7d140a9ce98b3a95c50c, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 12
-      objectReference: {fileID: 0}
-    - target: {fileID: 1999699698439934695, guid: 83a8e817560a7d140a9ce98b3a95c50c, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 23
-      objectReference: {fileID: 0}
-    - target: {fileID: 1999699698439934695, guid: 83a8e817560a7d140a9ce98b3a95c50c, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -4.39
-      objectReference: {fileID: 0}
-    - target: {fileID: 4154055297778780739, guid: 83a8e817560a7d140a9ce98b3a95c50c, type: 3}
-      propertyPath: m_Color.a
-      value: 0.4
-      objectReference: {fileID: 0}
-    - target: {fileID: 4154055297778780739, guid: 83a8e817560a7d140a9ce98b3a95c50c, type: 3}
-      propertyPath: m_SortingOrder
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4821193364825065484, guid: 83a8e817560a7d140a9ce98b3a95c50c, type: 3}
-      propertyPath: m_CastShadows
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4821193364825065484, guid: 83a8e817560a7d140a9ce98b3a95c50c, type: 3}
-      propertyPath: m_ReceiveShadows
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4821193364825065484, guid: 83a8e817560a7d140a9ce98b3a95c50c, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 2100000, guid: b2bfcc58cd3bca846858e4b51e6522a7, type: 2}
-    - target: {fileID: 6500701811411499561, guid: 83a8e817560a7d140a9ce98b3a95c50c, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 0.14
-      objectReference: {fileID: 0}
-    - target: {fileID: 6500701811411499561, guid: 83a8e817560a7d140a9ce98b3a95c50c, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 0.14
-      objectReference: {fileID: 0}
-    - target: {fileID: 6500701811411499561, guid: 83a8e817560a7d140a9ce98b3a95c50c, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 0.14
-      objectReference: {fileID: 0}
-    - target: {fileID: 6500701811411499561, guid: 83a8e817560a7d140a9ce98b3a95c50c, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0.14
-      objectReference: {fileID: 0}
-    - target: {fileID: 6500701811411499561, guid: 83a8e817560a7d140a9ce98b3a95c50c, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.6
-      objectReference: {fileID: 0}
-    - target: {fileID: 6500701811411499561, guid: 83a8e817560a7d140a9ce98b3a95c50c, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0.22
-      objectReference: {fileID: 0}
-    - target: {fileID: 6500701811411499561, guid: 83a8e817560a7d140a9ce98b3a95c50c, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.88047725
-      objectReference: {fileID: 0}
-    - target: {fileID: 6500701811411499561, guid: 83a8e817560a7d140a9ce98b3a95c50c, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0.27984518
-      objectReference: {fileID: 0}
-    - target: {fileID: 6500701811411499561, guid: 83a8e817560a7d140a9ce98b3a95c50c, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0.3647056
-      objectReference: {fileID: 0}
-    - target: {fileID: 6500701811411499561, guid: 83a8e817560a7d140a9ce98b3a95c50c, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0.11591566
-      objectReference: {fileID: 0}
-    - target: {fileID: 6500701811411499561, guid: 83a8e817560a7d140a9ce98b3a95c50c, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 35.264
-      objectReference: {fileID: 0}
-    - target: {fileID: 6500701811411499561, guid: 83a8e817560a7d140a9ce98b3a95c50c, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 45
-      objectReference: {fileID: 0}
-    - target: {fileID: 6500701811411499561, guid: 83a8e817560a7d140a9ce98b3a95c50c, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7662517539490518824, guid: 83a8e817560a7d140a9ce98b3a95c50c, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8595347770643739193, guid: 83a8e817560a7d140a9ce98b3a95c50c, type: 3}
-      propertyPath: m_Name
-      value: Dog
-      objectReference: {fileID: 0}
-    - target: {fileID: 8595347770643739193, guid: 83a8e817560a7d140a9ce98b3a95c50c, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 83a8e817560a7d140a9ce98b3a95c50c, type: 3}
---- !u!95 &7080626493093617588 stripped
-Animator:
-  m_CorrespondingSourceObject: {fileID: 3171811615604495495, guid: 83a8e817560a7d140a9ce98b3a95c50c, type: 3}
-  m_PrefabInstance: {fileID: 7080626493093617587}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &7080626493093617589 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 6500701811411499561, guid: 83a8e817560a7d140a9ce98b3a95c50c, type: 3}
-  m_PrefabInstance: {fileID: 7080626493093617587}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &7113251379010685748
 Transform:
   m_ObjectHideFlags: 0

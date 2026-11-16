@@ -38,6 +38,7 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
     public bool IsManualMoveInProgress => isManualMoveInProgress;
     public Transform PlayerTransform => playerTransform;
     public CellManager PlayerOccupiedCell => playerOccupiedCell;
+    public bool HasActiveMovementSelection => currentClickedCell != null;
 
     private Vector2Int currentClickedGrid = new Vector2Int(-1, -1);
     private CellManager currentClickedCell;

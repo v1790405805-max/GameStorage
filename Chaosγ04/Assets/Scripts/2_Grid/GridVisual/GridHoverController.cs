@@ -468,10 +468,10 @@ public class GridHoverController : MonoBehaviour
         CellManager cell = ResolveHoverCell(grid);
         if (cell == null) return;
 
-        bool upOuter = !RangeContainsColumn(grid.x, grid.y - 1);
-        bool downOuter = !RangeContainsColumn(grid.x, grid.y + 1);
-        bool leftOuter = !RangeContainsColumn(grid.x - 1, grid.y);
-        bool rightOuter = !RangeContainsColumn(grid.x + 1, grid.y);
+        bool upOuter = !RangeContainsConnectableCell(cell, grid.x, grid.y - 1);
+        bool downOuter = !RangeContainsConnectableCell(cell, grid.x, grid.y + 1);
+        bool leftOuter = !RangeContainsConnectableCell(cell, grid.x - 1, grid.y);
+        bool rightOuter = !RangeContainsConnectableCell(cell, grid.x + 1, grid.y);
 
         cell.SetIndividualLinesColor(
             defaultColor: activeConfig.lineClickedColor,
@@ -494,6 +494,27 @@ public class GridHoverController : MonoBehaviour
             if (cell == null) continue;
             var (cx, cz) = gridManager.GetCellGridPosition(cell);
             if (cx == x && cz == z) return true;
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// 当前范围集合的指定相邻列中，是否存在能与 sourceCell 跨层连接的格子。
+    /// </summary>
+    private bool RangeContainsConnectableCell(CellManager sourceCell, int x, int z)
+    {
+        if (activeRangeSet == null || activeRangeSet.Count == 0 || sourceCell == null)
+            return false;
+
+        foreach (CellManager cell in activeRangeSet)
+        {
+            if (cell == null) continue;
+            var (cx, cz) = gridManager.GetCellGridPosition(cell);
+            if (cx == x && cz == z &&
+                RangeSystem.CanConnectAcrossLayers(gridManager, sourceCell, cell))
+            {
+                return true;
+            }
         }
         return false;
     }
@@ -716,10 +737,10 @@ public class GridHoverController : MonoBehaviour
     {
         if (activeConfig == null || cell == null) return;
 
-        bool upOuter = !RangeContainsColumn(x, z - 1);
-        bool downOuter = !RangeContainsColumn(x, z + 1);
-        bool leftOuter = !RangeContainsColumn(x - 1, z);
-        bool rightOuter = !RangeContainsColumn(x + 1, z);
+        bool upOuter = !RangeContainsConnectableCell(cell, x, z - 1);
+        bool downOuter = !RangeContainsConnectableCell(cell, x, z + 1);
+        bool leftOuter = !RangeContainsConnectableCell(cell, x - 1, z);
+        bool rightOuter = !RangeContainsConnectableCell(cell, x + 1, z);
 
         cell.SetIndividualLinesColor(
             defaultColor: activeConfig.lineClickedColor,
