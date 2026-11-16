@@ -43,6 +43,7 @@ public class CardDragController : MonoBehaviour
 
     // ==================== 伤害悬停预览新增字段 ====================
     private CardData currentDraggingCard = null;
+    private GridStyleData currentDraggingGridStyle = null;
     private MonsterInfoUI currentHoveredMonsterUI = null;
 
     // ===================================================================
@@ -94,6 +95,11 @@ public class CardDragController : MonoBehaviour
         ClearEffectDragPreview();
         IsDragging = true;
         currentDraggingCard = data;
+        CounterTimeManager counterTimeManager = CounterTimeManager.Instance;
+        bool useCounterGridStyle =
+            counterTimeManager != null &&
+            counterTimeManager.IsCounterStageActive;
+        currentDraggingGridStyle = data.GetGridStyle(useCounterGridStyle);
 
         if (moveController != null)
         {
@@ -135,15 +141,21 @@ public class CardDragController : MonoBehaviour
         currentValidTargetGrids.Clear();
         currentValidTargetGrids.UnionWith(validTargetGrids);
 
-        if (data.gridStyle != null)
+        if (currentDraggingGridStyle != null)
         {
             bool isPointType = (effectiveRangeType == RangeType.Point);
             visualManager.HighlightCardRange(
-                CurrentHighlightedGrids, data.gridStyle, playerCell, effectiveRangeType);
+                CurrentHighlightedGrids, currentDraggingGridStyle, playerCell, effectiveRangeType);
+
+            if (counterTimeManager != null &&
+                counterTimeManager.IsCounterStageActive)
+            {
+                CounterTimeRangeMaskRegistry.Protect(CurrentHighlightedGrids);
+            }
 
             if (GridHoverController.Instance != null)
                 GridHoverController.Instance.SetContext(
-                    CurrentHighlightedGrids, playerCell, data.gridStyle, isPointType, validTargetGrids,
+                    CurrentHighlightedGrids, playerCell, currentDraggingGridStyle, isPointType, validTargetGrids,
                     data.targetSelectMode == TargetSelectMode.Aoe, validEntityTargets,
                     isQuarterCircleMode, hoverMode: GridHoverInteractionMode.CardTargeting);
         }
@@ -162,6 +174,7 @@ public class CardDragController : MonoBehaviour
         ClearEffectDragPreview();
         ClearCurrentHoverPreview();
         currentDraggingCard = null;
+        currentDraggingGridStyle = null;
 
         if (!keepMovementPreview && movementController != null)
             movementController.HideCardMovementPreview(this);
@@ -419,7 +432,7 @@ public class CardDragController : MonoBehaviour
 
     private void ApplyEffectDragPreview(CardDragPreview preview)
     {
-        GridStyleData style = currentDraggingCard != null ? currentDraggingCard.gridStyle : null;
+        GridStyleData style = currentDraggingGridStyle;
         if (style != null && preview.highlightCells != null)
         {
             foreach (CellManager cell in preview.highlightCells)
@@ -708,11 +721,17 @@ public class CardDragController : MonoBehaviour
     public void ClearRangeHighlight()
     {
         currentValidTargetGrids.Clear();
+        CounterTimeRangeMaskRegistry.Clear();
 
         if (visualManager != null && CurrentHighlightedGrids.Count > 0)
         {
             visualManager.ClearRangeHighlight(CurrentHighlightedGrids);
             CurrentHighlightedGrids.Clear();
         }
+    }
+
+    private void OnDisable()
+    {
+        CounterTimeRangeMaskRegistry.Clear();
     }
 }

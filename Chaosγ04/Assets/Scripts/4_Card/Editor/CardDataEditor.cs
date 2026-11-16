@@ -43,6 +43,7 @@ public class CardDataEditor : Editor
 
     // Grid 样式
     private SerializedProperty gridStyle;
+    private SerializedProperty counterGridStyle;
 
     // 描述
     private SerializedProperty description;
@@ -79,6 +80,7 @@ public class CardDataEditor : Editor
         targetSelectMode = serializedObject.FindProperty("targetSelectMode");
 
         gridStyle = serializedObject.FindProperty("gridStyle");
+        counterGridStyle = serializedObject.FindProperty("counterGridStyle");
 
         description = serializedObject.FindProperty("description");
     }
@@ -192,6 +194,22 @@ public class CardDataEditor : Editor
         if (gridStyle.objectReferenceValue == null)
         {
             EditorGUILayout.HelpBox("未指定 Grid Style，拖拽此卡牌时将不显示 Grid 范围高亮。", MessageType.Warning);
+        }
+
+        if (isCounterCard.boolValue)
+        {
+            EditorGUILayout.PropertyField(
+                counterGridStyle,
+                new GUIContent(
+                    "Counter Grid Style",
+                    "反击阶段拖拽此反击卡时使用的独立 Grid 高亮样式。\n留空则回退到普通 Grid Style。"));
+
+            if (counterGridStyle.objectReferenceValue == null)
+            {
+                EditorGUILayout.HelpBox(
+                    "未指定 Counter Grid Style，反击阶段将回退到普通 Grid Style。",
+                    MessageType.Info);
+            }
         }
 
         EditorGUILayout.Space(8f);

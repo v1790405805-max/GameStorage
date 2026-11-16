@@ -148,6 +148,9 @@ public class CardData : ScriptableObject
     [Tooltip("拖拽此卡牌时使用的 Grid 高亮样式资产（GridStyleData）。\n留空则不显示范围高亮。")]
     public GridStyleData gridStyle;
 
+    [Tooltip("反击阶段拖拽反击卡时使用的独立 Grid 高亮样式资产。\n留空则回退到普通 Grid Style。")]
+    public GridStyleData counterGridStyle;
+
     [Header("卡牌效果描述")]
     [TextArea(2, 4)]
     public string description;
@@ -212,6 +215,16 @@ public class CardData : ScriptableObject
         return effectiveRangeType;
     }
 
+    public GridStyleData GetGridStyle(bool useCounterStyle)
+    {
+        if (useCounterStyle && isCounterCard && counterGridStyle != null)
+        {
+            return counterGridStyle;
+        }
+
+        return gridStyle;
+    }
+
     private int GetTotalMoveDistanceModifier()
     {
         int modifier = 0;
@@ -260,6 +273,7 @@ public class CardData : ScriptableObject
         clone.rangeDistance = rangeDistance;
         clone.targetSelectMode = targetSelectMode;
         clone.gridStyle = gridStyle;
+        clone.counterGridStyle = counterGridStyle;
         clone.description = description;
 
         // 深拷贝受击特效引用与偏移量

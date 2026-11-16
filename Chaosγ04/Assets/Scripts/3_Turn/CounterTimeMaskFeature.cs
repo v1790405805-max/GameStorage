@@ -7,17 +7,21 @@ using UnityEngine.Rendering.RenderGraphModule.Util;
 using UnityEngine.Rendering.Universal;
 
 /// <summary>
-/// 将反击阶段中的玩家与攻击者渲染为 Alpha 遮罩，并只压暗遮罩外的画面。
+/// 将反击阶段中的玩家、攻击者与当前卡牌范围渲染为 Alpha 遮罩，
+/// 并只压暗遮罩外的画面。
 /// </summary>
 public class CounterTimeMaskFeature : ScriptableRendererFeature
 {
     private const string DefaultCompositeShader = "Hidden/Chaos/CounterTimeMaskComposite";
+    private const string DefaultRangeMaskShader = "Hidden/Chaos/CounterTimeRangeMask";
 
     [SerializeField] private Shader compositeShader;
+    [SerializeField] private Shader rangeMaskShader;
     [SerializeField] private LayerMask maskedLayers = 0;
     [SerializeField, Range(0f, 1f)] private float darkenAmount = 0.68f;
 
     private Material compositeMaterial;
+    private Material rangeMaskMaterial;
     private CounterTimeMaskPass maskPass;
     private CounterTimeCompositePass compositePass;
 
@@ -28,6 +32,11 @@ public class CounterTimeMaskFeature : ScriptableRendererFeature
 
         compositeMaterial = resolvedCompositeShader != null
             ? CoreUtils.CreateEngineMaterial(resolvedCompositeShader)
+            : null;
+        Shader resolvedRangeMaskShader =
+            rangeMaskShader != null ? rangeMaskShader : Shader.Find(DefaultRangeMaskShader);
+        rangeMaskMaterial = resolvedRangeMaskShader != null
+            ? CoreUtils.CreateEngineMaterial(resolvedRangeMaskShader)
             : null;
 
         maskPass = new CounterTimeMaskPass
@@ -72,7 +81,11 @@ public class CounterTimeMaskFeature : ScriptableRendererFeature
             return;
         }
 
-        maskPass.Setup(resolvedMask);
+        maskPass.Setup(
+            resolvedMask,
+            CounterTimeRangeMaskRegistry.RangeRenderingLayerMask,
+            rangeMaskMaterial,
+            CounterTimeRangeMaskRegistry.HasProtectedRenderers);
         compositePass.Setup(compositeMaterial, darkenAmount);
         renderer.EnqueuePass(maskPass);
         renderer.EnqueuePass(compositePass);
@@ -81,6 +94,7 @@ public class CounterTimeMaskFeature : ScriptableRendererFeature
     protected override void Dispose(bool disposing)
     {
         CoreUtils.Destroy(compositeMaterial);
+        CoreUtils.Destroy(rangeMaskMaterial);
         base.Dispose(disposing);
     }
 
@@ -99,13 +113,25 @@ public class CounterTimeMaskFeature : ScriptableRendererFeature
         private sealed class PassData
         {
             public RendererListHandle RendererList;
+            public RendererListHandle RangeRendererList;
+            public bool HasRangeRendererList;
         }
 
         private int layerMask;
+        private uint rangeRenderingLayerMask;
+        private Material rangeMaskMaterial;
+        private bool hasProtectedRangeRenderers;
 
-        public void Setup(int mask)
+        public void Setup(
+            int mask,
+            uint rangeLayerMask,
+            Material maskMaterial,
+            bool hasProtectedRenderers)
         {
             layerMask = mask;
+            rangeRenderingLayerMask = rangeLayerMask;
+            rangeMaskMaterial = maskMaterial;
+            hasProtectedRangeRenderers = hasProtectedRenderers;
         }
 
         public override void RecordRenderGraph(
@@ -159,6 +185,32 @@ public class CounterTimeMaskFeature : ScriptableRendererFeature
                 passData.RendererList =
                     renderGraph.CreateRendererList(rendererListParams);
                 builder.UseRendererList(passData.RendererList);
+
+                if (rangeMaskMaterial != null &&
+                    rangeRenderingLayerMask != 0 &&
+                    hasProtectedRangeRenderers)
+                {
+                    DrawingSettings rangeDrawingSettings = drawingSettings;
+                    rangeDrawingSettings.overrideMaterial = rangeMaskMaterial;
+                    rangeDrawingSettings.overrideMaterialPassIndex = 0;
+
+                    FilteringSettings rangeFilteringSettings =
+                        new FilteringSettings(
+                            RenderQueueRange.all,
+                            -1,
+                            rangeRenderingLayerMask);
+                    RendererListParams rangeRendererListParams =
+                        new RendererListParams(
+                            renderingData.cullResults,
+                            rangeDrawingSettings,
+                            rangeFilteringSettings);
+
+                    passData.RangeRendererList =
+                        renderGraph.CreateRendererList(rangeRendererListParams);
+                    passData.HasRangeRendererList = true;
+                    builder.UseRendererList(passData.RangeRendererList);
+                }
+
                 builder.SetRenderAttachment(
                     maskData.MaskTexture,
                     0,
@@ -180,6 +232,10 @@ public class CounterTimeMaskFeature : ScriptableRendererFeature
                             true,
                             Color.clear);
                         context.cmd.DrawRendererList(data.RendererList);
+                        if (data.HasRangeRendererList)
+                        {
+                            context.cmd.DrawRendererList(data.RangeRendererList);
+                        }
                     });
             }
         }

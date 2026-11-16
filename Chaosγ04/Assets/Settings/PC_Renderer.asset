@@ -111,6 +111,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CounterTimeMaskFeature
   m_Active: 1
   compositeShader: {fileID: 4800000, guid: b4e1d2c38a4d4f3a9c7e6b5d2a1f0c98, type: 3}
+  rangeMaskShader: {fileID: 4800000, guid: c4e8a1f73b6d4c2e9a5f8d0b1c6e4a92, type: 3}
   maskedLayers:
     serializedVersion: 2
     m_Bits: 384

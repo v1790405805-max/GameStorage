@@ -47,4 +47,5 @@ MonoBehaviour:
   hitVFXPrefab: {fileID: 0}
   hitVFXOffset: {x: 0, y: 0.5, z: 0}
   gridStyle: {fileID: 11400000, guid: c7730a9b49b1f8244b410ce1e2e6542b, type: 2}
+  counterGridStyle: {fileID: 11400000, guid: 5d94de704cce40940a4a37c70b9b1694, type: 2}
   description: "\u53CD\u51FB\uFF0C\u9009\u62E9\u4E34\u8FD1\u516B\u683C\u4E2D\u53EF\u79FB\u52A8\u7684\u4E00\u683C\u8FDB\u884C\u79FB\u52A8\uFF0C\u5982\u679C\u5728\u53CD\u51FB\u72B6\u6001\u4F7F\u7528\u672C\u5361\uFF0C\u5219\u4EC5\u53EF\u9009\u62E9\u4E34\u8FD1\u56DB\u683C"

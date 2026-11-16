@@ -509,6 +509,7 @@ public class CounterTimeManager : MonoBehaviour
 
     private void EndCounterTimeMask()
     {
+        CounterTimeRangeMaskRegistry.Clear();
         IsCounterTimeMaskActive = false;
         foreach (KeyValuePair<GameObject, int> pair in maskedRendererLayers)
         {
