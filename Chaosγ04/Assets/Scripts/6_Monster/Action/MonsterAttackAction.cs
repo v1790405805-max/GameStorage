@@ -29,7 +29,7 @@ public enum MonsterTargetSelectMode
 /// the player or any other hostile-faction monster. Leave decisions suppress this action.
 /// 已接入动画 Hit 关键帧事件同步结算与后摇控制。
 /// </summary>
-public class MonsterAttackAction : MonsterActionBase
+public class MonsterAttackAction : MonsterAttackActionBase
 {
     [Header("攻击数值")]
     [Tooltip("本次攻击的基础伤害，最终伤害会叠加 MonsterStats 中的 AttackBuff。")]
@@ -111,6 +111,7 @@ public class MonsterAttackAction : MonsterActionBase
 
     public int AttackRange => attackRange;
     public MonsterTargetSelectMode TargetSelectMode => targetSelectMode;
+    public override int PreferredMaxRange => attackRange;
 
     private int BaseAttackDamage => attackDamage;
 
@@ -198,7 +199,32 @@ public class MonsterAttackAction : MonsterActionBase
         gridManager.EnsureGridSystemInitialized();
         RestoreAttackRangeVisuals();
 
-        if (!TrySelectAttackTarget(out MonsterTarget target, out _))
+        MonsterTarget target = null;
+        MonsterCombatPlan plan = Context != null ? Context.CombatPlan : null;
+        CellManager selfCell = MonsterGridNavigation.FindMonsterCell(
+            gridManager,
+            selfIdentity);
+        bool plannedPlayerVisible =
+            plan != null &&
+            plan.Target != null &&
+            selfCell != null &&
+            (!plan.Target.IsPlayer ||
+             ConcealmentCell.CanMonsterSeePlayer(selfCell));
+        bool usingPlannedTarget =
+            plan != null &&
+            plan.HasSelectedAttack &&
+            plan.SelectedAttack == this &&
+            TryEvaluateAttackFrom(
+                selfCell,
+                plan.Target,
+                plannedPlayerVisible,
+                out _);
+
+        if (usingPlannedTarget)
+        {
+            target = plan.Target;
+        }
+        else if (!TrySelectAttackTarget(out target, out _))
         {
             CompleteAction();
             return;
@@ -354,7 +380,7 @@ public class MonsterAttackAction : MonsterActionBase
         suppressedForTurn = suppressed;
     }
 
-    public void ResetTurnState()
+    public override void ResetTurnState()
     {
         suppressedForTurn = false;
         StopAttackRoutine();
@@ -389,7 +415,7 @@ public class MonsterAttackAction : MonsterActionBase
 
         foreach (MonsterTarget candidate in candidates)
         {
-            if (!TryValidateAttackTarget(
+            if (!TryEvaluateAttackFrom(
                     selfCell,
                     candidate,
                     includePlayer,
@@ -418,10 +444,10 @@ public class MonsterAttackAction : MonsterActionBase
         return target != null;
     }
 
-    private bool TryValidateAttackTarget(
+    public override bool TryEvaluateAttackFrom(
         CellManager selfCell,
         MonsterTarget candidate,
-        bool includePlayer,
+        bool playerVisible,
         out int pathDistance)
     {
         pathDistance = int.MaxValue;
@@ -430,7 +456,7 @@ public class MonsterAttackAction : MonsterActionBase
             return false;
         }
 
-        if (candidate.IsPlayer && !includePlayer)
+        if (candidate.IsPlayer && !playerVisible)
         {
             return false;
         }

@@ -19,16 +19,21 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
     [Header("动作序列")]
     [Tooltip("本回合要依次执行的动作列表")]
     [SerializeField] private List<MonsterActionStep> actionSequence = new List<MonsterActionStep>();
+    [Tooltip("序列缺少战斗规划动作时，运行时自动创建一个零时长 PlannerAction。")]
+    [SerializeField] private bool autoCreateCombatPlanner = true;
 
     private int currentIndex = -1;
     private bool isExecuting = false;
     private Coroutine sequenceCoroutine;
     private MonsterIdentityManager selfIdentity;
-    private MonsterAttackAction attackAction;
+    private MonsterAttackActionBase attackAction;
     private MonsterMoveAction moveAction;
     private MonsterLeaveAction leaveAction;
     private GridManager gridManager;
     private bool terminateRemainingActions;
+    private MonsterActionContext actionContext;
+    private readonly HashSet<MonsterActionExclusionGroup> executedExclusionGroups =
+        new HashSet<MonsterActionExclusionGroup>();
 
     public event Action OnSequenceStarted;
     public event Action<MonsterActionBase> OnActionStarted;
@@ -39,6 +44,13 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
     private static event Action<MonsterActionBase> TerminationRequested;
 
     public bool IsExecuting => isExecuting;
+    public MonsterActionStage CurrentStage { get; private set; } =
+        MonsterActionStage.Idle;
+    public MonsterActionBase CurrentAction { get; private set; }
+    public MonsterCombatPlan CombatPlan =>
+        actionContext != null ? actionContext.CombatPlan : null;
+    public bool IsMoving => CurrentStage == MonsterActionStage.Moving;
+    public bool IsAttacking => CurrentStage == MonsterActionStage.Attacking;
 
     /// <summary>
     /// 请求终止其他动作：其他 ActionManager 的当前序列立即停止，
@@ -57,6 +69,7 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
     private void Awake()
     {
         ResolveReferences();
+        EnsureCombatPlannerActionInSequence();
         EnsureLeaveActionInSequence();
     }
 
@@ -117,9 +130,13 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
 
         ResetTurnDecisionState();
         terminateRemainingActions = false;
+        executedExclusionGroups.Clear();
+        CurrentAction = null;
+        CurrentStage = MonsterActionStage.Idle;
 
-        MonsterActionContext context = BuildActionContext();
-        sequenceCoroutine = StartCoroutine(ExecuteSequenceRoutine(context));
+        actionContext = BuildActionContext();
+        sequenceCoroutine = StartCoroutine(
+            ExecuteSequenceRoutine(actionContext));
     }
 
     public void StopSequence()
@@ -144,6 +161,10 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
         isExecuting = false;
         currentIndex = -1;
         terminateRemainingActions = false;
+        CurrentAction = null;
+        CurrentStage = MonsterActionStage.Idle;
+        executedExclusionGroups.Clear();
+        actionContext = null;
 
         if (wasExecuting)
         {
@@ -169,12 +190,17 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
             if (step == null || step.action == null) continue;
 
             var action = step.action;
+            action.BindContext(context);
 
-            if (!action.CanExecute(context))
+            if (ShouldSkipForCombatSelection(action, context) ||
+                !action.CanExecute(context))
             {
                 Debug.Log($"[{name}] {action.GetType().Name} 的前置条件不满足，已跳过。");
+                CurrentAction = action;
+                CurrentStage = MonsterActionStage.Idle;
                 action.OnSkipped();
                 OnActionSkipped?.Invoke(action);
+                CurrentAction = null;
                 continue;
             }
 
@@ -188,6 +214,13 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
             };
 
             action.OnActionCompleted += completionHandler;
+            CurrentAction = action;
+            CurrentStage = GetStageForAction(action);
+            if (action.ExclusionGroup != MonsterActionExclusionGroup.None)
+            {
+                executedExclusionGroups.Add(action.ExclusionGroup);
+            }
+
             OnActionStarted?.Invoke(action);
 
             // 执行当前动作 (内部调用 OnStart)
@@ -197,6 +230,8 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
             yield return new WaitUntil(() => isCompleted);
 
             OnActionFinished?.Invoke(action);
+            CurrentAction = null;
+            CurrentStage = MonsterActionStage.Idle;
 
             if (terminateRemainingActions)
             {
@@ -213,15 +248,66 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
         currentIndex = -1;
         sequenceCoroutine = null;
         terminateRemainingActions = false;
+        CurrentAction = null;
+        CurrentStage = MonsterActionStage.Finished;
 
         // 通知 TurnManager，本怪物全部动作已完成
         OnSequenceFinished?.Invoke();
+    }
+
+    private bool ShouldSkipForCombatSelection(
+        MonsterActionBase action,
+        MonsterActionContext context)
+    {
+        if (action == null)
+        {
+            return true;
+        }
+
+        if (action.ExclusionGroup != MonsterActionExclusionGroup.None &&
+            executedExclusionGroups.Contains(action.ExclusionGroup))
+        {
+            return true;
+        }
+
+        if (action is MonsterAttackActionBase attackAction &&
+            context != null &&
+            context.CombatPlan != null &&
+            context.CombatPlan.SelectedAttack != null &&
+            context.CombatPlan.SelectedAttack != attackAction)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static MonsterActionStage GetStageForAction(
+        MonsterActionBase action)
+    {
+        if (action == null)
+        {
+            return MonsterActionStage.Idle;
+        }
+
+        switch (action.Category)
+        {
+            case MonsterActionCategory.Planning:
+                return MonsterActionStage.PlanningCombat;
+            case MonsterActionCategory.Movement:
+                return MonsterActionStage.Moving;
+            case MonsterActionCategory.Attack:
+                return MonsterActionStage.Attacking;
+            default:
+                return MonsterActionStage.OtherAction;
+        }
     }
 
     public void SetActionSequence(List<MonsterActionStep> steps)
     {
         if (isExecuting) return;
         actionSequence = steps ?? new List<MonsterActionStep>();
+        EnsureCombatPlannerActionInSequence();
         EnsureLeaveActionInSequence();
     }
 
@@ -240,6 +326,7 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
             });
         }
 
+        EnsureCombatPlannerActionInSequence();
         EnsureLeaveActionInSequence();
     }
 
@@ -258,13 +345,14 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
 
         if (attackAction == null)
         {
-            attackAction = GetComponent<MonsterAttackAction>();
+            attackAction = GetComponent<MonsterAttackActionBase>();
             if (attackAction == null && actionSequence != null)
             {
                 for (int i = 0; i < actionSequence.Count; i++)
                 {
                     MonsterActionStep step = actionSequence[i];
-                    if (step != null && step.action is MonsterAttackAction candidate)
+                    if (step != null &&
+                        step.action is MonsterAttackActionBase candidate)
                     {
                         attackAction = candidate;
                         break;
@@ -309,7 +397,7 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
 
         if (gridManager == null)
         {
-            gridManager = attackAction != null ? attackAction.gridManager : null;
+            gridManager = moveAction != null ? moveAction.gridManager : null;
             if (gridManager == null)
             {
                 gridManager = FindFirstObjectByType<GridManager>();
@@ -351,16 +439,51 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
         return GetComponent<T>();
     }
 
-    private void ResetTurnDecisionState()
+    public void GetActionsOfType<T>(List<T> results)
+        where T : MonsterActionBase
     {
-        if (moveAction != null)
+        if (results == null)
         {
-            moveAction.ResetTurnState();
+            return;
         }
 
-        if (attackAction != null)
+        results.Clear();
+        if (actionSequence == null)
         {
-            attackAction.ResetTurnState();
+            return;
+        }
+
+        HashSet<T> added = new HashSet<T>();
+        for (int i = 0; i < actionSequence.Count; i++)
+        {
+            MonsterActionStep step = actionSequence[i];
+            if (step != null &&
+                step.action is T candidate &&
+                added.Add(candidate))
+            {
+                results.Add(candidate);
+            }
+        }
+    }
+
+    private void ResetTurnDecisionState()
+    {
+        if (actionSequence == null)
+        {
+            return;
+        }
+
+        HashSet<MonsterActionBase> resetActions =
+            new HashSet<MonsterActionBase>();
+        for (int i = 0; i < actionSequence.Count; i++)
+        {
+            MonsterActionStep step = actionSequence[i];
+            if (step != null &&
+                step.action != null &&
+                resetActions.Add(step.action))
+            {
+                step.action.ResetTurnState();
+            }
         }
     }
 
@@ -449,14 +572,79 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
         });
     }
 
+    private void EnsureCombatPlannerActionInSequence()
+    {
+        if (!autoCreateCombatPlanner ||
+            actionSequence == null ||
+            actionSequence.Count == 0)
+        {
+            return;
+        }
+
+        bool hasAttackAction = false;
+        MonsterCombatPlannerAction plannerAction = null;
+        for (int i = 0; i < actionSequence.Count; i++)
+        {
+            MonsterActionStep step = actionSequence[i];
+            if (step == null || step.action == null)
+            {
+                continue;
+            }
+
+            if (step.action is MonsterAttackActionBase)
+            {
+                hasAttackAction = true;
+            }
+
+            if (plannerAction == null &&
+                step.action is MonsterCombatPlannerAction planner)
+            {
+                plannerAction = planner;
+            }
+        }
+
+        if (!hasAttackAction)
+        {
+            return;
+        }
+
+        if (plannerAction == null)
+        {
+            plannerAction = GetComponent<MonsterCombatPlannerAction>();
+            if (plannerAction == null)
+            {
+                plannerAction = gameObject.AddComponent<MonsterCombatPlannerAction>();
+            }
+        }
+
+        for (int i = actionSequence.Count - 1; i >= 0; i--)
+        {
+            if (actionSequence[i] != null &&
+                actionSequence[i].action == plannerAction)
+            {
+                actionSequence.RemoveAt(i);
+            }
+        }
+
+        actionSequence.Insert(0, new MonsterActionStep
+        {
+            action = plannerAction
+        });
+    }
+
     private MonsterActionContext BuildActionContext()
     {
         ResolveReferences();
 
+        List<MonsterAttackActionBase> attackActions =
+            new List<MonsterAttackActionBase>();
+        GetActionsOfType(attackActions);
+
         return new MonsterActionContext(
             selfIdentity,
             gridManager,
-            attackAction);
+            moveAction,
+            attackActions);
     }
 
 }

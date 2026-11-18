@@ -38,6 +38,9 @@ public class MonsterMoveAction : MonsterActionBase
     private bool hasForcedDestination;
 
     public int Mobility => monsterStats != null ? monsterStats.mobility : 0;
+    public bool HasForcedDestination =>
+        hasForcedDestination && forcedDestination != null;
+    public override MonsterActionCategory Category => MonsterActionCategory.Movement;
 
     private void Awake()
     {
@@ -109,6 +112,17 @@ public class MonsterMoveAction : MonsterActionBase
             return;
         }
 
+        MonsterCombatPlan combatPlan =
+            Context != null ? Context.CombatPlan : null;
+        if (combatPlan != null && combatPlan.MoveDestination != null)
+        {
+            ExecutePlannedMove(
+                monsterCell,
+                combatPlan.MoveDestination,
+                combatPlan.Target != null ? combatPlan.Target.Cell : null);
+            return;
+        }
+
         ExecuteDefaultMove(monsterCell);
     }
 
@@ -139,7 +153,7 @@ public class MonsterMoveAction : MonsterActionBase
         hasForcedDestination = false;
     }
 
-    public void ResetTurnState()
+    public override void ResetTurnState()
     {
         ClearForcedDestination();
     }
@@ -174,6 +188,43 @@ public class MonsterMoveAction : MonsterActionBase
 
         SetMoveAnimationState(true);
         moveCoroutine = StartCoroutine(MoveRoutine(actualPath, null));
+    }
+
+    private void ExecutePlannedMove(
+        CellManager monsterCell,
+        CellManager destinationCell,
+        CellManager faceTarget)
+    {
+        if (destinationCell == monsterCell)
+        {
+            moveCoroutine = StartCoroutine(
+                StationaryTurnRoutine(monsterCell, faceTarget));
+            return;
+        }
+
+        List<CellManager> path = FindMovementPath(
+            monsterCell,
+            destinationCell,
+            includeTargetCellInBlockedCheck: true);
+        if (path == null || path.Count <= 1)
+        {
+            moveCoroutine = StartCoroutine(
+                StationaryTurnRoutine(monsterCell, faceTarget));
+            return;
+        }
+
+        int actualSteps = Mathf.Min(Mobility, path.Count - 1);
+        if (actualSteps <= 0)
+        {
+            moveCoroutine = StartCoroutine(
+                StationaryTurnRoutine(monsterCell, faceTarget));
+            return;
+        }
+
+        List<CellManager> actualPath =
+            path.GetRange(0, actualSteps + 1);
+        SetMoveAnimationState(true);
+        moveCoroutine = StartCoroutine(MoveRoutine(actualPath, faceTarget));
     }
 
     private void ExecuteDefaultMove(CellManager monsterCell)

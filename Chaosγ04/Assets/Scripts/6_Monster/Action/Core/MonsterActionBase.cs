@@ -1,6 +1,30 @@
 using System;
 using UnityEngine;
 
+public enum MonsterActionCategory
+{
+    Other,
+    Planning,
+    Movement,
+    Attack
+}
+
+public enum MonsterActionExclusionGroup
+{
+    None,
+    Attack
+}
+
+public enum MonsterActionStage
+{
+    Idle,
+    PlanningCombat,
+    Moving,
+    Attacking,
+    OtherAction,
+    Finished
+}
+
 /// <summary>
 /// 所有怪物动作脚本的基类
 /// </summary>
@@ -13,7 +37,16 @@ public abstract class MonsterActionBase : MonoBehaviour
     public event Action OnActionCompleted;
 
     public bool IsRunning { get; private set; }
-    public float PostActionDelay => postActionDelay;
+    public virtual float PostActionDelay => postActionDelay;
+    public virtual MonsterActionCategory Category => MonsterActionCategory.Other;
+    public virtual MonsterActionExclusionGroup ExclusionGroup =>
+        MonsterActionExclusionGroup.None;
+    public MonsterActionContext Context { get; private set; }
+
+    internal void BindContext(MonsterActionContext context)
+    {
+        Context = context;
+    }
 
     public virtual bool CanExecute(MonsterActionContext context)
     {
@@ -21,6 +54,10 @@ public abstract class MonsterActionBase : MonoBehaviour
     }
 
     public virtual void OnSkipped()
+    {
+    }
+
+    public virtual void ResetTurnState()
     {
     }
 

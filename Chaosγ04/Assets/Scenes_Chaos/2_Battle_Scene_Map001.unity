@@ -63487,6 +63487,7 @@ MonoBehaviour:
   - action: {fileID: 384918153}
   - action: {fileID: 384918150}
   - action: {fileID: 384918148}
+  autoCreateCombatPlanner: 1
 --- !u!114 &384918148
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -63501,6 +63502,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackAction
   postActionDelay: 0.5
   attackDamage: 1
+  attackPriority: 0
   rangeType: 2
   attackRange: 1
   targetSelectMode: 0
@@ -87232,6 +87234,7 @@ GameObject:
   - component: {fileID: 556471848}
   - component: {fileID: 556471851}
   - component: {fileID: 556471846}
+  - component: {fileID: 556471856}
   - component: {fileID: 556471853}
   - component: {fileID: 556471854}
   - component: {fileID: 556471849}
@@ -87260,8 +87263,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterActionManager
   startDelay: 0.2
   actionSequence:
+  - action: {fileID: 556471856}
   - action: {fileID: 556471849}
   - action: {fileID: 556471847}
+  autoCreateCombatPlanner: 1
 --- !u!114 &556471847
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -87276,6 +87281,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackAction
   postActionDelay: 0.5
   attackDamage: 7
+  attackPriority: 0
   rangeType: 1
   attackRange: 1
   targetSelectMode: 0
@@ -87424,6 +87430,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BaseHateManager
   factionHateEntries: []
+--- !u!114 &556471856
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 556471845}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4cd511e86d741e28d16ce7ade7e6af4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterCombatPlannerAction
+  postActionDelay: 0.5
+  attackPriorities: []
 --- !u!21 &556539237
 Material:
   serializedVersion: 8
@@ -98018,6 +98038,7 @@ GameObject:
   - component: {fileID: 643329751}
   - component: {fileID: 643329758}
   - component: {fileID: 643329757}
+  - component: {fileID: 643329759}
   - component: {fileID: 643329756}
   - component: {fileID: 643329755}
   - component: {fileID: 643329754}
@@ -98104,6 +98125,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackAction
   postActionDelay: 0.5
   attackDamage: 5
+  attackPriority: 0
   rangeType: 1
   attackRange: 1
   targetSelectMode: 0
@@ -98151,8 +98173,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterActionManager
   startDelay: 0.2
   actionSequence:
+  - action: {fileID: 643329759}
   - action: {fileID: 643329756}
   - action: {fileID: 643329755}
+  autoCreateCombatPlanner: 1
 --- !u!114 &643329758
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -98171,6 +98195,20 @@ MonoBehaviour:
   hostileFactions: 6
   canTraverseWater: 0
   hostileFactionsInitialized: 1
+--- !u!114 &643329759
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 643329750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4cd511e86d741e28d16ce7ade7e6af4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterCombatPlannerAction
+  postActionDelay: 0.5
+  attackPriorities: []
 --- !u!1 &643683607
 GameObject:
   m_ObjectHideFlags: 0
@@ -150696,6 +150734,7 @@ GameObject:
   - component: {fileID: 983314784}
   - component: {fileID: 983314787}
   - component: {fileID: 983314782}
+  - component: {fileID: 983314791}
   - component: {fileID: 983314785}
   - component: {fileID: 983314783}
   - component: {fileID: 983314786}
@@ -150722,8 +150761,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterActionManager
   startDelay: 0.2
   actionSequence:
+  - action: {fileID: 983314791}
   - action: {fileID: 983314785}
   - action: {fileID: 983314783}
+  autoCreateCombatPlanner: 1
 --- !u!114 &983314783
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -150738,6 +150779,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackAction
   postActionDelay: 0.5
   attackDamage: 5
+  attackPriority: 0
   rangeType: 1
   attackRange: 1
   targetSelectMode: 0
@@ -150849,6 +150891,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BaseHateManager
   factionHateEntries: []
+--- !u!114 &983314791
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 983314781}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4cd511e86d741e28d16ce7ade7e6af4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterCombatPlannerAction
+  postActionDelay: 0.5
+  attackPriorities: []
 --- !u!1 &984244696
 GameObject:
   m_ObjectHideFlags: 0
@@ -169153,6 +169209,7 @@ GameObject:
   - component: {fileID: 1096482200}
   - component: {fileID: 1096482203}
   - component: {fileID: 1096482198}
+  - component: {fileID: 1096482207}
   - component: {fileID: 1096482201}
   - component: {fileID: 1096482199}
   - component: {fileID: 1096482202}
@@ -169179,8 +169236,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterActionManager
   startDelay: 0.2
   actionSequence:
+  - action: {fileID: 1096482207}
   - action: {fileID: 1096482201}
   - action: {fileID: 1096482199}
+  autoCreateCombatPlanner: 1
 --- !u!114 &1096482199
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -169195,6 +169254,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackAction
   postActionDelay: 0.5
   attackDamage: 5
+  attackPriority: 0
   rangeType: 1
   attackRange: 1
   targetSelectMode: 0
@@ -169306,6 +169366,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BaseHateManager
   factionHateEntries: []
+--- !u!114 &1096482207
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1096482197}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4cd511e86d741e28d16ce7ade7e6af4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterCombatPlannerAction
+  postActionDelay: 0.5
+  attackPriorities: []
 --- !u!1 &1097471356
 GameObject:
   m_ObjectHideFlags: 0
@@ -237375,12 +237449,12 @@ MonoBehaviour:
   - {fileID: 1860863964}
   - {fileID: 4698892105571456326}
   enemyBehaviours:
-  - {fileID: 556471846}
   - {fileID: 983314782}
   - {fileID: 1096482198}
   - {fileID: 1949179980}
   - {fileID: 1626584142}
   - {fileID: 643329757}
+  - {fileID: 556471846}
 --- !u!4 &1569729689
 Transform:
   m_ObjectHideFlags: 0
@@ -245673,6 +245747,7 @@ GameObject:
   - component: {fileID: 1626584136}
   - component: {fileID: 1626584143}
   - component: {fileID: 1626584142}
+  - component: {fileID: 1626584144}
   - component: {fileID: 1626584141}
   - component: {fileID: 1626584140}
   - component: {fileID: 1626584139}
@@ -245759,6 +245834,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackAction
   postActionDelay: 0.5
   attackDamage: 5
+  attackPriority: 0
   rangeType: 1
   attackRange: 1
   targetSelectMode: 0
@@ -245806,8 +245882,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterActionManager
   startDelay: 0.2
   actionSequence:
+  - action: {fileID: 1626584144}
   - action: {fileID: 1626584141}
   - action: {fileID: 1626584140}
+  autoCreateCombatPlanner: 1
 --- !u!114 &1626584143
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -245826,6 +245904,20 @@ MonoBehaviour:
   hostileFactions: 6
   canTraverseWater: 0
   hostileFactionsInitialized: 1
+--- !u!114 &1626584144
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1626584135}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4cd511e86d741e28d16ce7ade7e6af4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterCombatPlannerAction
+  postActionDelay: 0.5
+  attackPriorities: []
 --- !u!1 &1628216416
 GameObject:
   m_ObjectHideFlags: 0
@@ -294328,6 +294420,7 @@ GameObject:
   - component: {fileID: 1949179982}
   - component: {fileID: 1949179985}
   - component: {fileID: 1949179980}
+  - component: {fileID: 1949179988}
   - component: {fileID: 1949179983}
   - component: {fileID: 1949179981}
   - component: {fileID: 1949179984}
@@ -294354,8 +294447,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterActionManager
   startDelay: 0.2
   actionSequence:
+  - action: {fileID: 1949179988}
   - action: {fileID: 1949179983}
   - action: {fileID: 1949179981}
+  autoCreateCombatPlanner: 1
 --- !u!114 &1949179981
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -294370,6 +294465,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackAction
   postActionDelay: 0.5
   attackDamage: 5
+  attackPriority: 0
   rangeType: 1
   attackRange: 1
   targetSelectMode: 0
@@ -294481,6 +294577,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BaseHateManager
   factionHateEntries: []
+--- !u!114 &1949179988
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1949179979}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4cd511e86d741e28d16ce7ade7e6af4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterCombatPlannerAction
+  postActionDelay: 0.5
+  attackPriorities: []
 --- !u!1001 &1950178026
 PrefabInstance:
   m_ObjectHideFlags: 0
