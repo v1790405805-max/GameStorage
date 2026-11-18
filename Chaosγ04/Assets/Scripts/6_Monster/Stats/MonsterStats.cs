@@ -5,8 +5,11 @@ using UnityEngine.Serialization;
 public class MonsterStats : MonoBehaviour, IDamageable
 {
     [Header("生命数值")]
+    [Tooltip("怪物的最大生命值。")]
     public int maxHp = 20;
+    [Tooltip("怪物当前生命值。")]
     public int currentHp;
+    [Tooltip("怪物当前护甲值。")]
     [FormerlySerializedAs("currentBlock")]
     public int currentArmor = 0;
 
@@ -14,11 +17,26 @@ public class MonsterStats : MonoBehaviour, IDamageable
     [Tooltip("怪物一回合最多可以移动的格子数。")]
     public int mobility = 3;
 
-    [Tooltip("以分层格子图上的 A* 路径长度计算的攻击距离。")]
-    public int attackRange = 1;
+    [Header("攻击Buff")]
+    [Tooltip("作用于该怪物所有攻击动作的伤害补正。")]
+    [SerializeField] private int attackBuff;
 
-    [Tooltip("怪物攻击的基础伤害。")]
-    public int attackDamage = 5;
+    public int AttackBuff => attackBuff;
+
+    public void AddAttackBuff(int amount)
+    {
+        attackBuff += amount;
+    }
+
+    public void SetAttackBuff(int amount)
+    {
+        attackBuff = amount;
+    }
+
+    public int ResolveAttackDamage(int baseDamage)
+    {
+        return Mathf.Max(0, baseDamage + attackBuff);
+    }
 
     // 怪物死亡事件（供战斗结算器监听）
     public static event Action OnAnyMonsterDied;

@@ -145,7 +145,7 @@ public sealed class MonsterHateSystem : MonoBehaviour
                     continue;
                 }
 
-                CellManager cell = MonsterPathfinding.FindMonsterCell(gridManager, other);
+                CellManager cell = MonsterGridNavigation.FindMonsterCell(gridManager, other);
                 if (cell != null)
                 {
                     targets.Add(new MonsterTarget(MonsterTargetKind.Monster, cell, other));
@@ -155,7 +155,7 @@ public sealed class MonsterHateSystem : MonoBehaviour
 
         if (selfIdentity.IsHostileToPlayer())
         {
-            CellManager playerCell = MonsterPathfinding.FindPlayerCell(gridManager);
+            CellManager playerCell = MonsterGridNavigation.FindPlayerCell(gridManager);
             if (playerCell != null)
             {
                 targets.Add(new MonsterTarget(MonsterTargetKind.Player, playerCell, null));
@@ -185,7 +185,7 @@ public sealed class MonsterHateSystem : MonoBehaviour
 
         gridManager.EnsureGridSystemInitialized();
 
-        CellManager selfCell = MonsterPathfinding.FindMonsterCell(gridManager, selfIdentity);
+        CellManager selfCell = MonsterGridNavigation.FindMonsterCell(gridManager, selfIdentity);
         if (selfCell == null)
         {
             return false;
@@ -201,7 +201,7 @@ public sealed class MonsterHateSystem : MonoBehaviour
                 continue;
             }
 
-            int distance = MonsterPathfinding.GetPathDistance(
+            int distance = MonsterGridNavigation.GetPathDistance(
                 gridManager,
                 selfIdentity,
                 selfCell,
@@ -279,13 +279,13 @@ public sealed class MonsterHateSystem : MonoBehaviour
         if (gridManager != null)
         {
             gridManager.EnsureGridSystemInitialized();
-            CellManager selfCell = MonsterPathfinding.FindMonsterCell(gridManager, selfIdentity);
+            CellManager selfCell = MonsterGridNavigation.FindMonsterCell(gridManager, selfIdentity);
 
             foreach (MonsterTarget target in GetHostileTargets(gridManager))
             {
                 int distance = selfCell == null
                     ? int.MaxValue
-                    : MonsterPathfinding.GetPathDistance(
+                    : MonsterGridNavigation.GetPathDistance(
                         gridManager,
                         selfIdentity,
                         selfCell,

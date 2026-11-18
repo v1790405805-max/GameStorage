@@ -1,31 +1,38 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
 public class MonsterInfoUI : MonoBehaviour
 {
-    [Header("ÑªÌõ°ó¶¨")]
-    [SerializeField] private Image currentHpBar;     // µ±Ç°Êµ¼ÊÑªÌõ£¨ÂÌÉ«/ºìÉ«£©
-    [SerializeField] private Image previewHpBar;     // ¿ÛÑªÔ¤ÀÀÌõ£¨»ÆÉ«/°ëÍ¸Ã÷ºì£©
-    [SerializeField] private TextMeshProUGUI hpText; // ÑªÁ¿ÎÄ±¾£¨ÀıÈç "15/20"£©
+    [Header("ç”Ÿå‘½æ˜¾ç¤º")]
+    [Tooltip("å½“å‰ç”Ÿå‘½å€¼è¡€æ¡ã€‚")]
+    [SerializeField] private Image currentHpBar;
+    [Tooltip("ä¼¤å®³é¢„è§ˆæ—¶æ˜¾ç¤ºé¢„è®¡æŸå¤±è¡€é‡çš„åº•å±‚è¡€æ¡ã€‚")]
+    [SerializeField] private Image previewHpBar;
+    [Tooltip("ç”Ÿå‘½å€¼æ–‡æœ¬ï¼Œä¾‹å¦‚ 15/20ã€‚")]
+    [SerializeField] private TextMeshProUGUI hpText;
 
-    [Header("ÒâÍ¼ (Intent) °ó¶¨")]
-    [SerializeField] private GameObject intentRoot;  // ÒâÍ¼ÕûÌå¸¸ÎïÌå
-    [SerializeField] private Image intentIcon;       // ¶¯×÷Í¼±ê£¨½£/¶Ü/Î»ÒÆ£©
-    [SerializeField] private TextMeshProUGUI intentValueText; // ¹¥»÷ÊıÖµÎÄ±¾
+    [Header("æ„å›¾æ˜¾ç¤º")]
+    [Tooltip("æ„å›¾åŒºåŸŸçš„æ ¹èŠ‚ç‚¹ã€‚")]
+    [SerializeField] private GameObject intentRoot;
+    [Tooltip("æ„å›¾å›¾æ ‡ã€‚")]
+    [SerializeField] private Image intentIcon;
+    [Tooltip("æ„å›¾æ•°å€¼æ–‡æœ¬ã€‚")]
+    [SerializeField] private TextMeshProUGUI intentValueText;
 
-    [Header("ĞüÍ£ÉËº¦Ô¤ÀÀ¸¡×Ö")]
-    [SerializeField] private GameObject previewDamageRoot;    // ¸¡×Ö¸¸ÎïÌå
-    [SerializeField] private TextMeshProUGUI previewDamageText;// Ô¤¼Æ¿ÛÑªÎÄ±¾£¨ÀıÈç "-6"£©
+    [Header("ä¼¤å®³é¢„è§ˆæ˜¾ç¤º")]
+    [Tooltip("ä¼¤å®³é¢„è§ˆçš„æ ¹èŠ‚ç‚¹ã€‚")]
+    [SerializeField] private GameObject previewDamageRoot;
+    [Tooltip("é¢„è®¡ä¼¤å®³æ–‡æœ¬ã€‚")]
+    [SerializeField] private TextMeshProUGUI previewDamageText;
 
-    [Header("Õ¹Ê¾ÅäÖÃ")]
-    [Tooltip("ÊÇ·ñÊ¼ÖÕ³¯ÏòÖ÷ÉãÏñ»ú¡£Èô¹´Ñ¡£¬ÑªÌõ²»»áÒòÊÓ½ÇÇãĞ±±äĞÎ£»Èô²»¹´Ñ¡£¬¿ÉÌùºÏµØ¿éÆ½ÌÉ")]
+    [Header("æ˜¾ç¤ºè®¾ç½®")]
+    [Tooltip("æ˜¯å¦å§‹ç»ˆæœå‘å½“å‰ä¸»æ‘„åƒæœºã€‚")]
     [SerializeField] private bool billboardToCamera = true;
 
     private MonsterStats monsterStats;
 
-    /// <summary>µ±Ç°Ö÷Ïà»ú£º³¡¾°ÖĞÃûÎª "Main Camera" µÄÏà»ú£¨¼û MainCameraAppoint ¾²Ì¬Àà£©¡£</summary>
-    private Camera mainCamera => MainCameraAppoint.Current;
+    private Camera MainCamera => MainCameraAppoint.Current;
 
     private void Awake()
     {
@@ -38,26 +45,35 @@ public class MonsterInfoUI : MonoBehaviour
         {
             UpdateHpDisplay(monsterStats.currentHp, monsterStats.maxHp);
         }
+
         HideDamagePreview();
     }
 
     private void LateUpdate()
     {
-        if (billboardToCamera && mainCamera != null)
+        if (billboardToCamera && MainCamera != null)
         {
-            transform.forward = mainCamera.transform.forward;
+            transform.forward = MainCamera.transform.forward;
         }
     }
 
-    // ==================== 1. »ù´¡ÑªÌõÓëÊıÖµË¢ĞÂ ====================
-
     public void UpdateHpDisplay(int currentHp, int maxHp)
     {
-        if (maxHp <= 0) return;
+        if (maxHp <= 0)
+        {
+            return;
+        }
 
         float fillRatio = (float)currentHp / maxHp;
-        if (currentHpBar != null) currentHpBar.fillAmount = fillRatio;
-        if (previewHpBar != null) previewHpBar.fillAmount = fillRatio;
+        if (currentHpBar != null)
+        {
+            currentHpBar.fillAmount = fillRatio;
+        }
+
+        if (previewHpBar != null)
+        {
+            previewHpBar.fillAmount = fillRatio;
+        }
 
         if (hpText != null)
         {
@@ -65,68 +81,81 @@ public class MonsterInfoUI : MonoBehaviour
         }
     }
 
-    // ==================== 2. ÒâÍ¼ÏÔÊ¾/Òş²Ø ====================
-
     public void SetIntent(Sprite icon, int value, bool showValue = true)
     {
-        if (intentRoot != null) intentRoot.SetActive(true);
-        if (intentIcon != null && icon != null) intentIcon.sprite = icon;
+        if (intentRoot != null)
+        {
+            intentRoot.SetActive(true);
+        }
+
+        if (intentIcon != null && icon != null)
+        {
+            intentIcon.sprite = icon;
+        }
 
         if (intentValueText != null)
         {
             intentValueText.gameObject.SetActive(showValue);
-            intentValueText.text = value > 0 ? value.ToString() : "";
+            intentValueText.text = value > 0 ? value.ToString() : string.Empty;
         }
     }
 
     public void HideIntent()
     {
-        if (intentRoot != null) intentRoot.SetActive(false);
+        if (intentRoot != null)
+        {
+            intentRoot.SetActive(false);
+        }
     }
 
-    // ==================== 3. ĞüÍ£¿¨ÅÆÊ±µÄÉËº¦Ô¤¹À ====================
-
-    /// <summary>
-    /// µ±Íæ¼ÒÍÏ×§¿¨ÅÆĞüÍ£ÔÚ¹¥»÷·¶Î§ÄÚµÄ¸Ã¹ÖÎïÉíÉÏÊ±µ÷ÓÃ
-    /// </summary>
     public void ShowDamagePreview(int estimatedDamage)
     {
-        if (monsterStats == null || estimatedDamage <= 0) return;
+        if (monsterStats == null || estimatedDamage <= 0)
+        {
+            return;
+        }
 
         int currentHp = monsterStats.currentHp;
         int maxHp = monsterStats.maxHp;
         int currentArmor = monsterStats.currentArmor;
-
-        // ¼ÆËã´©Í¸»¤¶ÜºóµÄÔ¤¼ÆµôÑª
         int realHpDamage = Mathf.Max(0, estimatedDamage - currentArmor);
         int expectedHp = Mathf.Max(0, currentHp - realHpDamage);
 
-        // Ë¢ĞÂÔ¤¹ÀÑªÌõ£ºÖ÷ÑªÌõËõµ½Ô¤ÆÚÖµ£¬µ×²ãÔ¤ÀÀÌõ±£Áôµ±Ç°ÑªÁ¿£¬ĞÎ³É¿ÛÑª¿ÕÏ¶
         if (currentHpBar != null)
         {
             currentHpBar.fillAmount = (float)expectedHp / maxHp;
         }
 
-        // ÏÔÊ¾ÉËº¦Ô¤¹À¸¡×Ö
-        if (previewDamageRoot != null) previewDamageRoot.SetActive(true);
+        if (previewDamageRoot != null)
+        {
+            previewDamageRoot.SetActive(true);
+        }
+
         if (previewDamageText != null)
         {
             previewDamageText.text = $"-{estimatedDamage}";
         }
     }
 
-    /// <summary>
-    /// Êó±êÒÆ¿ª¹ÖÎï¡¢»ò½áÊøÍÏ×§¿¨ÅÆÊ±µ÷ÓÃ»Ö¸´
-    /// </summary>
     public void HideDamagePreview()
     {
         if (monsterStats != null)
         {
             float fillRatio = (float)monsterStats.currentHp / monsterStats.maxHp;
-            if (currentHpBar != null) currentHpBar.fillAmount = fillRatio;
-            if (previewHpBar != null) previewHpBar.fillAmount = fillRatio;
+            if (currentHpBar != null)
+            {
+                currentHpBar.fillAmount = fillRatio;
+            }
+
+            if (previewHpBar != null)
+            {
+                previewHpBar.fillAmount = fillRatio;
+            }
         }
 
-        if (previewDamageRoot != null) previewDamageRoot.SetActive(false);
+        if (previewDamageRoot != null)
+        {
+            previewDamageRoot.SetActive(false);
+        }
     }
 }

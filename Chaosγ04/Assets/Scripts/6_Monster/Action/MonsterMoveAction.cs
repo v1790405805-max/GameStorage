@@ -94,7 +94,7 @@ public class MonsterMoveAction : MonsterActionBase
             return;
         }
 
-        CellManager monsterCell = MonsterPathfinding.FindMonsterCell(gridManager, selfIdentity);
+        CellManager monsterCell = MonsterGridNavigation.FindMonsterCell(gridManager, selfIdentity);
         if (monsterCell == null)
         {
             Debug.LogWarning($"[{name}] 未在任何 CellManager 中匹配到当前怪物，取消移动。");
@@ -262,7 +262,7 @@ public class MonsterMoveAction : MonsterActionBase
     {
         // Other units are temporary traffic, not terrain that makes the target unreachable.
         // Plan the ideal route first, then use a blocker-aware route if execution would stop.
-        List<CellManager> preferredPath = MonsterPathfinding.FindPath(
+        List<CellManager> preferredPath = MonsterGridNavigation.FindPath(
             gridManager,
             selfIdentity,
             startCell,
@@ -282,7 +282,7 @@ public class MonsterMoveAction : MonsterActionBase
         }
 
         List<CellManager> blockedAwarePath =
-            MonsterPathfinding.FindPathToClosestReachableCell(
+            MonsterGridNavigation.FindPathToClosestReachableCell(
                 gridManager,
                 selfIdentity,
                 startCell,

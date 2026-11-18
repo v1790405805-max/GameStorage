@@ -95,7 +95,7 @@ public class CardDataEditor : Editor
         EditorGUILayout.PropertyField(cardName, new GUIContent("Card Name"));
 
         // 【新增】：在面板上绘制卡面插图 Sprite 拖拽槽位
-        EditorGUILayout.PropertyField(cardArtwork, new GUIContent("Card Artwork (卡面插图)"));
+        EditorGUILayout.PropertyField(cardArtwork, new GUIContent("Card Artwork"));
 
         EditorGUILayout.PropertyField(type, new GUIContent("Type"));
         EditorGUILayout.PropertyField(
@@ -180,14 +180,13 @@ public class CardDataEditor : Editor
         EditorGUILayout.Space(8f);
 
         // ── 4.6 命中受击表现 (定制化爆点) ──────────────────────────
-        EditorGUILayout.LabelField("命中受击表现 (差异化定制)", EditorStyles.boldLabel);
+        EditorGUILayout.Space(8f);
         EditorGUILayout.PropertyField(hitVFXPrefab, new GUIContent("Hit VFX Prefab", "卡牌命中目标时在目标身上生成的受击爆点预制体（如切痕、爆炸等）"));
         EditorGUILayout.PropertyField(hitVFXOffset, new GUIContent("Hit VFX Offset", "受击特效在目标身上的局部高度偏移，通常 Y 设为 0.5 左右（对齐胸口）"));
 
         EditorGUILayout.Space(8f);
 
         // ── 5. Grid 渲染样式 ───────────────────────────────────────
-        EditorGUILayout.LabelField("Grid 渲染样式", EditorStyles.boldLabel);
         EditorGUILayout.PropertyField(gridStyle, new GUIContent("Grid Style",
             "拖拽此卡牌时使用的 Grid 高亮样式资产（GridStyleData）。\n留空则不显示范围高亮。"));
 
@@ -215,7 +214,7 @@ public class CardDataEditor : Editor
         EditorGUILayout.Space(8f);
 
         // ── 6. 卡牌描述 ────────────────────────────────────────────
-        EditorGUILayout.LabelField("卡牌描述 Description", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField("卡牌描述", EditorStyles.boldLabel);
         description.stringValue = EditorGUILayout.TextArea(description.stringValue, GUILayout.Height(60));
 
         serializedObject.ApplyModifiedProperties();

@@ -389,7 +389,7 @@ public sealed class SummonDogAction : MonsterActionBase
             return null;
         }
 
-        return MonsterPathfinding.FindMonsterCell(gridManager, selfIdentity);
+        return MonsterGridNavigation.FindMonsterCell(gridManager, selfIdentity);
     }
 
     private static int GetCurrentRound()

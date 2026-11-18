@@ -83,7 +83,7 @@ public class MonsterLeaveAction : MonsterActionBase
 
         gridManager.EnsureGridSystemInitialized();
 
-        CellManager monsterCell = MonsterPathfinding.FindMonsterCell(gridManager, selfIdentity);
+        CellManager monsterCell = MonsterGridNavigation.FindMonsterCell(gridManager, selfIdentity);
         if (monsterCell == null)
         {
             ClearTurnState();
@@ -139,7 +139,7 @@ public class MonsterLeaveAction : MonsterActionBase
                 continue;
             }
 
-            int distance = MonsterPathfinding.GetPathDistance(
+            int distance = MonsterGridNavigation.GetPathDistance(
                 gridManager,
                 selfIdentity,
                 monsterCell,
@@ -158,7 +158,7 @@ public class MonsterLeaveAction : MonsterActionBase
         CellManager monsterCell,
         List<MonsterTarget> threats)
     {
-        HashSet<CellManager> landableCells = MonsterPathfinding.CalculateReachableCells(
+        HashSet<CellManager> landableCells = MonsterGridNavigation.CalculateReachableCells(
             gridManager,
             selfIdentity,
             monsterCell,
@@ -185,7 +185,7 @@ public class MonsterLeaveAction : MonsterActionBase
 
             foreach (MonsterTarget threat in threats)
             {
-                int distance = MonsterPathfinding.GetGlobalPathDistance(
+                int distance = MonsterGridNavigation.GetGlobalPathDistance(
                     gridManager,
                     threat.Cell,
                     candidate);
@@ -202,7 +202,7 @@ public class MonsterLeaveAction : MonsterActionBase
                 }
             }
 
-            int selfDistance = MonsterPathfinding.GetPathDistance(
+            int selfDistance = MonsterGridNavigation.GetPathDistance(
                 gridManager,
                 selfIdentity,
                 monsterCell,

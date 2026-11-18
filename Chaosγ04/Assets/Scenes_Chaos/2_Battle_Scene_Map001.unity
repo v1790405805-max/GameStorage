@@ -63500,15 +63500,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackAction
   postActionDelay: 0.5
+  attackDamage: 1
+  rangeType: 2
+  attackRange: 1
+  targetSelectMode: 0
   gridManager: {fileID: 1996419300}
   visualManager: {fileID: 0}
-  monsterAnimator: {fileID: 3143698802893842853}
+  attackGridStyle: {fileID: 0}
+  monsterAnimator: {fileID: 0}
   attackTriggerName: Attack
-  attackGridStyle: {fileID: 11400000, guid: 0b45acbeab0cb6a4db5f7f7f1a570c25, type: 2}
   targetWarningDuration: 0.05
   targetConfirmedDuration: 0.3
-  hitDelayFallback: 0.35
-  postAttackDuration: 0.25
+  damageApplyDelay: 0.35
+  postDamageDelay: 0.25
   counterCardPresentationDelay: 0.4
 --- !u!4 &384918149
 Transform:
@@ -63563,8 +63567,7 @@ MonoBehaviour:
   currentHp: 0
   currentArmor: 0
   mobility: 2
-  attackRange: 1
-  attackDamage: 12
+  attackBuff: 0
 --- !u!114 &384918152
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -87272,15 +87275,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackAction
   postActionDelay: 0.5
+  attackDamage: 7
+  rangeType: 1
+  attackRange: 1
+  targetSelectMode: 0
   gridManager: {fileID: 1996419300}
   visualManager: {fileID: 1996419303}
+  attackGridStyle: {fileID: 11400000, guid: 0b45acbeab0cb6a4db5f7f7f1a570c25, type: 2}
   monsterAnimator: {fileID: 1851529940}
   attackTriggerName: Attack
-  attackGridStyle: {fileID: 11400000, guid: 0b45acbeab0cb6a4db5f7f7f1a570c25, type: 2}
   targetWarningDuration: 0.05
   targetConfirmedDuration: 0.3
-  hitDelayFallback: 0.35
-  postAttackDuration: 0.25
+  damageApplyDelay: 0.35
+  postDamageDelay: 0.25
   counterCardPresentationDelay: 0.4
 --- !u!4 &556471848
 Transform:
@@ -87335,8 +87342,7 @@ MonoBehaviour:
   currentHp: 0
   currentArmor: 0
   mobility: 3
-  attackRange: 1
-  attackDamage: 10
+  attackBuff: 0
 --- !u!114 &556471851
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -98083,8 +98089,7 @@ MonoBehaviour:
   currentHp: 0
   currentArmor: 0
   mobility: 2
-  attackRange: 1
-  attackDamage: 8
+  attackBuff: 0
 --- !u!114 &643329755
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -98098,15 +98103,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackAction
   postActionDelay: 0.5
+  attackDamage: 5
+  rangeType: 1
+  attackRange: 1
+  targetSelectMode: 0
   gridManager: {fileID: 1996419300}
   visualManager: {fileID: 1996419303}
+  attackGridStyle: {fileID: 11400000, guid: 0b45acbeab0cb6a4db5f7f7f1a570c25, type: 2}
   monsterAnimator: {fileID: 85138953}
   attackTriggerName: Tear
-  attackGridStyle: {fileID: 11400000, guid: 0b45acbeab0cb6a4db5f7f7f1a570c25, type: 2}
   targetWarningDuration: 0.05
   targetConfirmedDuration: 0.3
-  hitDelayFallback: 0.35
-  postAttackDuration: 0.25
+  damageApplyDelay: 0.35
+  postDamageDelay: 0.25
   counterCardPresentationDelay: 0.4
 --- !u!114 &643329756
 MonoBehaviour:
@@ -98157,7 +98166,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterManager
   faction: 0
-  monsterId: Dog_3
+  monsterId: Dog_5
   isDogLeader: 0
   hostileFactions: 6
   canTraverseWater: 0
@@ -150728,15 +150737,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackAction
   postActionDelay: 0.5
+  attackDamage: 5
+  rangeType: 1
+  attackRange: 1
+  targetSelectMode: 0
   gridManager: {fileID: 1996419300}
   visualManager: {fileID: 1996419303}
+  attackGridStyle: {fileID: 11400000, guid: 0b45acbeab0cb6a4db5f7f7f1a570c25, type: 2}
   monsterAnimator: {fileID: 1232584861}
   attackTriggerName: Tear
-  attackGridStyle: {fileID: 11400000, guid: 0b45acbeab0cb6a4db5f7f7f1a570c25, type: 2}
   targetWarningDuration: 0.05
   targetConfirmedDuration: 0.3
-  hitDelayFallback: 0.35
-  postAttackDuration: 0.25
+  damageApplyDelay: 0.35
+  postDamageDelay: 0.25
   counterCardPresentationDelay: 0.4
 --- !u!4 &983314784
 Transform:
@@ -150791,8 +150804,7 @@ MonoBehaviour:
   currentHp: 0
   currentArmor: 0
   mobility: 2
-  attackRange: 1
-  attackDamage: 8
+  attackBuff: 0
 --- !u!114 &983314787
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -169182,15 +169194,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackAction
   postActionDelay: 0.5
+  attackDamage: 5
+  rangeType: 1
+  attackRange: 1
+  targetSelectMode: 0
   gridManager: {fileID: 1996419300}
   visualManager: {fileID: 1996419303}
+  attackGridStyle: {fileID: 11400000, guid: 0b45acbeab0cb6a4db5f7f7f1a570c25, type: 2}
   monsterAnimator: {fileID: 1048001019}
   attackTriggerName: Tear
-  attackGridStyle: {fileID: 11400000, guid: 0b45acbeab0cb6a4db5f7f7f1a570c25, type: 2}
   targetWarningDuration: 0.05
   targetConfirmedDuration: 0.3
-  hitDelayFallback: 0.35
-  postAttackDuration: 0.25
+  damageApplyDelay: 0.35
+  postDamageDelay: 0.25
   counterCardPresentationDelay: 0.4
 --- !u!4 &1096482200
 Transform:
@@ -169245,8 +169261,7 @@ MonoBehaviour:
   currentHp: 0
   currentArmor: 0
   mobility: 2
-  attackRange: 1
-  attackDamage: 8
+  attackBuff: 0
 --- !u!114 &1096482203
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -245729,8 +245744,7 @@ MonoBehaviour:
   currentHp: 0
   currentArmor: 0
   mobility: 2
-  attackRange: 1
-  attackDamage: 8
+  attackBuff: 0
 --- !u!114 &1626584140
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -245744,15 +245758,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackAction
   postActionDelay: 0.5
+  attackDamage: 5
+  rangeType: 1
+  attackRange: 1
+  targetSelectMode: 0
   gridManager: {fileID: 1996419300}
   visualManager: {fileID: 1996419303}
+  attackGridStyle: {fileID: 11400000, guid: 0b45acbeab0cb6a4db5f7f7f1a570c25, type: 2}
   monsterAnimator: {fileID: 1912368760}
   attackTriggerName: Tear
-  attackGridStyle: {fileID: 11400000, guid: 0b45acbeab0cb6a4db5f7f7f1a570c25, type: 2}
   targetWarningDuration: 0.05
   targetConfirmedDuration: 0.3
-  hitDelayFallback: 0.35
-  postAttackDuration: 0.25
+  damageApplyDelay: 0.35
+  postDamageDelay: 0.25
   counterCardPresentationDelay: 0.4
 --- !u!114 &1626584141
 MonoBehaviour:
@@ -245803,7 +245821,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterManager
   faction: 0
-  monsterId: Dog_2
+  monsterId: Dog_4
   isDogLeader: 0
   hostileFactions: 6
   canTraverseWater: 0
@@ -288770,8 +288788,7 @@ MonoBehaviour:
   currentHp: 0
   currentArmor: 0
   mobility: 0
-  attackRange: 0
-  attackDamage: 0
+  attackBuff: 0
 --- !u!4 &1916660037
 Transform:
   m_ObjectHideFlags: 0
@@ -294352,15 +294369,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackAction
   postActionDelay: 0.5
+  attackDamage: 5
+  rangeType: 1
+  attackRange: 1
+  targetSelectMode: 0
   gridManager: {fileID: 1996419300}
   visualManager: {fileID: 1996419303}
+  attackGridStyle: {fileID: 11400000, guid: 0b45acbeab0cb6a4db5f7f7f1a570c25, type: 2}
   monsterAnimator: {fileID: 176702011}
   attackTriggerName: Tear
-  attackGridStyle: {fileID: 11400000, guid: 0b45acbeab0cb6a4db5f7f7f1a570c25, type: 2}
   targetWarningDuration: 0.05
   targetConfirmedDuration: 0.3
-  hitDelayFallback: 0.35
-  postAttackDuration: 0.25
+  damageApplyDelay: 0.35
+  postDamageDelay: 0.25
   counterCardPresentationDelay: 0.4
 --- !u!4 &1949179982
 Transform:
@@ -294415,8 +294436,7 @@ MonoBehaviour:
   currentHp: 0
   currentArmor: 0
   mobility: 2
-  attackRange: 1
-  attackDamage: 8
+  attackBuff: 0
 --- !u!114 &1949179985
 MonoBehaviour:
   m_ObjectHideFlags: 0

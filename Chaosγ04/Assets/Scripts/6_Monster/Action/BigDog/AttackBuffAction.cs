@@ -102,7 +102,7 @@ public sealed class AttackBuffAction : MonsterActionBase
                 continue;
             }
 
-            monsterStats.attackDamage += attackBonus;
+            monsterStats.AddAttackBuff(attackBonus);
             affectedCount++;
         }
 

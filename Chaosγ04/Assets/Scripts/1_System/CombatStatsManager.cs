@@ -28,8 +28,8 @@ public class MonsterStateSnapshot
     [FormerlySerializedAs("currentBlock")]
     public int currentArmor;
     public int mobility;
-    public int attackRange;
-    public int attackDamage;
+    [FormerlySerializedAs("attackDamageBonus")]
+    public int attackBuff;
 
     public static MonsterStateSnapshot Capture(MonsterIdentityManager monster)
     {
@@ -52,8 +52,7 @@ public class MonsterStateSnapshot
             snapshot.currentHp = stats.currentHp;
             snapshot.currentArmor = stats.currentArmor;
             snapshot.mobility = stats.mobility;
-            snapshot.attackRange = stats.attackRange;
-            snapshot.attackDamage = stats.attackDamage;
+            snapshot.attackBuff = stats.AttackBuff;
         }
 
         return snapshot;
@@ -76,8 +75,7 @@ public class MonsterStateSnapshot
             stats.currentHp = currentHp;
             stats.currentArmor = currentArmor;
             stats.mobility = mobility;
-            stats.attackRange = attackRange;
-            stats.attackDamage = attackDamage;
+            stats.SetAttackBuff(attackBuff);
         }
 
         monster.gameObject.SetActive(activeSelf);

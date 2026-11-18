@@ -6,7 +6,7 @@ using UnityEngine;
 /// Shared cell graph helpers for monster movement, targeting, and leave decisions.
 /// All distances are calculated on the layered cell graph, never on the flat XZ grid.
 /// </summary>
-public static class MonsterPathfinding
+public static class MonsterGridNavigation
 {
     private static readonly Vector2Int[] Directions =
     {
@@ -104,7 +104,7 @@ public static class MonsterPathfinding
 
     /// <summary>
     /// Cells reachable within <paramref name="maxSteps"/> using the actual layered graph.
-    /// This is the movement/surveillance range used by MonsterLeaveAction and MoveAction.
+    /// Shared by movement, attack-range visualization, and leave decisions.
     /// </summary>
     public static HashSet<CellManager> CalculateReachableCells(
         GridManager gridManager,

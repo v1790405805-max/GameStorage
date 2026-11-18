@@ -423,8 +423,8 @@ public class CounterTimeManager : MonoBehaviour
         int attackerLayer = LayerMask.NameToLayer(AttackerMaskLayerName);
         Transform playerRoot = ResolvePlayerMaskRoot();
         Transform attackerRoot = attackAction != null
-            ? attackAction.monsterAnimator != null
-                ? attackAction.monsterAnimator.transform
+            ? attackAction.MonsterAnimator != null
+                ? attackAction.MonsterAnimator.transform
                 : attackAction.transform
             : null;
 

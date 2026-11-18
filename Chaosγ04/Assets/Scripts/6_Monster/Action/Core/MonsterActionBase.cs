@@ -6,7 +6,7 @@ using UnityEngine;
 /// </summary>
 public abstract class MonsterActionBase : MonoBehaviour
 {
-    [Header("Action Buffer")]
+    [Header("动作间隔")]
     [Tooltip("动作正确执行完成后，等待该时间再触发下一个动作；序列中的最后一个动作不会等待。")]
     [SerializeField, Min(0f)] private float postActionDelay = 0.5f;
 

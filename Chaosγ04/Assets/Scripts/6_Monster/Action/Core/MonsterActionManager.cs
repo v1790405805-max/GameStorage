@@ -453,21 +453,10 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
     {
         ResolveReferences();
 
-        bool hostileInAttackRangeAtTurnStart = false;
-        if (selfIdentity != null && gridManager != null && attackAction != null)
-        {
-            hostileInAttackRangeAtTurnStart =
-                MonsterTargetManager.HasHostileInAttackRange(
-                    selfIdentity,
-                    gridManager,
-                    attackAction.AttackRange);
-        }
-
         return new MonsterActionContext(
             selfIdentity,
             gridManager,
-            attackAction,
-            hostileInAttackRangeAtTurnStart);
+            attackAction);
     }
 
 }
