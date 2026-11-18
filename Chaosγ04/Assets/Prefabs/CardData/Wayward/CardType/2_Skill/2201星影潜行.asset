@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardData
   cardID: 2201
   cardName: "\u661F\u5F71\u6F5C\u884C"
-  cardArtwork: {fileID: 21300000, guid: b9528ff3d8ddc3743a9817c44891578f, type: 3}
+  cardArtwork: {fileID: 21300000, guid: e68983f84a673f443b7a7fcd5d23c895, type: 3}
   type: 2
   isCounterCard: 0
   cost: 1
@@ -47,4 +47,5 @@ MonoBehaviour:
   hitVFXPrefab: {fileID: 0}
   hitVFXOffset: {x: 0, y: 0.5, z: 0}
   gridStyle: {fileID: 11400000, guid: 853c237319753544088890199db33ed8, type: 2}
+  counterGridStyle: {fileID: 0}
   description: "\u6240\u6709\u654C\u4EBA\u672C\u56DE\u5408\u4E0D\u518D\u56E0\u4E3A\u9760\u8FD1\u4E3B\u89D2\u800C\u79FB\u52A8\uFF0C\u672C\u56DE\u5408\u6240\u6709\u6D89\u53CA\u79FB\u52A8\u7684\u5361\u724C\u83B7\u5F97\u6548\u679C\uFF1A\u79FB\u52A8\u8DDD\u79BB+1<color=#FFFFFF>"
