@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardData
   cardID: 4003
   cardName: "\u6D41\u661F"
-  cardArtwork: {fileID: 21300000, guid: dbd64b79ad6a91e40b1cca91709b8391, type: 3}
+  cardArtwork: {fileID: 21300000, guid: e68983f84a673f443b7a7fcd5d23c895, type: 3}
   type: 4
+  isCounterCard: 0
   cost: 1
   effectFlags: 1
   moveDistance: 5
@@ -26,6 +27,8 @@ MonoBehaviour:
   actionPointChange: 0
   drawAmount: 0
   discardAmount: 0
+  sturdy: 0
+  combo: 0
   rangeType: 1
   rangeDistance: 5
   targetSelectMode: 0
@@ -41,4 +44,5 @@ MonoBehaviour:
   hitVFXPrefab: {fileID: 0}
   hitVFXOffset: {x: 0, y: 0.5, z: 0}
   gridStyle: {fileID: 11400000, guid: c7730a9b49b1f8244b410ce1e2e6542b, type: 2}
+  counterGridStyle: {fileID: 0}
   description: "\u4EE5\u81EA\u8EAB\u4E3A\u4E2D\u5FC3\uFF0C\u79FB\u52A8\u52305\u683C\u5341\u5B57\u8303\u56F4\u5185\u7684\u4EFB\u610F\u4F4D\u7F6E"
