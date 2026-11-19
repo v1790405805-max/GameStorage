@@ -353,6 +353,13 @@ public class MapInspector : MonoBehaviour
             return;
         }
 
+        if (hitCell.HasMonsterInside &&
+            playerMoveController != null &&
+            playerMoveController.IsMovementFlowActive)
+        {
+            return;
+        }
+
         SetMoveFollowFocus(hitCell.IsPlayerInside && playerMoveController != null
             ? playerMoveController.PlayerTransform
             : null);

@@ -31,6 +31,7 @@ public class MonsterAttackRangeVisualizer : MonoBehaviour
     private bool warnedMissingStyle;
     private MonsterIdentityManager selectedMonster;
     private MonsterIdentityManager pressedMonster;
+    private PlayerMoveController playerMoveController;
 
     public bool IsShowing => isShowing;
     public MonsterIdentityManager SelectedMonster => selectedMonster;
@@ -64,6 +65,14 @@ public class MonsterAttackRangeVisualizer : MonoBehaviour
 
     private void Update()
     {
+        if (IsPlayerMovementFlowActive())
+        {
+            pressedMonster = null;
+            selectedMonster = null;
+            ClearDisplayedRange();
+            return;
+        }
+
         HandleSelectionInput();
 
         bool showAllMonsters = IsAltPressed();
@@ -101,6 +110,11 @@ public class MonsterAttackRangeVisualizer : MonoBehaviour
             visualManager = FindFirstObjectByType<GridVisualManager>();
         }
 
+        if (playerMoveController == null)
+        {
+            playerMoveController = FindFirstObjectByType<PlayerMoveController>();
+        }
+
         if (visualManager == null || visualManager.GridManager == null)
         {
             return false;
@@ -121,6 +135,12 @@ public class MonsterAttackRangeVisualizer : MonoBehaviour
     {
         Mouse mouse = Mouse.current;
         if (mouse == null)
+        {
+            pressedMonster = null;
+            return;
+        }
+
+        if (IsPlayerMovementFlowActive())
         {
             pressedMonster = null;
             return;
@@ -279,19 +299,25 @@ public class MonsterAttackRangeVisualizer : MonoBehaviour
 
     private void SelectMonster(MonsterIdentityManager monster)
     {
-        if (monster == null || selectedMonster == monster)
+        if (monster == null ||
+            selectedMonster == monster ||
+            IsPlayerMovementFlowActive())
         {
             return;
         }
 
         ClearDisplayedRange();
         selectedMonster = monster;
+    }
 
-        PlayerMoveController playerMoveController = FindFirstObjectByType<PlayerMoveController>();
-        if (playerMoveController != null && playerMoveController.HasActiveMovementSelection)
+    private bool IsPlayerMovementFlowActive()
+    {
+        if (playerMoveController == null)
         {
-            playerMoveController.ClearClickedGrid();
+            playerMoveController = FindFirstObjectByType<PlayerMoveController>();
         }
+
+        return playerMoveController != null && playerMoveController.IsMovementFlowActive;
     }
 
     private void ClearSelectedMonster()

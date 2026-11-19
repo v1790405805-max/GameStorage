@@ -38,6 +38,13 @@ public class MonsterCombatPlannerAction : MonsterActionBase
             return false;
         }
 
+        if (context.IsPatrolling ||
+            (context.WarnAction != null &&
+             context.WarnAction.IsRestricting))
+        {
+            return false;
+        }
+
         if (context.MoveAction != null &&
             context.MoveAction.HasForcedDestination)
         {
@@ -53,6 +60,14 @@ public class MonsterCombatPlannerAction : MonsterActionBase
         if (context == null ||
             context.Self == null ||
             context.GridManager == null)
+        {
+            CompleteAction();
+            return;
+        }
+
+        if (context.IsPatrolling ||
+            (context.WarnAction != null &&
+             context.WarnAction.IsRestricting))
         {
             CompleteAction();
             return;

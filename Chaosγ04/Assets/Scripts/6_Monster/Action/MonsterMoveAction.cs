@@ -112,6 +112,17 @@ public class MonsterMoveAction : MonsterActionBase
             return;
         }
 
+        if (Context != null &&
+            (Context.IsPatrolling ||
+             (Context.WarnAction != null &&
+              Context.WarnAction.IsRestricting)))
+        {
+            ExecutePatrolMove(
+                monsterCell,
+                Context.PatrolDestination);
+            return;
+        }
+
         MonsterCombatPlan combatPlan =
             Context != null ? Context.CombatPlan : null;
         if (combatPlan != null && combatPlan.MoveDestination != null)
@@ -225,6 +236,24 @@ public class MonsterMoveAction : MonsterActionBase
             path.GetRange(0, actualSteps + 1);
         SetMoveAnimationState(true);
         moveCoroutine = StartCoroutine(MoveRoutine(actualPath, faceTarget));
+    }
+
+    private void ExecutePatrolMove(
+        CellManager monsterCell,
+        CellManager patrolDestination)
+    {
+        if (patrolDestination == null ||
+            patrolDestination == monsterCell)
+        {
+            moveCoroutine = StartCoroutine(
+                StationaryTurnRoutine(monsterCell, null));
+            return;
+        }
+
+        ExecutePlannedMove(
+            monsterCell,
+            patrolDestination,
+            null);
     }
 
     private void ExecuteDefaultMove(CellManager monsterCell)

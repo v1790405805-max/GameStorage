@@ -20,7 +20,7 @@ MonoBehaviour:
   cost: 1
   effectFlags: 2
   moveDistance: 1
-  damage: 3
+  damage: 4
   armor: 0
   healthChange: 0
   energyChange: 0
@@ -32,7 +32,10 @@ MonoBehaviour:
   rangeType: 1
   rangeDistance: 1
   targetSelectMode: 1
-  extraEffects: []
+  extraEffects:
+  - effectScript: {fileID: 11500000, guid: a4c5d6e7f8094b1ca2d3e4f506172839, type: 3}
+    effectTypeName: IncreaseDamegeAndWeakEffect, Assembly-CSharp, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
   animationEffects:
   - effectScript: {fileID: 11500000, guid: 9bcaff3e235941c0a561299ba5120919, type: 3}
     effectTypeName: PlayerAttackAnimation, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
@@ -44,4 +47,4 @@ MonoBehaviour:
   hitVFXOffset: {x: 0, y: 0.5, z: 0}
   gridStyle: {fileID: 11400000, guid: 88afb53f10edd8244949d4b08ce8e10e, type: 2}
   counterGridStyle: {fileID: 11400000, guid: 6b228f25344a1b9489fc709ce247a232, type: 2}
-  description: "\u53CD\u51FB\uFF0C\u5982\u679C\u5728\u53CD\u51FB\u72B6\u6001\u4F7F\u7528\u672C\u5361\uFF0C\u5219\u4F24\u5BB3+2\uFF0C\u5BF9\u76EE\u6807\u9020\u6210\u865A\u5F312"
+  description: "\u53CD\u51FB\uFF0C\u5BF91\u683C\u8303\u56F4\u5185\u7684\u654C\u4EBA\u653B\u51FB\uFF0C\u9020\u62104\u70B9\u4F24\u5BB3\uFF0C\u5982\u679C\u5728\u53CD\u51FB\u72B6\u6001\u4F7F\u7528\u672C\u5361\uFF0C\u5219\u4F24\u5BB3+2\uFF0C\u5BF9\u76EE\u6807\u9020\u6210\u865A\u5F312"

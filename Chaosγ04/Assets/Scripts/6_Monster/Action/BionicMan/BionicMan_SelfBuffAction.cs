@@ -43,7 +43,9 @@ public sealed class BionicMan_SelfBuffAction : MonsterActionBase
     public override bool CanExecute(MonsterActionContext context)
     {
         ResolveReferences();
-        return selfStats != null && !IsOnCooldown;
+        return selfStats != null &&
+               !IsOnCooldown &&
+               !IsWaitingForHostileDetection(context);
     }
 
     private void Awake()
@@ -66,6 +68,12 @@ public sealed class BionicMan_SelfBuffAction : MonsterActionBase
     {
         ResolveReferences();
 
+        if (IsWaitingForHostileDetection(Context))
+        {
+            CompleteAction();
+            return;
+        }
+
         if (selfStats == null)
         {
             Debug.LogError($"[{name}] BionicMan_SelfBuffAction 缺少 MonsterStats。");
@@ -83,6 +91,15 @@ public sealed class BionicMan_SelfBuffAction : MonsterActionBase
             $"扣除 {healthCostPerTurn} 点生命值。");
 
         CompleteAction();
+    }
+
+    private static bool IsWaitingForHostileDetection(
+        MonsterActionContext context)
+    {
+        return context != null &&
+               (context.IsPatrolling ||
+                (context.WarnAction != null &&
+                 context.WarnAction.IsRestricting));
     }
 
     private void HandleOwnActionStarted()

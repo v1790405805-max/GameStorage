@@ -39,6 +39,11 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
     public Transform PlayerTransform => playerTransform;
     public CellManager PlayerOccupiedCell => playerOccupiedCell;
     public bool HasActiveMovementSelection => currentClickedCell != null;
+    public bool IsMovementFlowActive =>
+        currentClickedCell != null ||
+        hasPendingMoveFacing ||
+        isMoving ||
+        isManualMoveInProgress;
 
     private Vector2Int currentClickedGrid = new Vector2Int(-1, -1);
     private CellManager currentClickedCell;
@@ -437,8 +442,9 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
                         return;
                     }
                 }
-                else
+                else if (cellUnderMouse != null && !cellUnderMouse.HasMonsterInside)
                 {
+                    // 移动流程中点击怪物格只应被忽略，不能切去查看怪物范围。
                     ClearClickedGrid();
                 }
             }

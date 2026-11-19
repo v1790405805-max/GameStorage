@@ -155,6 +155,13 @@ public class MonsterAttackAction : MonsterAttackActionBase
             return false;
         }
 
+        if (context.IsPatrolling ||
+            (context.WarnAction != null &&
+             context.WarnAction.IsRestricting))
+        {
+            return false;
+        }
+
         EnsureGridManager();
         EnsureHateSystem();
         EnsureMonsterStats();
@@ -184,6 +191,15 @@ public class MonsterAttackAction : MonsterAttackActionBase
         EnsureMonsterStats();
 
         if (suppressedForTurn)
+        {
+            CompleteAction();
+            return;
+        }
+
+        if (Context != null &&
+            (Context.IsPatrolling ||
+             (Context.WarnAction != null &&
+              Context.WarnAction.IsRestricting)))
         {
             CompleteAction();
             return;

@@ -18,18 +18,20 @@ public class MonsterStats : MonoBehaviour, IDamageable
     public int mobility = 3;
 
     [Header("攻击Buff")]
-    [Tooltip("作用于该怪物所有攻击动作的伤害补正。")]
+    [Tooltip("作用于该怪物所有攻击动作的伤害补正。可为负数；最终攻击伤害不会低于 0。")]
     [SerializeField] private int attackBuff;
 
     public int AttackBuff => attackBuff;
 
     public void AddAttackBuff(int amount)
     {
+        // Keep the stored value unbounded so debuffs can push it below zero.
         attackBuff += amount;
     }
 
     public void SetAttackBuff(int amount)
     {
+        // Snapshot restoration must preserve negative values.
         attackBuff = amount;
     }
 

@@ -16,6 +16,10 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
     [Tooltip("切到本怪物行动后，等待多久才开始执行第一个动作（秒）")]
     [SerializeField] private float startDelay = 0.5f;
 
+    [Header("无有效动作时的视聚焦镜头暂留时间")]
+    [Tooltip("本回合没有实际攻击或移动时，延迟多久再结束动作序列（秒）")]
+    [SerializeField, Min(0f)] private float noActionHoldDuration = 2f;
+
     [Header("动作序列")]
     [Tooltip("本回合要依次执行的动作列表")]
     [SerializeField] private List<MonsterActionStep> actionSequence = new List<MonsterActionStep>();
@@ -29,6 +33,7 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
     private MonsterAttackActionBase attackAction;
     private MonsterMoveAction moveAction;
     private MonsterLeaveAction leaveAction;
+    private MonsterWarnAction warnAction;
     private GridManager gridManager;
     private bool terminateRemainingActions;
     private MonsterActionContext actionContext;
@@ -71,6 +76,7 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
         ResolveReferences();
         EnsureCombatPlannerActionInSequence();
         EnsureLeaveActionInSequence();
+        EnsureWarnActionOrderInSequence();
     }
 
     private void OnEnable()
@@ -176,6 +182,8 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
     {
         isExecuting = true;
         OnSequenceStarted?.Invoke();
+        bool didAttack = false;
+        bool didMove = false;
 
         if (startDelay > 0f)
         {
@@ -206,6 +214,18 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
 
             bool isCompleted = false;
             Action completionHandler = null;
+            CellManager moveStartCell = null;
+
+            if (action is MonsterMoveAction &&
+                context != null &&
+                context.GridManager != null &&
+                context.Self != null)
+            {
+                context.GridManager.EnsureGridSystemInitialized();
+                moveStartCell = MonsterGridNavigation.FindMonsterCell(
+                    context.GridManager,
+                    context.Self);
+            }
 
             completionHandler = () =>
             {
@@ -226,8 +246,26 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
             // 执行当前动作 (内部调用 OnStart)
             action.StartAction();
 
+            if (action is MonsterAttackActionBase)
+            {
+                didAttack = true;
+            }
+
             // 等待动作内部调用 CompleteAction()
             yield return new WaitUntil(() => isCompleted);
+
+            if (moveStartCell != null)
+            {
+                CellManager moveEndCell =
+                    MonsterGridNavigation.FindMonsterCell(
+                        context.GridManager,
+                        context.Self);
+
+                if (moveEndCell != null && moveEndCell != moveStartCell)
+                {
+                    didMove = true;
+                }
+            }
 
             OnActionFinished?.Invoke(action);
             CurrentAction = null;
@@ -242,6 +280,13 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
             {
                 yield return new WaitForSeconds(action.PostActionDelay);
             }
+        }
+
+        if (!didAttack &&
+            !didMove &&
+            noActionHoldDuration > 0f)
+        {
+            yield return new WaitForSeconds(noActionHoldDuration);
         }
 
         isExecuting = false;
@@ -309,6 +354,7 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
         actionSequence = steps ?? new List<MonsterActionStep>();
         EnsureCombatPlannerActionInSequence();
         EnsureLeaveActionInSequence();
+        EnsureWarnActionOrderInSequence();
     }
 
     public void AddAction(MonsterActionBase action)
@@ -328,6 +374,7 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
 
         EnsureCombatPlannerActionInSequence();
         EnsureLeaveActionInSequence();
+        EnsureWarnActionOrderInSequence();
     }
 
     public void ClearActions()
@@ -391,6 +438,20 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
                         leaveAction = candidate;
                         break;
                     }
+                }
+            }
+        }
+
+        if (warnAction == null && actionSequence != null)
+        {
+            for (int i = 0; i < actionSequence.Count; i++)
+            {
+                MonsterActionStep step = actionSequence[i];
+                if (step != null &&
+                    step.action is MonsterWarnAction candidate)
+                {
+                    warnAction = candidate;
+                    break;
                 }
             }
         }
@@ -572,6 +633,52 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
         });
     }
 
+    private void EnsureWarnActionOrderInSequence()
+    {
+        if (actionSequence == null)
+        {
+            return;
+        }
+
+        warnAction = null;
+        for (int i = 0; i < actionSequence.Count; i++)
+        {
+            MonsterActionStep step = actionSequence[i];
+            if (step != null &&
+                step.action is MonsterWarnAction candidate)
+            {
+                warnAction = candidate;
+                break;
+            }
+        }
+
+        if (warnAction == null)
+        {
+            return;
+        }
+
+        for (int i = actionSequence.Count - 1; i >= 0; i--)
+        {
+            if (actionSequence[i] != null &&
+                actionSequence[i].action is MonsterWarnAction)
+            {
+                actionSequence.RemoveAt(i);
+            }
+        }
+
+        int insertIndex = 0;
+        int leaveIndex = GetActionIndex(leaveAction);
+        if (leaveIndex >= 0)
+        {
+            insertIndex = leaveIndex + 1;
+        }
+
+        actionSequence.Insert(insertIndex, new MonsterActionStep
+        {
+            action = warnAction
+        });
+    }
+
     private void EnsureCombatPlannerActionInSequence()
     {
         if (!autoCreateCombatPlanner ||
@@ -644,7 +751,8 @@ public class MonsterActionManager : MonoBehaviour, ITurnStateListener
             selfIdentity,
             gridManager,
             moveAction,
-            attackActions);
+            attackActions,
+            warnAction);
     }
 
 }
