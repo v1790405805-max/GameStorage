@@ -80,6 +80,33 @@ public class MonsterStats : MonoBehaviour, IDamageable
     }
 
     /// <summary>
+    /// 直接损失生命值，不经过护甲，也不计入玩家造成的伤害。
+    /// 用于持续型生命代价、自伤等效果。
+    /// </summary>
+    public void TakeSelfDamage(int damageAmount)
+    {
+        if (damageAmount <= 0 || currentHp <= 0)
+        {
+            return;
+        }
+
+        currentHp = Mathf.Max(0, currentHp - damageAmount);
+        Debug.Log($"[{gameObject.name}] 生命代价扣除 {damageAmount} 点生命值，剩余HP: {currentHp}");
+
+        if (currentHp > 0)
+        {
+            hitFlash?.TriggerFlash();
+        }
+
+        GetComponentInChildren<MonsterInfoUI>()?.UpdateHpDisplay(currentHp, maxHp);
+
+        if (currentHp <= 0)
+        {
+            Die(playerAttributed: false);
+        }
+    }
+
+    /// <summary>
     /// 无视护甲与剩余生命值，直接判定该怪物死亡。
     /// 用于推击落入致死地形（落点不存在 / 硬锁格 / 未注册可通过的水面）等效果。
     /// </summary>
