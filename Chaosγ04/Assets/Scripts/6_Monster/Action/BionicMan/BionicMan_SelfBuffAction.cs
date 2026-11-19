@@ -1,8 +1,8 @@
 using UnityEngine;
 
 /// <summary>
-/// 永久提升自身攻击力，并在触发后持续支付每回合生命代价。
-/// 触发回合不会扣血；之后每次轮到自身行动时扣除生命值。
+/// 永久提升自身攻击力，并在触发后持续支付可叠加的生命代价。
+/// 每次触发立即扣除一次生命值，并增加一层持续扣血。
 /// </summary>
 [DisallowMultipleComponent]
 public sealed class BionicMan_SelfBuffAction : MonsterActionBase
@@ -12,7 +12,7 @@ public sealed class BionicMan_SelfBuffAction : MonsterActionBase
     [SerializeField, Min(1)] private int attackBonus = 2;
 
     [Header("持续生命代价")]
-    [Tooltip("效果生效后，每次轮到自身行动时直接损失的生命值。该伤害无视护甲。")]
+    [Tooltip("每层在每次轮到自身行动时直接损失的生命值。重复触发会叠加层数，该伤害无视护甲。")]
     [SerializeField, Min(1)] private int healthCostPerTurn = 2;
 
     [Header("冷却")]
@@ -23,7 +23,7 @@ public sealed class BionicMan_SelfBuffAction : MonsterActionBase
     private MonsterActionManager actionManager;
     private MonsterActionManager subscribedActionManager;
     private int lastTriggeredRound = int.MinValue;
-    private bool isHealthCostActive;
+    private int healthCostStacks;
 
     public bool IsOnCooldown
     {
@@ -82,14 +82,17 @@ public sealed class BionicMan_SelfBuffAction : MonsterActionBase
         }
 
         selfStats.AddAttackBuff(attackBonus);
-        isHealthCostActive = true;
+        healthCostStacks++;
         lastTriggeredRound = GetCurrentRound();
         BindToActionManager();
 
+        int totalHealthCostPerTurn = healthCostPerTurn * healthCostStacks;
         Debug.Log(
-            $"[{name}] 自身攻击力提升 {attackBonus} 点；此后每次自身行动开始时，" +
-            $"扣除 {healthCostPerTurn} 点生命值。");
+            $"[{name}] 自身攻击力提升 {attackBonus} 点，触发时扣除 {healthCostPerTurn} 点生命值；" +
+            $"持续生命代价叠加至 {healthCostStacks} 层，此后每次自身行动开始时扣除 " +
+            $"{totalHealthCostPerTurn} 点生命值。");
 
+        selfStats.TakeSelfDamage(healthCostPerTurn);
         CompleteAction();
     }
 
@@ -104,12 +107,12 @@ public sealed class BionicMan_SelfBuffAction : MonsterActionBase
 
     private void HandleOwnActionStarted()
     {
-        if (!isHealthCostActive || selfStats == null || selfStats.currentHp <= 0)
+        if (healthCostStacks <= 0 || selfStats == null || selfStats.currentHp <= 0)
         {
             return;
         }
 
-        selfStats.TakeSelfDamage(healthCostPerTurn);
+        selfStats.TakeSelfDamage(healthCostPerTurn * healthCostStacks);
     }
 
     private void BindToActionManager()
