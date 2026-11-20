@@ -93165,7 +93165,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterActionManager
   startDelay: 0.2
-  noActionHoldDuration: 1
+  noActionHoldDuration: 0.6
   actionSequence:
   - action: {fileID: 556471857}
   - action: {fileID: 556471856}
@@ -105468,7 +105468,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterActionManager
   startDelay: 0.2
-  noActionHoldDuration: 1
+  noActionHoldDuration: 0.6
   actionSequence:
   - action: {fileID: 643329761}
   - action: {fileID: 643329759}
@@ -162109,7 +162109,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterActionManager
   startDelay: 0.2
-  noActionHoldDuration: 1
+  noActionHoldDuration: 0.6
   actionSequence:
   - action: {fileID: 983314791}
   - action: {fileID: 983314792}
@@ -181810,7 +181810,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterActionManager
   startDelay: 0.2
-  noActionHoldDuration: 1
+  noActionHoldDuration: 0.6
   actionSequence:
   - action: {fileID: 1096482207}
   - action: {fileID: 1096482208}
@@ -268843,7 +268843,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterActionManager
   startDelay: 0.2
-  noActionHoldDuration: 1
+  noActionHoldDuration: 0.6
   actionSequence:
   - action: {fileID: 1626584146}
   - action: {fileID: 1626584144}
@@ -315291,7 +315291,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterActionManager
   startDelay: 0.2
-  noActionHoldDuration: 1
+  noActionHoldDuration: 0.6
   actionSequence:
   - action: {fileID: 1949179988}
   - action: {fileID: 1949179989}
