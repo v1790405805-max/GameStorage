@@ -42,9 +42,23 @@ public abstract class CardEffectCore : ScriptableObject
     }
 
     /// <summary>
+    /// Exact-target validation overload. Legacy effects keep working through the grid fallback.
+    /// </summary>
+    public virtual bool CanPlay(CardData card, CardTarget target)
+    {
+        return CanPlay(card, target.Grid);
+    }
+
+    /// <summary>
     /// 校验卡牌挂载的全部额外效果是否允许在指定落点出牌。
     /// </summary>
     public static bool CanPlayAll(CardData card, Vector2Int targetGrid)
+    {
+        GridManager gridManager = Object.FindFirstObjectByType<GridManager>();
+        return CanPlayAll(card, CardTarget.FromGrid(gridManager, targetGrid));
+    }
+
+    public static bool CanPlayAll(CardData card, CardTarget target)
     {
         if (card == null || card.extraEffects == null)
         {
@@ -72,7 +86,7 @@ public abstract class CardEffectCore : ScriptableObject
                 continue;
             }
 
-            bool canPlay = instance.CanPlay(card, targetGrid);
+            bool canPlay = instance.CanPlay(card, target);
             Destroy(instance);
 
             if (!canPlay)
@@ -91,4 +105,12 @@ public abstract class CardEffectCore : ScriptableObject
     /// <param name="targetGrid">落点格坐标</param>
     /// <returns>是否执行成功（失败仅告警，不取消整卡）</returns>
     public abstract bool Execute(CardData card, Vector2Int targetGrid);
+
+    /// <summary>
+    /// Exact-target execution overload. Legacy effects resolve through their existing grid path.
+    /// </summary>
+    public virtual bool Execute(CardData card, CardTarget target)
+    {
+        return Execute(card, target.Grid);
+    }
 }

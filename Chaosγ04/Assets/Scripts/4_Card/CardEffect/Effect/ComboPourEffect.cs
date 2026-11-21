@@ -20,6 +20,12 @@ public sealed class ComboPourEffect : CardEffectCore
 
     public override bool Execute(CardData card, Vector2Int targetGrid)
     {
+        GridManager gridManager = Object.FindFirstObjectByType<GridManager>();
+        return Execute(card, CardTarget.FromGrid(gridManager, targetGrid));
+    }
+
+    public override bool Execute(CardData card, CardTarget target)
+    {
         CardManager cardManager = CardManager.Instance;
         if (cardManager == null)
         {
@@ -59,8 +65,25 @@ public sealed class ComboPourEffect : CardEffectCore
                     continue;
                 }
 
-                var (mx, mz) = gridManager.GetGridPosition(monster.transform.position);
-                if (new Vector2Int(mx, mz) != targetGrid)
+                bool matchesTarget;
+                if (target.Cell != null)
+                {
+                    CellManager monsterCell =
+                        MonsterGridNavigation.FindMonsterCell(gridManager, monster);
+                    if (monsterCell == null)
+                    {
+                        monsterCell =
+                            gridManager.GetClosestCellAt(monster.transform.position);
+                    }
+                    matchesTarget = monsterCell == target.Cell;
+                }
+                else
+                {
+                    var (mx, mz) = gridManager.GetGridPosition(monster.transform.position);
+                    matchesTarget = new Vector2Int(mx, mz) == target.Grid;
+                }
+
+                if (!matchesTarget)
                 {
                     continue;
                 }

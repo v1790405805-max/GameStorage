@@ -17,10 +17,11 @@ public class DashBehindEffect : CardEffectCore, ICardDragPreviewProvider
     public bool TryGetDragPreview(
         GridManager gridManager,
         CardData card,
-        Vector2Int targetGrid,
+        CardTarget target,
         out CardDragPreview preview)
     {
         preview = default;
+        Vector2Int targetGrid = target.Grid;
 
         if (gridManager == null)
         {
@@ -37,7 +38,7 @@ public class DashBehindEffect : CardEffectCore, ICardDragPreviewProvider
         if (!TryGetLandingCell(
                 gridManager,
                 startGrid,
-                targetGrid,
+                target,
                 requireTargetMonster: true,
                 out _,
                 out CellManager landingCell) ||
@@ -56,6 +57,12 @@ public class DashBehindEffect : CardEffectCore, ICardDragPreviewProvider
 
     public override bool CanPlay(CardData card, Vector2Int targetGrid)
     {
+        GridManager gridManager = Object.FindFirstObjectByType<GridManager>();
+        return CanPlay(card, CardTarget.FromGrid(gridManager, targetGrid));
+    }
+
+    public override bool CanPlay(CardData card, CardTarget target)
+    {
         if (card == null || !card.effectFlags.HasFlag(CardEffectType.Attack))
         {
             return false;
@@ -68,6 +75,7 @@ public class DashBehindEffect : CardEffectCore, ICardDragPreviewProvider
             return false;
         }
 
+        Vector2Int targetGrid = target.Grid;
         Vector2Int startGrid = GetGridPosition(gridManager, player.transform.position);
 
         // CardUI 常态悬停会用玩家自身所在格询问卡牌是否可用；
@@ -80,13 +88,19 @@ public class DashBehindEffect : CardEffectCore, ICardDragPreviewProvider
         return TryGetLandingCell(
             gridManager,
             startGrid,
-            targetGrid,
+            target,
             requireTargetMonster: true,
             out _,
             out _);
     }
 
     public override bool Execute(CardData card, Vector2Int targetGrid)
+    {
+        GridManager gridManager = Object.FindFirstObjectByType<GridManager>();
+        return Execute(card, CardTarget.FromGrid(gridManager, targetGrid));
+    }
+
+    public override bool Execute(CardData card, CardTarget target)
     {
         if (card == null || !card.effectFlags.HasFlag(CardEffectType.Attack))
         {
@@ -108,6 +122,7 @@ public class DashBehindEffect : CardEffectCore, ICardDragPreviewProvider
             return false;
         }
 
+        Vector2Int targetGrid = target.Grid;
         Vector2Int startGrid = new Vector2Int(-1, -1);
         if (CardManager.Instance != null)
         {
@@ -122,7 +137,7 @@ public class DashBehindEffect : CardEffectCore, ICardDragPreviewProvider
         if (!TryGetLandingCell(
                 gridManager,
                 startGrid,
-                targetGrid,
+                target,
                 requireTargetMonster: false,
                 out Vector2Int landingGrid,
                 out CellManager landingCell))
@@ -142,7 +157,7 @@ public class DashBehindEffect : CardEffectCore, ICardDragPreviewProvider
                     Object.FindFirstObjectByType<PlayerMoveController>();
                 if (moveCtrl != null)
                 {
-                    moveCtrl.SyncGridPosition(startGrid);
+                    moveCtrl.SyncCellPosition(startCell);
                 }
             }
 
@@ -160,7 +175,7 @@ public class DashBehindEffect : CardEffectCore, ICardDragPreviewProvider
         PlayerMoveController moveController = Object.FindFirstObjectByType<PlayerMoveController>();
         if (moveController != null)
         {
-            moveController.SyncGridPosition(landingGrid);
+            moveController.SyncCellPosition(landingCell);
         }
 
         Debug.Log(
@@ -171,13 +186,14 @@ public class DashBehindEffect : CardEffectCore, ICardDragPreviewProvider
     public static bool TryGetLandingCell(
         GridManager gridManager,
         Vector2Int startGrid,
-        Vector2Int targetGrid,
+        CardTarget target,
         bool requireTargetMonster,
         out Vector2Int landingGrid,
         out CellManager landingCell)
     {
         landingGrid = new Vector2Int(-1, -1);
         landingCell = null;
+        Vector2Int targetGrid = target.Grid;
 
         if (gridManager == null ||
             startGrid.x < 0 ||
@@ -198,15 +214,17 @@ public class DashBehindEffect : CardEffectCore, ICardDragPreviewProvider
             ? new Vector2Int(dx > 0 ? 1 : -1, 0)
             : new Vector2Int(0, dy > 0 ? 1 : -1);
 
-        CellManager targetCell = FindCellContainingMonster(gridManager, targetGrid);
-        if (requireTargetMonster && targetCell == null)
+        CellManager targetCell = target.Cell ??
+            FindCellContainingMonster(gridManager, targetGrid);
+        if (requireTargetMonster &&
+            PushEffect.FindMonsterInsideCell(gridManager, targetCell) == null)
         {
             return false;
         }
 
         if (targetCell == null)
         {
-            targetCell = gridManager.GetCellManagerAt(targetGrid.x, targetGrid.y);
+            targetCell = gridManager.GetCellManagerAt(target.Coord);
         }
 
         if (targetCell == null)

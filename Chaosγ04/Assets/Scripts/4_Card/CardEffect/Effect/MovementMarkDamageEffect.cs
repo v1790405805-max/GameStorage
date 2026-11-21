@@ -12,8 +12,8 @@ public class MovementMarkDamageEffect : CardEffectCore
 {
     private const int EntryDamage = 6;
 
-    private static readonly Dictionary<GridCellKey, int> markedCells =
-        new Dictionary<GridCellKey, int>();
+    private static readonly Dictionary<GridCoord, int> markedCells =
+        new Dictionary<GridCoord, int>();
 
     private static bool active;
     private static int activeStackCount;
@@ -80,7 +80,7 @@ public class MovementMarkDamageEffect : CardEffectCore
             return;
         }
 
-        GridCellKey enteredKey = GridCellKey.FromCell(enteredCell);
+        GridCoord enteredKey = enteredCell.Coord;
         if (!markedCells.TryGetValue(enteredKey, out int markStacks) || markStacks <= 0)
         {
             return;
@@ -113,20 +113,20 @@ public class MovementMarkDamageEffect : CardEffectCore
 
         foreach ((Vector2Int grid, int layer) in trace)
         {
-            AddMark(new GridCellKey(grid.x, grid.y, layer));
+            AddMark(new GridCoord(grid.x, grid.y, layer));
         }
     }
 
     private static void AddCell(CellManager cell)
     {
-        GridCellKey key = GridCellKey.FromCell(cell);
+        GridCoord key = cell != null ? cell.Coord : GridCoord.Invalid;
         if (key.IsValid)
         {
             AddMark(key);
         }
     }
 
-    private static void AddMark(GridCellKey key)
+    private static void AddMark(GridCoord key)
     {
         if (!key.IsValid)
         {
@@ -174,57 +174,4 @@ public class MovementMarkDamageEffect : CardEffectCore
             : -1;
     }
 
-    private readonly struct GridCellKey : IEquatable<GridCellKey>
-    {
-        public readonly int x;
-        public readonly int z;
-        public readonly int layer;
-
-        public GridCellKey(int x, int z, int layer)
-        {
-            this.x = x;
-            this.z = z;
-            this.layer = layer;
-        }
-
-        public bool IsValid => x >= 0 && z >= 0 && layer > 0;
-
-        public static GridCellKey FromCell(CellManager cell)
-        {
-            if (cell == null)
-            {
-                return new GridCellKey(-1, -1, 0);
-            }
-
-            GridManager gridManager = UnityEngine.Object.FindFirstObjectByType<GridManager>();
-            if (gridManager == null)
-            {
-                return new GridCellKey(-1, -1, 0);
-            }
-
-            var (x, z) = gridManager.GetCellGridPosition(cell);
-            return new GridCellKey(x, z, gridManager.GetCellLayer(cell));
-        }
-
-        public bool Equals(GridCellKey other)
-        {
-            return x == other.x && z == other.z && layer == other.layer;
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is GridCellKey other && Equals(other);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hashCode = x;
-                hashCode = (hashCode * 397) ^ z;
-                hashCode = (hashCode * 397) ^ layer;
-                return hashCode;
-            }
-        }
-    }
 }

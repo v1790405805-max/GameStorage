@@ -30,6 +30,6 @@ public interface ICardDragPreviewProvider
     bool TryGetDragPreview(
         GridManager gridManager,
         CardData card,
-        Vector2Int targetGrid,
+        CardTarget target,
         out CardDragPreview preview);
 }

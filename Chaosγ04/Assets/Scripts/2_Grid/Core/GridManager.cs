@@ -68,6 +68,11 @@ public class GridManager : MonoBehaviour
     /// 与 GetCellManagerAt(x, z) 的兼容层：该方法仍返回顶层格子。
     /// </summary>
     private List<CellManager>[,] cellManagers;
+    /// <summary>
+    /// Complete logical index: one concrete CellManager per (x, z, layer).
+    /// </summary>
+    private Dictionary<GridCoord, CellManager> cellManagersByCoord =
+        new Dictionary<GridCoord, CellManager>();
 
     private void Start()
     {
@@ -77,6 +82,7 @@ public class GridManager : MonoBehaviour
         {
             RebuildReferencesFromHierarchy();
             RebuildLayerNamesFromPlane();
+            RebuildCoordinateIndex();
         }
     }
 
@@ -107,6 +113,7 @@ public class GridManager : MonoBehaviour
         if (cellManagers == null || cellManagers.GetLength(0) != width || cellManagers.GetLength(1) != height)
         {
             RebuildReferencesFromHierarchy();
+            RebuildCoordinateIndex();
         }
 
         if (cellManagers == null) return;
@@ -222,6 +229,7 @@ public class GridManager : MonoBehaviour
 
         // 全部格子摆放完成后，再以逻辑水平面为基准统一计算层号
         RebuildLayerNamesFromPlane();
+        RebuildCoordinateIndex();
 
 #if UNITY_EDITOR
         EditorUtility.SetDirty(gameObject);
@@ -297,6 +305,7 @@ public class GridManager : MonoBehaviour
         }
 
         cellManagers = null;
+        cellManagersByCoord.Clear();
     }
 
     private void RebuildReferencesFromHierarchy()
@@ -348,6 +357,76 @@ public class GridManager : MonoBehaviour
                 cellManagers[x, z].Sort((a, b) => b.transform.position.y.CompareTo(a.transform.position.y));
             }
         }
+    }
+
+    /// <summary>
+    /// Rebuilds the complete (x, z, layer) index after generation, hierarchy reload, or refit.
+    /// GameObject names remain the serialized fallback, but CellManager.Coord becomes the
+    /// runtime source of truth for coordinate queries.
+    /// </summary>
+    private void RebuildCoordinateIndex()
+    {
+        if (cellManagersByCoord == null)
+        {
+            cellManagersByCoord = new Dictionary<GridCoord, CellManager>();
+        }
+
+        cellManagersByCoord.Clear();
+        if (cellManagers == null) return;
+
+        for (int x = 0; x < cellManagers.GetLength(0); x++)
+        {
+            for (int z = 0; z < cellManagers.GetLength(1); z++)
+            {
+                List<CellManager> column = cellManagers[x, z];
+                if (column == null) continue;
+
+                foreach (CellManager cell in column)
+                {
+                    if (cell == null) continue;
+
+                    GridCoord coord = new GridCoord(x, z, ParseCellLayer(cell));
+                    cell.SetGridCoord(coord);
+
+                    if (cellManagersByCoord.ContainsKey(coord))
+                    {
+                        Debug.LogError(
+                            $"[GridManager] Duplicate cell coordinate {coord}: " +
+                            $"{cellManagersByCoord[coord].name} and {cell.name}.");
+                        continue;
+                    }
+
+                    cellManagersByCoord.Add(coord, cell);
+                }
+            }
+        }
+    }
+
+    private void EnsureCoordinateIndex()
+    {
+        if (cellManagersByCoord == null)
+        {
+            RebuildCoordinateIndex();
+            return;
+        }
+
+        if (cellManagersByCoord.Count == 0 && cellManagers != null)
+        {
+            RebuildCoordinateIndex();
+        }
+    }
+
+    private static int ParseCellLayer(CellManager cell)
+    {
+        if (cell == null) return 1;
+
+        string[] parts = cell.gameObject.name.Split('_');
+        if (parts.Length >= 4 && parts[3].StartsWith("L") &&
+            int.TryParse(parts[3].Substring(1), out int layer))
+        {
+            return layer;
+        }
+        return 1;
     }
 
     private void CreateFourLineRenderersForCell(int x, int z, Vector3 cellSurfacePosition, CellManager cellMgr)
@@ -654,6 +733,7 @@ public class GridManager : MonoBehaviour
 
         // 重新贴合后高度可能变化，全部处理完再以逻辑水平面为基准统一计算层号
         RebuildLayerNamesFromPlane();
+        RebuildCoordinateIndex();
     }
 
     #endregion
@@ -693,12 +773,18 @@ public class GridManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 从格子名字解析该格子的列坐标 (x, z)。
+    /// 获取格子的列坐标 (x, z)。优先读取 CellManager.Coord，
+    /// 旧场景对象才回退到名字解析。
     /// 名字格式：Cell_{z+1}_{x+1}[_L{层号}]，例如 Cell_2_10_L1 → (9, 1)。
     /// </summary>
     public (int x, int z) GetCellGridPosition(CellManager cell)
     {
         if (cell == null) return (-1, -1);
+        if (cell.HasGridCoord)
+        {
+            GridCoord coord = cell.Coord;
+            return (coord.X, coord.Z);
+        }
 
         string[] parts = cell.gameObject.name.Split('_');
         if (parts.Length >= 3 &&
@@ -711,12 +797,17 @@ public class GridManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 从格子名字解析该格子的 L 层号（Cell_{z+1}_{x+1}_L{层号}）。
+    /// 获取格子的 L 层号。优先读取 CellManager.Coord，
+    /// 旧场景对象才回退到名字解析。
     /// 无 _L 后缀的旧版格子视为 L1。
     /// </summary>
     public int GetCellLayer(CellManager cell)
     {
         if (cell == null) return 1;
+        if (cell.HasGridCoord)
+        {
+            return cell.Coord.Layer;
+        }
 
         string[] parts = cell.gameObject.name.Split('_');
         if (parts.Length >= 4 && parts[3].StartsWith("L") &&
@@ -744,29 +835,53 @@ public class GridManager : MonoBehaviour
     }
 
     /// <summary>
+    /// World-position lookup that preserves the vertical surface selection.
+    /// </summary>
+    public CellManager GetClosestCellAt(Vector3 worldPosition)
+    {
+        EnsureGridSystemInitialized();
+        Vector3 logicPosition = worldPosition - cellOffset;
+        var (x, z) = gridSystem.GetGridPosition(logicPosition);
+        if (!gridSystem.IsValidGridPosition(x, z)) return null;
+
+        CellManager bestCell = null;
+        float bestHeightDifference = float.MaxValue;
+        foreach (CellManager cell in GetCellManagersInColumn(x, z))
+        {
+            if (cell == null) continue;
+
+            float heightDifference =
+                Mathf.Abs(cell.transform.position.y - worldPosition.y);
+            if (heightDifference < bestHeightDifference)
+            {
+                bestHeightDifference = heightDifference;
+                bestCell = cell;
+            }
+        }
+
+        return bestCell;
+    }
+
+    public CellManager GetCellManagerAt(GridCoord coord)
+    {
+        if (!coord.IsValid) return null;
+
+        EnsureCoordinateIndex();
+        if (cellManagersByCoord.TryGetValue(coord, out CellManager cell))
+        {
+            return cell;
+        }
+
+        return null;
+    }
+
+    /// <summary>
     /// 获取指定列指定 L 层号的格子（逻辑水平面为 L1，上方为正层号，下方为负层号）。
-    /// 同一列存在多个同层号格子时返回第一个；找不到返回 null。
+    /// 找不到返回 null。
     /// </summary>
     public CellManager GetCellManagerAt(int x, int z, int layer)
     {
-        if (cellManagers != null && x >= 0 && x < width && z >= 0 && z < height)
-        {
-            List<CellManager> column = cellManagers[x, z];
-            if (column != null)
-            {
-                string layerTag = $"L{layer}";
-                foreach (CellManager cellMgr in column)
-                {
-                    if (cellMgr == null) continue;
-                    string[] parts = cellMgr.gameObject.name.Split('_');
-                    if (parts.Length >= 4 && parts[3] == layerTag)
-                    {
-                        return cellMgr;
-                    }
-                }
-            }
-        }
-        return null;
+        return GetCellManagerAt(new GridCoord(x, z, layer));
     }
 }
 

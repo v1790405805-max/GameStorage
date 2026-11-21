@@ -11,6 +11,12 @@ public sealed class IncreaseDamegeAndWeakEffect : CardEffectCore
 
     public override bool Execute(CardData card, Vector2Int targetGrid)
     {
+        GridManager gridManager = Object.FindFirstObjectByType<GridManager>();
+        return Execute(card, CardTarget.FromGrid(gridManager, targetGrid));
+    }
+
+    public override bool Execute(CardData card, CardTarget target)
+    {
         if (!IsCounterStageActive())
         {
             return true;
@@ -23,20 +29,22 @@ public sealed class IncreaseDamegeAndWeakEffect : CardEffectCore
             return false;
         }
 
-        MonsterIdentityManager target =
-            PushEffect.FindMonsterAtGrid(gridManager, targetGrid);
-        if (target == null)
+        MonsterIdentityManager targetMonster =
+            target.Cell != null
+                ? PushEffect.FindMonsterInsideCell(gridManager, target.Cell)
+                : PushEffect.FindMonsterAtGrid(gridManager, target.Grid);
+        if (targetMonster == null)
         {
             Debug.LogWarning(
-                $"[IncreaseDamegeAndWeakEffect] 目标格 {targetGrid} 没有可作用的怪物。");
+                $"[IncreaseDamegeAndWeakEffect] 目标格 {target.Coord} 没有可作用的怪物。");
             return false;
         }
 
-        MonsterStats stats = target.GetComponentInChildren<MonsterStats>();
+        MonsterStats stats = targetMonster.GetComponentInChildren<MonsterStats>();
         if (stats == null)
         {
             Debug.LogWarning(
-                $"[IncreaseDamegeAndWeakEffect] 目标 [{target.name}] 缺少 MonsterStats。");
+                $"[IncreaseDamegeAndWeakEffect] 目标 [{targetMonster.name}] 缺少 MonsterStats。");
             return false;
         }
 
@@ -60,7 +68,7 @@ public sealed class IncreaseDamegeAndWeakEffect : CardEffectCore
 
         Debug.Log(
             $"[IncreaseDamegeAndWeakEffect] 反击伤害 +{CounterDamageBonus}，" +
-            $"目标 [{target.name}] 的 AttackBuff 变为 {stats.AttackBuff}。");
+            $"目标 [{targetMonster.name}] 的 AttackBuff 变为 {stats.AttackBuff}。");
         return true;
     }
 

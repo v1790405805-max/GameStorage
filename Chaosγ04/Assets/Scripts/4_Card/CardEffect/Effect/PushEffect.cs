@@ -59,7 +59,16 @@ public class PushEffect : CardEffectCore
 
     public override bool Execute(CardData card, Vector2Int targetGrid)
     {
-        return ResolvePush(card, targetGrid, applyBlockerDamage: true).isValid;
+        GridManager gridManager = Object.FindFirstObjectByType<GridManager>();
+        return ResolvePush(
+            card,
+            CardTarget.FromGrid(gridManager, targetGrid),
+            applyBlockerDamage: true).isValid;
+    }
+
+    public override bool Execute(CardData card, CardTarget target)
+    {
+        return ResolvePush(card, target, applyBlockerDamage: true).isValid;
     }
 
     /// <summary>
@@ -75,7 +84,22 @@ public class PushEffect : CardEffectCore
         bool applyBlockerDamage,
         bool dryRun = false)
     {
+        GridManager gridManager = Object.FindFirstObjectByType<GridManager>();
+        return ResolvePush(
+            card,
+            CardTarget.FromGrid(gridManager, targetGrid),
+            applyBlockerDamage,
+            dryRun);
+    }
+
+    public PushResult ResolvePush(
+        CardData card,
+        CardTarget target,
+        bool applyBlockerDamage,
+        bool dryRun = false)
+    {
         LastResult = default;
+        Vector2Int targetGrid = target.Grid;
 
         if (card == null || !card.effectFlags.HasFlag(CardEffectType.Attack))
         {
@@ -104,14 +128,17 @@ public class PushEffect : CardEffectCore
         }
 
         MonsterIdentityManager targetMonster =
-            FindMonsterAtGrid(gridManager, targetGrid, includeInactive: true);
+            target.Cell != null
+                ? FindMonsterInsideCell(gridManager, target.Cell, includeInactive: true)
+                : FindMonsterAtGrid(gridManager, targetGrid, includeInactive: true);
         if (targetMonster == null)
         {
             Debug.Log($"[PushEffect] No living enemy was found at target cell [{targetGrid}].");
             return LastResult;
         }
 
-        CellManager targetCell = FindCellContainingMonster(gridManager, targetMonster, targetGrid);
+        CellManager targetCell = target.Cell ??
+            FindCellContainingMonster(gridManager, targetMonster, targetGrid);
         if (targetCell == null)
         {
             Debug.LogWarning($"[PushEffect] Could not resolve the cell containing the target at [{targetGrid}].");
@@ -325,6 +352,48 @@ public class PushEffect : CardEffectCore
             {
                 return monster;
             }
+        }
+
+        return null;
+    }
+
+    internal static MonsterIdentityManager FindMonsterInsideCell(
+        GridManager gridManager,
+        CellManager cell,
+        bool includeInactive = false)
+    {
+        if (gridManager == null || cell == null)
+        {
+            return null;
+        }
+
+        foreach (MonsterIdentityManager monster in cell.GetMonstersInside())
+        {
+            if (monster != null && monster.gameObject.activeInHierarchy)
+            {
+                return monster;
+            }
+        }
+
+        if (!includeInactive)
+        {
+            return null;
+        }
+
+        MonsterIdentityManager[] monsters =
+            Object.FindObjectsByType<MonsterIdentityManager>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None);
+        foreach (MonsterIdentityManager monster in monsters)
+        {
+            if (monster == null ||
+                monster.gameObject.activeInHierarchy ||
+                gridManager.GetClosestCellAt(monster.transform.position) != cell)
+            {
+                continue;
+            }
+
+            return monster;
         }
 
         return null;

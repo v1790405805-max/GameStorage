@@ -177,6 +177,15 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
         SetPlayerOccupiedCell(FindClosestCellAt(gridPos.x, gridPos.y));
     }
 
+    public void SyncCellPosition(CellManager cell)
+    {
+        if (cell == null) return;
+
+        GridCoord coord = cell.Coord;
+        playerGridPos = new Vector2Int(coord.X, coord.Z);
+        SetPlayerOccupiedCell(cell);
+    }
+
     public Vector2Int SyncPlayerGridPositionFromTransform()
     {
         if (visualManager == null || visualManager.GridManager == null || playerTransform == null)
@@ -283,18 +292,31 @@ public class PlayerMoveController : MonoBehaviour, ITurnStateListener
     {
         if (visualManager == null || visualManager.GridManager == null) return;
 
-        CellManager startCell = visualManager.GridManager.GetCellManagerAt(playerGridPos.x, playerGridPos.y);
-        CellManager endCell = visualManager.GridManager.GetCellManagerAt(targetGrid.x, targetGrid.y);
+        CellManager targetCell =
+            visualManager.GridManager.GetCellManagerAt(targetGrid.x, targetGrid.y);
+        MoveToTargetCellByCard(targetCell);
+    }
 
-        if (startCell != null && endCell != null)
+    public void MoveToTargetCellByCard(CellManager targetCell)
+    {
+        if (visualManager == null || visualManager.GridManager == null) return;
+
+        CellManager startCell = playerOccupiedCell;
+        if (startCell == null)
+        {
+            startCell = visualManager.GridManager.GetClosestCellAt(playerTransform.position);
+        }
+
+        if (startCell != null && targetCell != null)
         {
             HideAllMovementPreviews();
             ClearActionPointPreview();
-            StartCoroutine(MovePlayerByCardRoutine(startCell, endCell));
+            StartCoroutine(MovePlayerByCardRoutine(startCell, targetCell));
         }
         else
         {
-            Debug.LogWarning($"[PlayerMoveController] 无法找到起始格 [{playerGridPos}] 或目标格 [{targetGrid}]");
+            Debug.LogWarning(
+                $"[PlayerMoveController] 无法找到起始格 [{playerGridPos}] 或目标格 [{targetCell?.Coord}]");
         }
     }
 

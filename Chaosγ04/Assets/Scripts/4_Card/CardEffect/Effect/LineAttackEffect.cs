@@ -12,13 +12,23 @@ public class LineAttackEffect : CardEffectCore
     public override bool Execute(CardData card, Vector2Int targetGrid)
     {
         GridManager gridManager = Object.FindFirstObjectByType<GridManager>();
+        return Execute(card, CardTarget.FromGrid(gridManager, targetGrid));
+    }
+
+    public override bool Execute(CardData card, CardTarget target)
+    {
+        GridManager gridManager = Object.FindFirstObjectByType<GridManager>();
         if (gridManager == null)
         {
             Debug.LogError("[LineAttackEffect] 未找到 GridManager。");
             return false;
         }
 
+        Vector2Int targetGrid = target.Grid;
         Vector2Int startGrid = new Vector2Int(-1, -1);
+        CellManager startCell = CardManager.Instance != null
+            ? CardManager.Instance.playStartCell
+            : null;
         if (CardManager.Instance != null)
             startGrid = CardManager.Instance.playStartGrid;
 
@@ -37,7 +47,31 @@ public class LineAttackEffect : CardEffectCore
             startGrid = new Vector2Int(px, pz);
         }
 
+        if (startCell == null)
+        {
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+            if (playerObj != null)
+            {
+                startCell = gridManager.GetClosestCellAt(playerObj.transform.position);
+            }
+        }
+        if (startCell != null)
+        {
+            startGrid = startCell.Coord.GridPosition;
+        }
+
         List<Vector2Int> lineCells = GetLineCells(targetGrid, startGrid);
+        int targetLayer = target.IsExact ? target.Layer : 1;
+        HashSet<CellManager> lineCellSet = new HashSet<CellManager>();
+        foreach (Vector2Int grid in lineCells)
+        {
+            CellManager lineCell =
+                PushEffect.ResolveLandingCell(gridManager, grid, targetLayer);
+            if (lineCell != null)
+            {
+                lineCellSet.Add(lineCell);
+            }
+        }
 
         if (MonsterIdentitySystem.Instance != null)
         {
@@ -51,8 +85,14 @@ public class LineAttackEffect : CardEffectCore
                 {
                     if (monster == null) continue;
 
-                    var (mx, mz) = gridManager.GetGridPosition(monster.transform.position);
-                    if (!lineCells.Contains(new Vector2Int(mx, mz))) continue;
+                    CellManager monsterCell =
+                        MonsterGridNavigation.FindMonsterCell(gridManager, monster);
+                    if (monsterCell == null)
+                    {
+                        monsterCell =
+                            gridManager.GetClosestCellAt(monster.transform.position);
+                    }
+                    if (monsterCell == null || !lineCellSet.Contains(monsterCell)) continue;
 
                     MonsterStats stats = monster.GetComponent<MonsterStats>();
                     if (stats != null)

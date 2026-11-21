@@ -128,7 +128,7 @@ public class TraceBackEffect : CardEffectCore
             animator.SetFloat("Vertical", originalVertical);
         }
 
-        moveController.SyncGridPosition(destinationGrid);
+        moveController.SyncCellPosition(destinationCell);
     }
 
     private static int ApplyCrossDamage(GridManager gridManager, Vector2Int centerGrid)

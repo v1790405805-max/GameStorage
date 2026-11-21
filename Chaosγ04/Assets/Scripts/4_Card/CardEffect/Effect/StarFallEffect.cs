@@ -38,6 +38,12 @@ public class StarFallEffect : CardEffectCore, ICardDragPreviewProvider
 
     public override bool CanPlay(CardData card, Vector2Int targetGrid)
     {
+        GridManager gridManager = Object.FindFirstObjectByType<GridManager>();
+        return CanPlay(card, CardTarget.FromGrid(gridManager, targetGrid));
+    }
+
+    public override bool CanPlay(CardData card, CardTarget target)
+    {
         if (card == null || !card.effectFlags.HasFlag(CardEffectType.Attack))
         {
             return false;
@@ -51,7 +57,7 @@ public class StarFallEffect : CardEffectCore, ICardDragPreviewProvider
 
         // Hovering the player's own cell has no monster; that is not a real cast, so it must
         // not turn the card red.
-        if (!TryGetContext(gridManager, targetGrid, out StarFallContext context))
+        if (!TryGetContext(gridManager, target, out StarFallContext context))
         {
             return true;
         }
@@ -73,12 +79,13 @@ public class StarFallEffect : CardEffectCore, ICardDragPreviewProvider
     public bool TryGetDragPreview(
         GridManager gridManager,
         CardData card,
-        Vector2Int targetGrid,
+        CardTarget target,
         out CardDragPreview preview)
     {
         preview = default;
+        Vector2Int targetGrid = target.Grid;
 
-        if (!TryGetPreview(gridManager, card, targetGrid, out StarFallPreview starFall))
+        if (!TryGetPreview(gridManager, card, target, out StarFallPreview starFall))
         {
             return false;
         }
@@ -111,7 +118,7 @@ public class StarFallEffect : CardEffectCore, ICardDragPreviewProvider
     public static bool TryGetPreview(
         GridManager gridManager,
         CardData card,
-        Vector2Int targetGrid,
+        CardTarget target,
         out StarFallPreview preview)
     {
         preview = default;
@@ -121,7 +128,8 @@ public class StarFallEffect : CardEffectCore, ICardDragPreviewProvider
             return false;
         }
 
-        if (!TryGetContext(gridManager, targetGrid, out StarFallContext context))
+        Vector2Int targetGrid = target.Grid;
+        if (!TryGetContext(gridManager, target, out StarFallContext context))
         {
             return false;
         }
@@ -134,7 +142,7 @@ public class StarFallEffect : CardEffectCore, ICardDragPreviewProvider
 
         PushEffect push = ScriptableObject.CreateInstance<PushEffect>();
         PushEffect.PushResult result =
-            push.ResolvePush(card, targetGrid, applyBlockerDamage: false, dryRun: true);
+            push.ResolvePush(card, target, applyBlockerDamage: false, dryRun: true);
         Object.Destroy(push);
 
         if (!result.isValid)
@@ -175,6 +183,12 @@ public class StarFallEffect : CardEffectCore, ICardDragPreviewProvider
 
     public override bool Execute(CardData card, Vector2Int targetGrid)
     {
+        GridManager gridManager = Object.FindFirstObjectByType<GridManager>();
+        return Execute(card, CardTarget.FromGrid(gridManager, targetGrid));
+    }
+
+    public override bool Execute(CardData card, CardTarget target)
+    {
         if (card == null || !card.effectFlags.HasFlag(CardEffectType.Attack))
         {
             Debug.LogWarning("[StarFallEffect] The card is not configured as an attack.");
@@ -188,9 +202,9 @@ public class StarFallEffect : CardEffectCore, ICardDragPreviewProvider
             return false;
         }
 
-        if (!TryGetContext(gridManager, targetGrid, out StarFallContext context))
+        if (!TryGetContext(gridManager, target, out StarFallContext context))
         {
-            Debug.Log($"[StarFallEffect] No enemy was found at target cell [{targetGrid}].");
+            Debug.Log($"[StarFallEffect] No enemy was found at target cell [{target.Coord}].");
             return false;
         }
 
@@ -204,7 +218,7 @@ public class StarFallEffect : CardEffectCore, ICardDragPreviewProvider
 
         // Height advantage: push the monster, then damage the cross centred on its old cell.
         PushEffect push = ScriptableObject.CreateInstance<PushEffect>();
-        PushEffect.PushResult result = push.ResolvePush(card, context.targetGrid, applyBlockerDamage: false);
+        PushEffect.PushResult result = push.ResolvePush(card, target, applyBlockerDamage: false);
         Object.Destroy(push);
 
         // Consume the shared result so a later card cannot read a stale push outcome.
@@ -223,7 +237,12 @@ public class StarFallEffect : CardEffectCore, ICardDragPreviewProvider
             MovePlayerToCell(gridManager, context.targetCell, context.targetGrid);
         }
 
-        ApplyCrossDamage(gridManager, context.targetGrid, context.monster, card.damage);
+        ApplyCrossDamage(
+            gridManager,
+            context.targetGrid,
+            context.targetLayer,
+            context.monster,
+            card.damage);
         return true;
     }
 
@@ -370,10 +389,20 @@ public class StarFallEffect : CardEffectCore, ICardDragPreviewProvider
     private static void ApplyCrossDamage(
         GridManager gridManager,
         Vector2Int centerGrid,
+        int centerLayer,
         MonsterIdentityManager target,
         int baseAttackDamage)
     {
-        HashSet<Vector2Int> crossGrids = GetCrossGrids(centerGrid, CrossRadius);
+        HashSet<CellManager> crossCells = new HashSet<CellManager>();
+        foreach (Vector2Int grid in GetCrossGrids(centerGrid, CrossRadius))
+        {
+            CellManager cell = PushEffect.ResolveLandingCell(gridManager, grid, centerLayer);
+            if (cell != null)
+            {
+                crossCells.Add(cell);
+            }
+        }
+
         int targetDamage = Mathf.Max(0, CrossDamage - baseAttackDamage);
 
         // Damage lands on the attack animation's hit frame, like the other attack effects.
@@ -394,8 +423,14 @@ public class StarFallEffect : CardEffectCore, ICardDragPreviewProvider
                     continue;
                 }
 
-                var (mx, mz) = gridManager.GetGridPosition(monster.transform.position);
-                if (!crossGrids.Contains(new Vector2Int(mx, mz)))
+                CellManager monsterCell =
+                    MonsterGridNavigation.FindMonsterCell(gridManager, monster);
+                if (monsterCell == null)
+                {
+                    monsterCell =
+                        gridManager.GetClosestCellAt(monster.transform.position);
+                }
+                if (monsterCell == null || !crossCells.Contains(monsterCell))
                 {
                     continue;
                 }
@@ -442,19 +477,23 @@ public class StarFallEffect : CardEffectCore, ICardDragPreviewProvider
 
     private static bool TryGetContext(
         GridManager gridManager,
-        Vector2Int targetGrid,
+        CardTarget target,
         out StarFallContext context)
     {
         context = default;
+        Vector2Int targetGrid = target.Grid;
 
         MonsterIdentityManager monster =
-            PushEffect.FindMonsterAtGrid(gridManager, targetGrid, includeInactive: true);
+            target.Cell != null
+                ? PushEffect.FindMonsterInsideCell(gridManager, target.Cell, includeInactive: true)
+                : PushEffect.FindMonsterAtGrid(gridManager, targetGrid, includeInactive: true);
         if (monster == null)
         {
             return false;
         }
 
-        CellManager targetCell = PushEffect.FindCellContainingMonster(gridManager, monster, targetGrid);
+        CellManager targetCell = target.Cell ??
+            PushEffect.FindCellContainingMonster(gridManager, monster, targetGrid);
         if (targetCell == null)
         {
             return false;
@@ -550,7 +589,7 @@ public class StarFallEffect : CardEffectCore, ICardDragPreviewProvider
         PlayerMoveController moveController = Object.FindFirstObjectByType<PlayerMoveController>();
         if (moveController != null)
         {
-            moveController.SyncGridPosition(targetGrid);
+            moveController.SyncCellPosition(targetCell);
         }
     }
 }

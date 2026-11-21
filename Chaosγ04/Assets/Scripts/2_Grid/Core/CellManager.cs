@@ -22,6 +22,16 @@ public class CellManager : MonoBehaviour
     public static event Action<CellManager> PlayerEntered;
     public static event Action<CellManager, MonsterIdentityManager> MonsterEntered;
 
+    [HideInInspector][SerializeField] private int gridX = -1;
+    [HideInInspector][SerializeField] private int gridZ = -1;
+    [HideInInspector][SerializeField] private int gridLayer;
+
+    /// <summary>
+    /// Stable logical identity of this concrete cell.
+    /// </summary>
+    public GridCoord Coord => new GridCoord(gridX, gridZ, gridLayer);
+    public bool HasGridCoord => gridX >= 0 && gridZ >= 0;
+
     [Header("格子通行状态")]
     [Tooltip("普通：玩家与怪物均可通行。水面：玩家与普通怪物禁入，可通过水面的怪物可通行，并显示水面颜色。" +
              "墙面：所有单位禁入，并显示墙面颜色。真正锁死：所有单位禁入、不可选、无悬停，并恢复为全透明显示。")]
@@ -77,6 +87,13 @@ public class CellManager : MonoBehaviour
     public int fontSize = 8;
 
     private MeshRenderer meshRenderer;
+
+    public void SetGridCoord(GridCoord coord)
+    {
+        gridX = coord.X;
+        gridZ = coord.Z;
+        gridLayer = coord.Layer;
+    }
 
     // 缓存 4 条边的 LineRenderer 引用：0:左(Left), 1:右(Right), 2:上(Up), 3:下(Down)
     [HideInInspector][SerializeField] private LineRenderer[] lineRenderers = new LineRenderer[4];

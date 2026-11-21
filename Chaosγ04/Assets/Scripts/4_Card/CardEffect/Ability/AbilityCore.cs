@@ -20,6 +20,11 @@ public abstract class AbilityCore : CardEffectCore
         return true;
     }
 
+    public sealed override bool Execute(CardData card, CardTarget target)
+    {
+        return true;
+    }
+
     public static void BeginCombat()
     {
         EndCombat();
@@ -121,11 +126,18 @@ public abstract class AbilityCore : CardEffectCore
 
     public static void NotifyCardPlayed(CardData playedCard, Vector2Int targetGrid)
     {
+        GridManager gridManager =
+            UnityEngine.Object.FindFirstObjectByType<GridManager>();
+        NotifyCardPlayed(playedCard, CardTarget.FromGrid(gridManager, targetGrid));
+    }
+
+    public static void NotifyCardPlayed(CardData playedCard, CardTarget target)
+    {
         foreach (AbilityCore ability in SnapshotActiveAbilities())
         {
             if (ability != null)
             {
-                ability.OnCardPlayed(playedCard, targetGrid);
+                ability.OnCardPlayed(playedCard, target);
             }
         }
     }
@@ -234,6 +246,11 @@ public abstract class AbilityCore : CardEffectCore
     public virtual void OnEnemyTurnStarted() { }
 
     public virtual void OnCardPlayed(CardData playedCard, Vector2Int targetGrid) { }
+
+    public virtual void OnCardPlayed(CardData playedCard, CardTarget target)
+    {
+        OnCardPlayed(playedCard, target.Grid);
+    }
 
     /// <summary>
     /// 默认不允许经过原本被阻挡的格子，由移动类能力按需覆盖。

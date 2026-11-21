@@ -14,6 +14,12 @@ public class TeleportEffect : CardEffectCore
     public override bool Execute(CardData card, Vector2Int targetGrid)
     {
         GridManager gridManager = Object.FindFirstObjectByType<GridManager>();
+        return Execute(card, CardTarget.FromGrid(gridManager, targetGrid));
+    }
+
+    public override bool Execute(CardData card, CardTarget target)
+    {
+        GridManager gridManager = Object.FindFirstObjectByType<GridManager>();
         if (gridManager == null)
         {
             Debug.LogError("[TeleportEffect] 传送失败：未找到 GridManager。");
@@ -27,16 +33,21 @@ public class TeleportEffect : CardEffectCore
             return false;
         }
 
-        CellManager targetCell = gridManager.GetCellManagerAt(targetGrid.x, targetGrid.y);
+        CellManager targetCell = target.Cell;
+        if (targetCell == null && target.Coord.IsValid)
+        {
+            targetCell = gridManager.GetCellManagerAt(target.Coord);
+        }
+
         if (targetCell == null)
         {
-            Debug.LogWarning($"[TeleportEffect] 传送失败：目标格 [{targetGrid}] 无效。");
+            Debug.LogWarning($"[TeleportEffect] 传送失败：目标格 [{target.Coord}] 无效。");
             return false;
         }
 
         if (targetCell.BlocksPlayer)
         {
-            Debug.LogWarning($"[TeleportEffect] 传送失败：目标格 [{targetGrid}] 不可作为玩家落点。");
+            Debug.LogWarning($"[TeleportEffect] 传送失败：目标格 [{targetCell.Coord}] 不可作为玩家落点。");
             return false;
         }
 
@@ -51,10 +62,10 @@ public class TeleportEffect : CardEffectCore
         PlayerMoveController moveController = Object.FindFirstObjectByType<PlayerMoveController>();
         if (moveController != null)
         {
-            moveController.SyncGridPosition(targetGrid);
+            moveController.SyncCellPosition(targetCell);
         }
 
-        Debug.Log($"[TeleportEffect] 玩家已成功传送至格点: {targetGrid}");
+        Debug.Log($"[TeleportEffect] 玩家已成功传送至格点: {targetCell.Coord}");
         return true;
     }
 }

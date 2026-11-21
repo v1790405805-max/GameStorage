@@ -44,6 +44,8 @@ public class CardManager : MonoBehaviour
 
     [Tooltip("玩家打出当前卡牌前的起始格（在位移效果执行前记录，供直线类效果读取）")]
     public Vector2Int playStartGrid = new Vector2Int(-1, -1);
+    /// <summary>Exact cell occupied before this card starts resolving.</summary>
+    public CellManager playStartCell { get; private set; }
 
     public event Action<int, int> OnPileCountChanged;
 
@@ -322,10 +324,16 @@ public class CardManager : MonoBehaviour
     public void PlayCard(
         CardData card,
         GameObject cardUIObj,
-        Vector2Int targetGrid,
-        IReadOnlyCollection<Vector2Int> castTargetGrids = null)
+        CardTarget target,
+        IReadOnlyCollection<CellManager> castTargetCells = null)
     {
         if (card == null || IsDealingCards) return;
+
+        GridManager gridManager = FindFirstObjectByType<GridManager>();
+        if (!target.IsExact && target.Coord.IsValid && gridManager != null)
+        {
+            target = CardTarget.FromCoord(gridManager, target.Coord);
+        }
 
         // 反击时间中不得绕过 UI 使用非反击卡，也不得在同一窗口使用第二张卡。
         CounterTimeManager counterTimeManager = CounterTimeManager.Instance;
@@ -353,9 +361,9 @@ public class CardManager : MonoBehaviour
         bool cardHasAbility = AbilityCore.HasAbilityEffect(card);
 
         // 卡牌表现由动画与特效系统协同调度
-        CardAnimationCore.PlayAll(card, targetGrid);
-        CardVFXCore.PlayAll(card, targetGrid);
-        AbilityCore.NotifyCardPlayed(card, targetGrid);
+        CardAnimationCore.PlayAll(card, target.Grid);
+        CardVFXCore.PlayAll(card, target.Grid);
+        AbilityCore.NotifyCardPlayed(card, target);
 
         for (int repetition = 0; repetition < repeatCount; repetition++)
         {
@@ -365,7 +373,9 @@ public class CardManager : MonoBehaviour
             }
 
             playStartGrid = GetPlayerGridPosition();
-            ResolveCardEffects(card, targetGrid, castTargetGrids, hasExtraEffects);
+            PlayerMoveController moveController = FindFirstObjectByType<PlayerMoveController>();
+            playStartCell = moveController != null ? moveController.PlayerOccupiedCell : null;
+            ResolveCardEffects(card, target, castTargetCells, hasExtraEffects);
         }
 
         // 从手牌数据中移除
@@ -405,8 +415,8 @@ public class CardManager : MonoBehaviour
 
     private void ResolveCardEffects(
         CardData card,
-        Vector2Int targetGrid,
-        IReadOnlyCollection<Vector2Int> castTargetGrids,
+        CardTarget target,
+        IReadOnlyCollection<CellManager> castTargetCells,
         bool hasExtraEffects)
     {
         CombatStatsManager combatStats = CombatStatsManager.Instance;
@@ -417,21 +427,32 @@ public class CardManager : MonoBehaviour
             PlayerMoveController moveController = FindFirstObjectByType<PlayerMoveController>();
             if (moveController != null)
             {
-                moveController.MoveToTargetGridByCard(targetGrid);
+                if (target.Cell != null)
+                {
+                    moveController.MoveToTargetCellByCard(target.Cell);
+                }
+                else
+                {
+                    moveController.MoveToTargetGridByCard(target.Grid);
+                }
             }
         }
 
         // 2. 攻击效果（动画击中帧兑现扣血与受击爆点）
         if (card.effectFlags.HasFlag(CardEffectType.Attack))
         {
-            HashSet<Vector2Int> attackTargetGrids =
-                castTargetGrids != null && castTargetGrids.Count > 0
-                    ? new HashSet<Vector2Int>(castTargetGrids)
-                    : new HashSet<Vector2Int> { targetGrid };
-
             GridManager gridMgr = FindFirstObjectByType<GridManager>();
             if (gridMgr != null && MonsterIdentitySystem.Instance != null)
             {
+                HashSet<CellManager> attackTargetCells =
+                    castTargetCells != null && castTargetCells.Count > 0
+                        ? new HashSet<CellManager>(castTargetCells)
+                        : new HashSet<CellManager>();
+                if (attackTargetCells.Count == 0 && target.Cell != null)
+                {
+                    attackTargetCells.Add(target.Cell);
+                }
+
                 List<MonsterIdentityManager> monsters =
                     new List<MonsterIdentityManager>(MonsterIdentitySystem.Instance.GetAllMonsters());
 
@@ -442,20 +463,25 @@ public class CardManager : MonoBehaviour
                     {
                         if (monster == null) continue;
 
-                        var (mx, mz) = gridMgr.GetGridPosition(monster.transform.position);
-                        if (attackTargetGrids.Contains(new Vector2Int(mx, mz)))
+                        CellManager monsterCell =
+                            MonsterGridNavigation.FindMonsterCell(gridMgr, monster);
+                        if (monsterCell == null)
                         {
-                            // 扣血并触发怪物自身平滑闪红
-                            MonsterStats stats = monster.GetComponent<MonsterStats>();
-                            if (stats != null) stats.TakeDamage(card.damage);
+                            monsterCell =
+                                gridMgr.GetClosestCellAt(monster.transform.position);
+                        }
+                        if (monsterCell == null || !attackTargetCells.Contains(monsterCell)) continue;
 
-                            // 👉 根据当前打出的卡牌，在怪物胸口生成专属爆点特效
-                            if (card.hitVFXPrefab != null)
-                            {
-                                Vector3 spawnPos = monster.transform.position + card.hitVFXOffset;
-                                GameObject vfx = Instantiate(card.hitVFXPrefab, spawnPos, Quaternion.identity);
-                                Destroy(vfx, 0.5f);
-                            }
+                        // 扣血并触发怪物自身平滑闪红
+                        MonsterStats stats = monster.GetComponent<MonsterStats>();
+                        if (stats != null) stats.TakeDamage(card.damage);
+
+                        // 👉 根据当前打出的卡牌，在怪物胸口生成专属爆点特效
+                        if (card.hitVFXPrefab != null)
+                        {
+                            Vector3 spawnPos = monster.transform.position + card.hitVFXOffset;
+                            GameObject vfx = Instantiate(card.hitVFXPrefab, spawnPos, Quaternion.identity);
+                            Destroy(vfx, 0.5f);
                         }
                     }
                 });
@@ -528,7 +554,7 @@ public class CardManager : MonoBehaviour
             CardEffectCore instance = ScriptableObject.CreateInstance(effectType) as CardEffectCore;
             if (instance == null) continue;
 
-            bool success = instance.Execute(card, targetGrid);
+            bool success = instance.Execute(card, target);
             Destroy(instance);
 
             if (!success)

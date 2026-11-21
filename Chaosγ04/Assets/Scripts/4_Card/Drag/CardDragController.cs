@@ -33,8 +33,7 @@ public class CardDragController : MonoBehaviour
     private readonly HashSet<CellManager> currentValidEntityTargets = new HashSet<CellManager>();
 
     // 额外效果提供的拖拽预览状态（与具体卡牌无关，见 ICardDragPreviewProvider）。
-    private static readonly Vector2Int NoEffectPreviewTarget = new Vector2Int(int.MinValue, int.MinValue);
-    private Vector2Int effectPreviewTargetGrid = new Vector2Int(int.MinValue, int.MinValue);
+    private GridCoord effectPreviewTargetCoord = GridCoord.Invalid;
     private readonly List<CellManager> effectPreviewCells = new List<CellManager>();
     private GridStyleData effectPreviewStyle;
     private MonsterIdentityManager effectPreviewMonster;
@@ -227,8 +226,9 @@ public class CardDragController : MonoBehaviour
         Vector2Int releaseGrid = releaseCell != null
             ? new Vector2Int(gridManager.GetCellGridPosition(releaseCell).x, gridManager.GetCellGridPosition(releaseCell).z)
             : new Vector2Int(-1, -1);
+        CardTarget releaseTarget = CardTarget.FromCell(releaseCell);
         bool isValidDrop = false;
-        HashSet<Vector2Int> castTargetGrids = null;
+        HashSet<CellManager> castTargetCells = null;
 
         switch (data.targetSelectMode)
         {
@@ -249,15 +249,15 @@ public class CardDragController : MonoBehaviour
                 break;
 
             case TargetSelectMode.Aoe:
-                castTargetGrids = GetCurrentHighlightedTargetGrids();
+                castTargetCells = new HashSet<CellManager>(CurrentHighlightedGrids);
                 isValidDrop = releaseCell != null && CurrentHighlightedGrids.Contains(releaseCell);
                 break;
 
             case TargetSelectMode.AQuarterCircle:
-                castTargetGrids = GetQuarterCircleTargetGrids(releaseGrid);
+                castTargetCells = GetQuarterCircleTargetCells(releaseGrid);
                 isValidDrop = releaseCell != null
                     && CurrentHighlightedGrids.Contains(releaseCell)
-                    && castTargetGrids.Contains(releaseGrid);
+                    && castTargetCells.Contains(releaseCell);
                 break;
         }
 
@@ -278,7 +278,7 @@ public class CardDragController : MonoBehaviour
             return;
         }
 
-        if (!CardEffectCore.CanPlayAll(data, releaseGrid))
+        if (!CardEffectCore.CanPlayAll(data, releaseTarget))
         {
             Debug.Log($"[CardDragController] 卡牌 [{data.cardName}] 的额外效果不允许在当前状态使用，取消出牌。");
             OnCardDragEnd();
@@ -293,7 +293,7 @@ public class CardDragController : MonoBehaviour
 
         if (CardManager.Instance != null)
         {
-            CardManager.Instance.PlayCard(data, cardUI.gameObject, releaseGrid, castTargetGrids);
+            CardManager.Instance.PlayCard(data, cardUI.gameObject, releaseTarget, castTargetCells);
             if (movementController != null)
                 movementController.HideCardMovementPreview(this);
         }
@@ -404,11 +404,10 @@ public class CardDragController : MonoBehaviour
             return;
         }
 
-        var (targetX, targetZ) = gridManager.GetCellGridPosition(hoveredCell);
-        Vector2Int targetGrid = new Vector2Int(targetX, targetZ);
+        CardTarget target = CardTarget.FromCell(hoveredCell);
 
         // 效果预览可能假设性移动怪物，每帧重算会和它互相打架，因此只在悬停目标格变化时重新求值。
-        if (targetGrid == effectPreviewTargetGrid)
+        if (target.Coord == effectPreviewTargetCoord)
         {
             RefreshEffectPreviewHighlight();
             return;
@@ -421,13 +420,13 @@ public class CardDragController : MonoBehaviour
             IsValidTargetCell(hoveredCell, currentDraggingCard);
 
         if (!isCandidate ||
-            !TryBuildEffectDragPreview(currentDraggingCard, targetGrid, out CardDragPreview preview))
+            !TryBuildEffectDragPreview(currentDraggingCard, target, out CardDragPreview preview))
         {
             return;
         }
 
         ApplyEffectDragPreview(preview);
-        effectPreviewTargetGrid = targetGrid;
+        effectPreviewTargetCoord = target.Coord;
     }
 
     private void ApplyEffectDragPreview(CardDragPreview preview)
@@ -478,7 +477,7 @@ public class CardDragController : MonoBehaviour
 
     private void ClearEffectDragPreview()
     {
-        effectPreviewTargetGrid = NoEffectPreviewTarget;
+        effectPreviewTargetCoord = GridCoord.Invalid;
 
         if (movementController != null)
         {
@@ -531,7 +530,7 @@ public class CardDragController : MonoBehaviour
 
     private bool TryBuildEffectDragPreview(
         CardData card,
-        Vector2Int targetGrid,
+        CardTarget target,
         out CardDragPreview preview)
     {
         preview = default;
@@ -557,7 +556,7 @@ public class CardDragController : MonoBehaviour
 
             ScriptableObject instance = ScriptableObject.CreateInstance(effectType);
             bool found = instance is ICardDragPreviewProvider provider &&
-                         provider.TryGetDragPreview(gridManager, card, targetGrid, out preview);
+                         provider.TryGetDragPreview(gridManager, card, target, out preview);
             Destroy(instance);
 
             if (found)
@@ -680,42 +679,16 @@ public class CardDragController : MonoBehaviour
             blockByWater: false);
     }
 
-    private HashSet<Vector2Int> GetQuarterCircleTargetGrids(Vector2Int hoverGrid)
+    private HashSet<CellManager> GetQuarterCircleTargetCells(Vector2Int hoverGrid)
     {
-        HashSet<Vector2Int> result = new HashSet<Vector2Int>();
-        if (gridManager == null || hoverGrid.x < 0 || hoverGrid.y < 0) return result;
+        if (gridManager == null || hoverGrid.x < 0 || hoverGrid.y < 0)
+            return new HashSet<CellManager>();
 
-        HashSet<CellManager> quarterCircleCells = RangeSystem.GetQuarterCircleTargetCells(
+        return RangeSystem.GetQuarterCircleTargetCells(
             CurrentHighlightedGrids,
             playerGridPos,
             hoverGrid,
             gridManager);
-
-        foreach (CellManager cell in quarterCircleCells)
-        {
-            if (cell == null) continue;
-
-            var (cellX, cellZ) = gridManager.GetCellGridPosition(cell);
-            result.Add(new Vector2Int(cellX, cellZ));
-        }
-
-        return result;
-    }
-
-    private HashSet<Vector2Int> GetCurrentHighlightedTargetGrids()
-    {
-        HashSet<Vector2Int> result = new HashSet<Vector2Int>();
-        if (gridManager == null) return result;
-
-        foreach (CellManager cell in CurrentHighlightedGrids)
-        {
-            if (cell == null) continue;
-
-            var (cellX, cellZ) = gridManager.GetCellGridPosition(cell);
-            result.Add(new Vector2Int(cellX, cellZ));
-        }
-
-        return result;
     }
 
     public void ClearRangeHighlight()

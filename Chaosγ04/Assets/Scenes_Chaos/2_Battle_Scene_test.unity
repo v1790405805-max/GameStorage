@@ -582,6 +582,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 13
+  gridZ: 11
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -1479,6 +1482,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 10
+  gridZ: 8
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -1605,6 +1611,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 13
+  gridZ: 1
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -4191,6 +4200,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 13
+  gridZ: 8
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -5435,6 +5447,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 2
+  gridZ: 12
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -6525,6 +6540,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 4
+  gridZ: 13
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -9188,6 +9206,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 9
+  gridZ: 1
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -9629,6 +9650,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 8
+  gridZ: 3
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -11642,6 +11666,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 12
+  gridZ: 3
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -13195,6 +13222,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 13
+  gridZ: 5
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -14644,6 +14674,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 0
+  gridZ: 4
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -19010,6 +19043,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 2
+  gridZ: 1
+  gridLayer: 2
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -19361,6 +19397,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 0
+  gridZ: 13
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -19688,6 +19727,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 7
+  gridZ: 13
+  gridLayer: 3
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -19810,6 +19852,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 2
+  gridZ: 3
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -21121,6 +21166,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 13
+  gridZ: 2
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -21704,6 +21752,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 6
+  gridZ: 6
+  gridLayer: 3
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -22609,6 +22660,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 11
+  gridZ: 14
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -23029,6 +23083,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 9
+  gridZ: 1
+  gridLayer: 4
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -24377,6 +24434,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 3
+  gridZ: 5
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -25679,6 +25739,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 12
+  gridZ: 9
+  gridLayer: 2
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -25956,6 +26019,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 2
+  gridZ: 14
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -28670,6 +28736,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 8
+  gridZ: 5
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -29525,6 +29594,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 8
+  gridZ: 11
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -31134,6 +31206,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 0
+  gridZ: 7
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -31516,6 +31591,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 4
+  gridZ: 2
+  gridLayer: 3
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -31720,6 +31798,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 6
+  gridZ: 5
+  gridLayer: 3
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -31846,6 +31927,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 13
+  gridZ: 10
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -32164,6 +32248,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 9
+  gridZ: 7
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -34441,6 +34528,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 12
+  gridZ: 1
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -38830,6 +38920,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 1
+  gridZ: 1
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -39788,6 +39881,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 3
+  gridZ: 4
+  gridLayer: 2
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -40116,6 +40212,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 7
+  gridZ: 9
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -40471,6 +40570,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 6
+  gridZ: 10
+  gridLayer: 3
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -41872,6 +41974,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 7
+  gridZ: 5
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -42841,6 +42946,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 5
+  gridZ: 12
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -46735,6 +46843,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 4
+  gridZ: 14
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -46857,6 +46968,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 10
+  gridZ: 2
+  gridLayer: 4
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -46983,6 +47097,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 8
+  gridZ: 0
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -48889,10 +49006,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterActionManager
   startDelay: 0.2
+  noActionHoldDuration: 2
   actionSequence:
   - action: {fileID: 384918153}
   - action: {fileID: 384918150}
   - action: {fileID: 384918148}
+  autoCreateCombatPlanner: 1
 --- !u!114 &384918148
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -48906,15 +49025,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackAction
   postActionDelay: 0.5
+  attackDamage: 1
+  rangeType: 2
+  attackRange: 1
+  targetSelectMode: 0
   gridManager: {fileID: 1996419300}
   visualManager: {fileID: 0}
+  attackGridStyle: {fileID: 11400000, guid: 0b45acbeab0cb6a4db5f7f7f1a570c25, type: 2}
   monsterAnimator: {fileID: 3143698802893842853}
   attackTriggerName: Attack
-  attackGridStyle: {fileID: 11400000, guid: 0b45acbeab0cb6a4db5f7f7f1a570c25, type: 2}
   targetWarningDuration: 0.05
   targetConfirmedDuration: 0.3
-  hitDelayFallback: 0.35
-  postAttackDuration: 0.25
+  damageApplyDelay: 0.35
+  postDamageDelay: 0.25
   counterCardPresentationDelay: 0.4
 --- !u!4 &384918149
 Transform:
@@ -48969,8 +49092,7 @@ MonoBehaviour:
   currentHp: 0
   currentArmor: 0
   mobility: 2
-  attackRange: 1
-  attackDamage: 12
+  attackBuff: 0
 --- !u!114 &384918152
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -49312,6 +49434,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 9
+  gridZ: 11
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -52396,6 +52521,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 13
+  gridZ: 9
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -54299,6 +54427,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 12
+  gridZ: 6
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -54658,6 +54789,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 7
+  gridZ: 10
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -56520,6 +56654,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 6
+  gridZ: 14
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -57008,6 +57145,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 5
+  gridZ: 2
+  gridLayer: 3
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -57981,6 +58121,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 13
+  gridZ: 0
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -58108,6 +58251,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 2
+  gridZ: 11
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -58762,6 +58908,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 10
+  gridZ: 11
+  gridLayer: 3
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -63235,6 +63384,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 12
+  gridZ: 2
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -63728,6 +63880,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 0
+  gridZ: 8
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -64042,6 +64197,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 11
+  gridZ: 4
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -64850,6 +65008,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 1
+  gridZ: 3
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -65168,6 +65329,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 11
+  gridZ: 13
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -66161,6 +66325,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 8
+  gridZ: 1
+  gridLayer: 4
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -67090,6 +67257,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 9
+  gridZ: 9
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -68139,6 +68309,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 0
+  gridZ: 14
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -69140,6 +69313,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 0
+  gridZ: 5
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -71012,6 +71188,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 12
+  gridZ: 11
+  gridLayer: 4
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -71138,6 +71317,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 11
+  gridZ: 7
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -71764,11 +71946,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterActionManager
   startDelay: 0.2
+  noActionHoldDuration: 2
   actionSequence:
   - action: {fileID: 556471853}
   - action: {fileID: 556471854}
   - action: {fileID: 556471849}
   - action: {fileID: 556471847}
+  autoCreateCombatPlanner: 1
 --- !u!114 &556471847
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -71782,15 +71966,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackAction
   postActionDelay: 0.5
+  attackDamage: 1
+  rangeType: 2
+  attackRange: 1
+  targetSelectMode: 0
   gridManager: {fileID: 1996419300}
   visualManager: {fileID: 0}
+  attackGridStyle: {fileID: 11400000, guid: 0b45acbeab0cb6a4db5f7f7f1a570c25, type: 2}
   monsterAnimator: {fileID: 7080626493093617588}
   attackTriggerName: Tear
-  attackGridStyle: {fileID: 11400000, guid: 0b45acbeab0cb6a4db5f7f7f1a570c25, type: 2}
   targetWarningDuration: 0.05
   targetConfirmedDuration: 0.3
-  hitDelayFallback: 0.35
-  postAttackDuration: 0.25
+  damageApplyDelay: 0.35
+  postDamageDelay: 0.25
   counterCardPresentationDelay: 0.4
 --- !u!4 &556471848
 Transform:
@@ -71846,8 +72034,7 @@ MonoBehaviour:
   currentHp: 0
   currentArmor: 0
   mobility: 3
-  attackRange: 1
-  attackDamage: 10
+  attackBuff: 0
 --- !u!114 &556471851
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -72278,6 +72465,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 7
+  gridZ: 0
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -72784,6 +72974,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 2
+  gridZ: 7
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -73293,6 +73486,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 10
+  gridZ: 5
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -73460,6 +73656,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 5
+  gridZ: 6
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -75185,6 +75384,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 1
+  gridZ: 4
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -76208,6 +76410,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 8
+  gridZ: 7
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -76697,6 +76902,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 6
+  gridZ: 13
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -77131,6 +77339,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 11
+  gridZ: 2
+  gridLayer: 4
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -78246,6 +78457,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 2
+  gridZ: 4
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -78728,6 +78942,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 6
+  gridZ: 8
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -79001,6 +79218,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 3
+  gridZ: 3
+  gridLayer: 2
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -79783,6 +80003,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 7
+  gridZ: 2
+  gridLayer: 4
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -79985,6 +80208,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 2
+  gridZ: 0
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -81857,6 +82083,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 2
+  gridZ: 2
+  gridLayer: 2
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -84045,6 +84274,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 1
+  gridZ: 14
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -85833,6 +86065,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 1
+  gridZ: 5
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -88712,6 +88947,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 0
+  gridZ: 6
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -90418,6 +90656,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 2
+  gridZ: 6
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -92840,6 +93081,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 11
+  gridZ: 11
+  gridLayer: 3
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -93117,6 +93361,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 11
+  gridZ: 2
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -93390,6 +93637,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 1
+  gridZ: 2
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -93776,6 +94026,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 3
+  gridZ: 9
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -95842,6 +96095,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 11
+  gridZ: 1
+  gridLayer: 4
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -98589,6 +98845,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 11
+  gridZ: 8
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -99399,6 +99658,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 10
+  gridZ: 13
+  gridLayer: 3
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -99562,6 +99824,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 1
+  gridZ: 8
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -99688,6 +99953,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 9
+  gridZ: 4
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -99814,6 +100082,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 9
+  gridZ: 8
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -101621,6 +101892,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 11
+  gridZ: 0
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -102391,6 +102665,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 3
+  gridZ: 14
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -102681,6 +102958,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 12
+  gridZ: 7
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -103225,6 +103505,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 7
+  gridZ: 13
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -103663,6 +103946,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 1
+  gridZ: 0
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -104631,6 +104917,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 3
+  gridZ: 12
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -106711,6 +107000,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 9
+  gridZ: 10
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -107600,6 +107892,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 0
+  gridZ: 12
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -108653,6 +108948,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 1
+  gridZ: 13
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -110785,6 +111083,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 6
+  gridZ: 12
+  gridLayer: 3
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -110907,6 +111208,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 6
+  gridZ: 1
+  gridLayer: 4
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -115370,6 +115674,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 6
+  gridZ: 6
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -117606,6 +117913,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 5
+  gridZ: 7
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -117807,6 +118117,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 13
+  gridZ: 13
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -119905,6 +120218,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 10
+  gridZ: 1
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -120332,6 +120648,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 12
+  gridZ: 1
+  gridLayer: 4
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -122224,6 +122543,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 0
+  gridZ: 0
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -124201,6 +124523,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 10
+  gridZ: 7
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -124323,6 +124648,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 4
+  gridZ: 4
+  gridLayer: 2
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -125194,7 +125522,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &983314782
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -125208,9 +125536,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterActionManager
   startDelay: 0.2
+  noActionHoldDuration: 2
   actionSequence:
   - action: {fileID: 983314785}
   - action: {fileID: 983314783}
+  autoCreateCombatPlanner: 1
 --- !u!114 &983314783
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -125224,15 +125554,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackAction
   postActionDelay: 0.5
+  attackDamage: 1
+  rangeType: 2
+  attackRange: 1
+  targetSelectMode: 0
   gridManager: {fileID: 1996419300}
   visualManager: {fileID: 0}
+  attackGridStyle: {fileID: 11400000, guid: 0b45acbeab0cb6a4db5f7f7f1a570c25, type: 2}
   monsterAnimator: {fileID: 1232584861}
   attackTriggerName: Tear
-  attackGridStyle: {fileID: 11400000, guid: 0b45acbeab0cb6a4db5f7f7f1a570c25, type: 2}
   targetWarningDuration: 0.05
   targetConfirmedDuration: 0.3
-  hitDelayFallback: 0.35
-  postAttackDuration: 0.25
+  damageApplyDelay: 0.35
+  postDamageDelay: 0.25
   counterCardPresentationDelay: 0.4
 --- !u!4 &983314784
 Transform:
@@ -125287,8 +125621,7 @@ MonoBehaviour:
   currentHp: 0
   currentArmor: 0
   mobility: 2
-  attackRange: 1
-  attackDamage: 8
+  attackBuff: 0
 --- !u!114 &983314787
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -125641,6 +125974,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 4
+  gridZ: 5
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -126321,6 +126657,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 10
+  gridZ: 2
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -128352,6 +128691,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 9
+  gridZ: 0
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -128702,6 +129044,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 8
+  gridZ: 2
+  gridLayer: 4
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -131431,6 +131776,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 1
+  gridZ: 12
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -133609,6 +133957,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 3
+  gridZ: 10
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -134018,6 +134369,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 4
+  gridZ: 0
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -134144,6 +134498,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 10
+  gridZ: 6
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -134962,6 +135319,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 5
+  gridZ: 3
+  gridLayer: 3
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -135754,6 +136114,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 10
+  gridZ: 9
+  gridLayer: 2
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -136259,6 +136622,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 0
+  gridZ: 1
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -136634,6 +137000,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 6
+  gridZ: 7
+  gridLayer: 3
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -136838,6 +137207,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 8
+  gridZ: 12
+  gridLayer: 3
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -137005,6 +137377,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 4
+  gridZ: 12
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -137208,9 +137583,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterActionManager
   startDelay: 0.2
+  noActionHoldDuration: 2
   actionSequence:
   - action: {fileID: 1096482201}
   - action: {fileID: 1096482199}
+  autoCreateCombatPlanner: 1
 --- !u!114 &1096482199
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -137224,15 +137601,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackAction
   postActionDelay: 0.5
+  attackDamage: 1
+  rangeType: 2
+  attackRange: 1
+  targetSelectMode: 0
   gridManager: {fileID: 1996419300}
   visualManager: {fileID: 0}
+  attackGridStyle: {fileID: 11400000, guid: 0b45acbeab0cb6a4db5f7f7f1a570c25, type: 2}
   monsterAnimator: {fileID: 1048001019}
   attackTriggerName: Tear
-  attackGridStyle: {fileID: 11400000, guid: 0b45acbeab0cb6a4db5f7f7f1a570c25, type: 2}
   targetWarningDuration: 0.05
   targetConfirmedDuration: 0.3
-  hitDelayFallback: 0.35
-  postAttackDuration: 0.25
+  damageApplyDelay: 0.35
+  postDamageDelay: 0.25
   counterCardPresentationDelay: 0.4
 --- !u!4 &1096482200
 Transform:
@@ -137287,8 +137668,7 @@ MonoBehaviour:
   currentHp: 0
   currentArmor: 0
   mobility: 2
-  attackRange: 1
-  attackDamage: 8
+  attackBuff: 0
 --- !u!114 &1096482203
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -137787,6 +138167,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 4
+  gridZ: 1
+  gridLayer: 3
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -139216,6 +139599,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 6
+  gridZ: 2
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -140876,6 +141262,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 6
+  gridZ: 4
+  gridLayer: 3
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -141153,6 +141542,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 0
+  gridZ: 9
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -141302,6 +141694,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 2
+  gridZ: 10
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -142014,6 +142409,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 5
+  gridZ: 5
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -142864,6 +143262,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 6
+  gridZ: 3
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -143104,6 +143505,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 13
+  gridZ: 7
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -143675,6 +144079,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 12
+  gridZ: 4
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -144359,6 +144766,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 6
+  gridZ: 3
+  gridLayer: 3
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -145151,6 +145561,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 0
+  gridZ: 2
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -146713,6 +147126,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 12
+  gridZ: 14
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -147031,6 +147447,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 0
+  gridZ: 10
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -147382,6 +147801,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 3
+  gridZ: 7
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -148652,6 +149074,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 11
+  gridZ: 5
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -149341,6 +149766,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 11
+  gridZ: 1
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -149833,6 +150261,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 7
+  gridZ: 11
+  gridLayer: 3
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -151015,6 +151446,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 7
+  gridZ: 7
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -151652,6 +152086,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 6
+  gridZ: 7
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -152196,6 +152633,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 8
+  gridZ: 1
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -153480,6 +153920,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 3
+  gridZ: 6
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -154546,6 +154989,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 1
+  gridZ: 11
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -157770,6 +158216,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 8
+  gridZ: 9
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -157974,6 +158423,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 7
+  gridZ: 1
+  gridLayer: 4
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -158521,6 +158973,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 12
+  gridZ: 10
+  gridLayer: 3
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -164012,6 +164467,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 2
+  gridZ: 8
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -166414,6 +166872,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 13
+  gridZ: 12
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -167034,6 +167495,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 7
+  gridZ: 2
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -167314,6 +167778,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 6
+  gridZ: 4
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -169527,6 +169994,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 10
+  gridZ: 14
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -172028,6 +172498,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 4
+  gridZ: 7
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -177386,6 +177859,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 7
+  gridZ: 14
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -178735,6 +179211,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 9
+  gridZ: 2
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -179282,6 +179761,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 10
+  gridZ: 13
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -181357,6 +181839,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 3
+  gridZ: 2
+  gridLayer: 2
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -182229,6 +182714,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 5
+  gridZ: 1
+  gridLayer: 4
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -182789,6 +183277,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 6
+  gridZ: 9
+  gridLayer: 3
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -183326,6 +183817,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 4
+  gridZ: 6
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -185084,6 +185578,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 12
+  gridZ: 8
+  gridLayer: 2
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -185827,6 +186324,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 5
+  gridZ: 13
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -186641,6 +187141,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 11
+  gridZ: 3
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -187963,6 +188466,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 9
+  gridZ: 6
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -188130,6 +188636,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 2
+  gridZ: 13
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -188252,6 +188761,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 6
+  gridZ: 2
+  gridLayer: 4
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -189089,6 +189601,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 5
+  gridZ: 8
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -189211,6 +189726,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 9
+  gridZ: 2
+  gridLayer: 4
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -189570,6 +190088,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 13
+  gridZ: 4
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -194769,6 +195290,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 10
+  gridZ: 1
+  gridLayer: 4
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -196706,6 +197230,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 3
+  gridZ: 0
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -198496,6 +199023,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 13
+  gridZ: 14
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -202615,6 +203145,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 1
+  gridZ: 6
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -203432,6 +203965,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 5
+  gridZ: 9
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -204655,6 +205191,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 7
+  gridZ: 1
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -204973,6 +205512,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 7
+  gridZ: 8
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -205291,6 +205833,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 9
+  gridZ: 3
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -207136,6 +207681,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 13
+  gridZ: 3
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -207564,6 +208112,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 5
+  gridZ: 11
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -210646,6 +211197,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 13
+  gridZ: 6
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -211676,6 +212230,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 7
+  gridZ: 6
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -213412,6 +213969,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 9
+  gridZ: 12
+  gridLayer: 3
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -213763,6 +214323,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 3
+  gridZ: 8
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -215016,6 +215579,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 5
+  gridZ: 10
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -215183,6 +215749,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 4
+  gridZ: 10
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -215305,6 +215874,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 12
+  gridZ: 12
+  gridLayer: 4
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -215746,6 +216318,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 10
+  gridZ: 0
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -217966,6 +218541,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 10
+  gridZ: 3
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -218781,6 +219359,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 4
+  gridZ: 11
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -219817,6 +220398,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 11
+  gridZ: 10
+  gridLayer: 2
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -221055,6 +221639,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 12
+  gridZ: 5
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -221355,6 +221942,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 1
+  gridZ: 7
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -221892,6 +222482,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 12
+  gridZ: 13
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -222223,6 +222816,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 5
+  gridZ: 14
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -222496,6 +223092,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 1
+  gridZ: 9
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -223676,6 +224275,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 10
+  gridZ: 12
+  gridLayer: 3
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -223843,6 +224445,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 0
+  gridZ: 11
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -224466,6 +225071,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 6
+  gridZ: 0
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -225058,6 +225666,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 8
+  gridZ: 10
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -228590,6 +229201,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 0
+  gridZ: 3
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -229333,6 +229947,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 8
+  gridZ: 4
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -229953,6 +230570,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 9
+  gridZ: 5
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -230837,6 +231457,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 10
+  gridZ: 4
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -233671,6 +234294,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 12
+  gridZ: 0
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -236644,6 +237270,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 3
+  gridZ: 13
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -237650,6 +238279,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 10
+  gridZ: 10
+  gridLayer: 2
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -240963,6 +241595,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 6
+  gridZ: 8
+  gridLayer: 3
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -241212,6 +241847,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 4
+  gridZ: 8
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -242056,6 +242694,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 11
+  gridZ: 6
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -242209,6 +242850,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 8
+  gridZ: 14
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -242283,8 +242927,7 @@ MonoBehaviour:
   currentHp: 0
   currentArmor: 0
   mobility: 0
-  attackRange: 0
-  attackDamage: 0
+  attackBuff: 0
 --- !u!4 &1916660037
 Transform:
   m_ObjectHideFlags: 0
@@ -242573,6 +243216,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 6
+  gridZ: 9
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -242846,6 +243492,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 7
+  gridZ: 12
+  gridLayer: 3
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -244738,6 +245387,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 6
+  gridZ: 5
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -244983,6 +245635,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 4
+  gridZ: 3
+  gridLayer: 2
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -245031,9 +245686,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterActionManager
   startDelay: 0.2
+  noActionHoldDuration: 2
   actionSequence:
   - action: {fileID: 1949179983}
   - action: {fileID: 1949179981}
+  autoCreateCombatPlanner: 1
 --- !u!114 &1949179981
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -245047,15 +245704,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackAction
   postActionDelay: 0.5
+  attackDamage: 1
+  rangeType: 2
+  attackRange: 1
+  targetSelectMode: 0
   gridManager: {fileID: 1996419300}
   visualManager: {fileID: 0}
+  attackGridStyle: {fileID: 11400000, guid: 0b45acbeab0cb6a4db5f7f7f1a570c25, type: 2}
   monsterAnimator: {fileID: 176702011}
   attackTriggerName: Tear
-  attackGridStyle: {fileID: 11400000, guid: 0b45acbeab0cb6a4db5f7f7f1a570c25, type: 2}
   targetWarningDuration: 0.05
   targetConfirmedDuration: 0.3
-  hitDelayFallback: 0.35
-  postAttackDuration: 0.25
+  damageApplyDelay: 0.35
+  postDamageDelay: 0.25
   counterCardPresentationDelay: 0.4
 --- !u!4 &1949179982
 Transform:
@@ -245110,8 +245771,7 @@ MonoBehaviour:
   currentHp: 0
   currentArmor: 0
   mobility: 2
-  attackRange: 1
-  attackDamage: 8
+  attackBuff: 0
 --- !u!114 &1949179985
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -246200,6 +246860,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 6
+  gridZ: 11
+  gridLayer: 3
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -246473,6 +247136,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 1
+  gridZ: 10
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -246750,6 +247416,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 9
+  gridZ: 14
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -247246,6 +247915,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 8
+  gridZ: 6
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -247676,6 +248348,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 8
+  gridZ: 13
+  gridLayer: 3
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -248298,6 +248973,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 3
+  gridZ: 1
+  gridLayer: 2
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -248420,6 +249098,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 11
+  gridZ: 9
+  gridLayer: 2
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -248772,6 +249453,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 5
+  gridZ: 0
+  gridLayer: 1
   accessState: 3
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -249027,6 +249711,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 7
+  gridZ: 3
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -249304,6 +249991,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 8
+  gridZ: 8
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -249457,6 +250147,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 7
+  gridZ: 4
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -251083,6 +251776,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 2
+  gridZ: 5
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -251488,6 +252184,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 9
+  gridZ: 13
+  gridLayer: 3
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -253956,6 +254655,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 3
+  gridZ: 11
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -256824,6 +257526,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 2
+  gridZ: 9
+  gridLayer: 1
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -257895,6 +258600,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 11
+  gridZ: 12
+  gridLayer: 4
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -258168,6 +258876,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 5
+  gridZ: 4
+  gridLayer: 3
   accessState: 0
   legacyIsLocked: 0
   accessStateMigrated: 1
@@ -263041,6 +263752,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36788efa9b11764ab1cbce6cbdfd00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellManager
+  gridX: 4
+  gridZ: 9
+  gridLayer: 1
   accessState: 2
   legacyIsLocked: 0
   accessStateMigrated: 1

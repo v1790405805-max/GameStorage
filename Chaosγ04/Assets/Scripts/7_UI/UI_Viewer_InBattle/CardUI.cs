@@ -672,7 +672,13 @@ public class CardUI : MonoBehaviour,
         Vector2Int targetGrid = moveController != null
             ? moveController.PlayerGridPos
             : new Vector2Int(-1, -1);
-        return CardEffectCore.CanPlayAll(currentCardData, targetGrid);
+        CellManager playerCell = moveController != null
+            ? moveController.PlayerOccupiedCell
+            : null;
+        CardTarget target = playerCell != null
+            ? CardTarget.FromCell(playerCell)
+            : CardTarget.FromGrid(FindFirstObjectByType<GridManager>(), targetGrid);
+        return CardEffectCore.CanPlayAll(currentCardData, target);
     }
 
     private void HandleActionPointCountChanged(int usedActionPointCount)
