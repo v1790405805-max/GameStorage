@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Mat_Holo_Border_Glow
+  m_Name: Mat_Holo_Border_Blue
   m_Shader: {fileID: 4800000, guid: 2ca29fd72f66f68439832e9f36495356, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0

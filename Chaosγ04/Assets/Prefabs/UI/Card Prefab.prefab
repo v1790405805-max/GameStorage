@@ -95,8 +95,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 2100000, guid: 419f06593cb23f24ba487ac2f0acd137, type: 2}
-  m_Color: {r: 0.509434, g: 0.509434, b: 0.509434, a: 1}
+  m_Material: {fileID: 2100000, guid: 1c6a17152b285184594544ab83848fc0, type: 2}
+  m_Color: {r: 0.5471698, g: 0.5471698, b: 0.5471698, a: 0.78431374}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -178,11 +178,11 @@ MonoBehaviour:
   - {fileID: 218378255886671346}
   cardTypeTexts: []
   preserveAlpha: 1
-  attackColor: {r: 0.40251565, g: 0.21138398, b: 0.21138398, a: 1}
-  skillColor: {r: 0.04242311, g: 0.19416748, b: 0.34591186, a: 1}
-  movementColor: {r: 0.0324354, g: 0.24503456, b: 0.25157225, a: 1}
-  specialColor: {r: 0.1805764, g: 0.047407117, b: 0.3207547, a: 1}
-  abilityColor: {r: 0.2264151, g: 0.16057253, b: 0.012103936, a: 1}
+  attackColor: {r: 0.23899364, g: 0.20817998, b: 0.20817998, a: 1}
+  skillColor: {r: 0.16959372, g: 0.19595826, b: 0.22012573, a: 1}
+  movementColor: {r: 0.18155926, g: 0.22481309, b: 0.2264151, a: 1}
+  specialColor: {r: 0.26069942, g: 0.22774015, b: 0.29559743, a: 1}
+  abilityColor: {r: 0.23899364, g: 0.22296508, b: 0.18713652, a: 1}
   defaultTypeColor: {r: 1, g: 1, b: 1, a: 1}
   highlightBorderImage: {fileID: 2406112151920336606}
   affordableColor: {r: 0.2, g: 1, b: 0.2, a: 0.39215687}
@@ -252,7 +252,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.11764706, g: 0.14509805, b: 0.1882353, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.9411765}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -326,8 +326,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 2100000, guid: b2472d89e9d90094f9bce45c6a49e13c, type: 2}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.9019608}
+  m_Material: {fileID: 2100000, guid: 943f3dd06ac7afe42b6870dc19bcbc24, type: 2}
+  m_Color: {r: 0.28792363, g: 0.32823372, b: 0.36477977, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -411,15 +411,15 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\u540D\u79F0\u56DB\u5B57"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 10c74af2e4922c849ab12f0816568cdd, type: 2}
-  m_sharedMaterial: {fileID: -1252870000079027837, guid: 10c74af2e4922c849ab12f0816568cdd, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 055c3c2ce624f2848abd7a13db39b9a7, type: 2}
+  m_sharedMaterial: {fileID: -7177946202129927582, guid: 055c3c2ce624f2848abd7a13db39b9a7, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4279769112
-  m_fontColor: {r: 0.09433961, g: 0.09433961, b: 0.09433961, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -539,7 +539,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.89251375, b: 0, a: 0.9019608}
+  m_Color: {r: 1, g: 0.9497225, b: 0.5251572, a: 0.9019608}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -698,8 +698,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 2
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 10c74af2e4922c849ab12f0816568cdd, type: 2}
-  m_sharedMaterial: {fileID: -1252870000079027837, guid: 10c74af2e4922c849ab12f0816568cdd, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 055c3c2ce624f2848abd7a13db39b9a7, type: 2}
+  m_sharedMaterial: {fileID: -7177946202129927582, guid: 055c3c2ce624f2848abd7a13db39b9a7, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -825,8 +825,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 2100000, guid: 419f06593cb23f24ba487ac2f0acd137, type: 2}
-  m_Color: {r: 0.7316759, g: 0.89281625, b: 0.9496855, a: 1}
+  m_Material: {fileID: 2100000, guid: 1c6a17152b285184594544ab83848fc0, type: 2}
+  m_Color: {r: 0.54901963, g: 0.54901963, b: 0.54901963, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -901,7 +901,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.46265963, g: 0.8116996, b: 0.93710685, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -986,8 +986,8 @@ MonoBehaviour:
   m_text: "\u521D\u59CB <b><color=#33FFCC>2</color></b> \u683C\uFF0C\u5728\u8303\u56F4\u5185\u53EF\u4EE5\u9009\u62E9\u843D\u70B9\uFF0C\u53EF\u4EE5\u7FFB\u8D8A
     <b><color=#33FFCC>2</color></b> \u683C\u9AD8\u7684\u77EE\u5899"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 10c74af2e4922c849ab12f0816568cdd, type: 2}
-  m_sharedMaterial: {fileID: -1252870000079027837, guid: 10c74af2e4922c849ab12f0816568cdd, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 714e6ed8e38437747823779a18ae4cbe, type: 2}
+  m_sharedMaterial: {fileID: 4072884669415700624, guid: 714e6ed8e38437747823779a18ae4cbe, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

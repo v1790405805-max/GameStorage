@@ -382,7 +382,7 @@ public class TurnManager : MonoBehaviour
     {
         if (turnCounterText != null)
         {
-            turnCounterText.text = $"回合 {currentRoundCount}";
+            turnCounterText.text = $"{currentRoundCount}";
         }
     }
 }

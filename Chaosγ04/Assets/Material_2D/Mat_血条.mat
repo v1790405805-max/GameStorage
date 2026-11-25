@@ -32,7 +32,7 @@ Material:
     - _ColorMask: 15
     - _DstBlend: 1
     - _GlintAngle: 0
-    - _GlintSpeed: 0.2
+    - _GlintSpeed: 0
     - _GlintWidth: 0.1
     - _ScanlineDensity: 500
     - _ScanlineSpeed: 1.5
