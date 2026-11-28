@@ -285808,7 +285808,7 @@ MonoBehaviour:
   exhaustPile: []
   specialCards: []
   handUIContainer: {fileID: 858182729}
-  cardPrefab: {fileID: 3239908572424029979, guid: 533207874933f8a438f5a4b866c6aa5e, type: 3}
+  cardPrefab: {fileID: 3239908572424029979, guid: fc6899f3cfcb51241bc29f24d71dfb56, type: 3}
   cardSpawnScale: 1
   cardHeightOffset: 0
   playStartGrid: {x: -1, y: -1}
